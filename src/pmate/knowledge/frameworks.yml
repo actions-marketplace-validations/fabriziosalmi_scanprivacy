@@ -1,0 +1,323 @@
+# Which role closes a finding, and which control it speaks to.
+#
+# Language-neutral by construction: owners are canonical values from
+# `core.enums.Owner`, controls are reference keys resolved through the locale
+# catalogues. A German report cites the same controls in German without this
+# file changing.
+#
+# WARNING, carried into every report: these mappings say a finding is pertinent
+# to a control. They do not attest conformity to the scheme — closing a finding
+# contributes to a control, it does not satisfy it.
+#
+# Fields per rule
+#   owner             role holding the lever to close it (Owner enum)
+#   secondary_owners  who must be involved
+#   domains           technical areas, used to group work across findings
+#   controls          reference keys, grouped by framework
+
+defaults:
+  owner: cto
+  secondary_owners: []
+  domains: [web]
+  controls: {}
+
+rules:
+  PM-TRF-01:
+    owner: dpo
+    secondary_owners: [cto, procurement]
+    domains: [privacy-engineering, third-parties, supply-chain]
+    controls:
+      gdpr: [gdpr:13.1.f, gdpr:28, gdpr:44]
+      nis2: [nis2:21.2.d]
+      iso_27001: [iso27001:A.5.14, iso27001:A.5.19]
+      iso_27701: [iso27701:7.5.1, iso27701:7.2.6]
+      soc2: [soc2:P6.1, soc2:CC9.2]
+
+  PM-TRF-02:
+    owner: dpo
+    secondary_owners: [sysops, procurement]
+    domains: [privacy-engineering, infrastructure, supply-chain]
+    controls:
+      gdpr: [gdpr:13.1.e, gdpr:28, gdpr:44]
+      nis2: [nis2:21.2.d]
+      iso_27001: [iso27001:A.5.19, iso27001:A.5.21]
+      iso_27701: [iso27701:7.2.6, iso27701:7.5.1]
+      soc2: [soc2:CC9.2]
+
+  PM-DIS-01:
+    owner: dpo
+    secondary_owners: [legal, cto]
+    domains: [privacy-engineering, governance]
+    controls:
+      gdpr: [gdpr:5.1.a, gdpr:13.1.e, gdpr:30]
+      iso_27001: [iso27001:A.5.34, iso27001:A.5.31]
+      iso_27701: [iso27701:7.3.2, iso27701:7.2.8]
+      soc2: [soc2:P1.1, soc2:P6.1]
+
+  PM-CNS-01:
+    owner: dpo
+    secondary_owners: [cto]
+    domains: [privacy-engineering, consent, web]
+    controls:
+      gdpr: [gdpr:6.1.a, gdpr:7]
+      eprivacy: [eprivacy:5.3, it:privacy-code:122]
+      iso_27701: [iso27701:7.2.3, iso27701:7.3.1]
+      soc2: [soc2:P3.1]
+
+  PM-CNS-02:
+    owner: dpo
+    secondary_owners: [cto, legal]
+    domains: [privacy-engineering, consent]
+    controls:
+      gdpr: [gdpr:6, gdpr:7]
+      eprivacy: [eprivacy:5.3, it:privacy-code:122]
+      iso_27701: [iso27701:7.2.3, iso27701:7.2.2]
+      soc2: [soc2:P3.1]
+
+  PM-CNS-03:
+    owner: dpo
+    secondary_owners: [cto]
+    domains: [privacy-engineering, consent, web]
+    controls:
+      gdpr: [gdpr:7.1, gdpr:25]
+      eprivacy: [eprivacy:5.3, it:privacy-code:122]
+      iso_27701: [iso27701:7.2.3, iso27701:7.3.5]
+      soc2: [soc2:P3.1, soc2:P3.2]
+
+  PM-COK-01:
+    owner: cto
+    secondary_owners: [dpo]
+    domains: [web, consent]
+    controls:
+      eprivacy: [eprivacy:5.3, it:privacy-code:122]
+      gdpr: [gdpr:6.1.a]
+      iso_27701: [iso27701:7.2.3]
+
+  PM-COK-02:
+    owner: cto
+    secondary_owners: [dpo]
+    domains: [web, inventory]
+    controls:
+      gdpr: [gdpr:13, gdpr:30]
+      eprivacy: [it:privacy-code:122]
+      iso_27001: [iso27001:A.5.9]
+
+  PM-COK-03:
+    owner: cto
+    secondary_owners: [security]
+    domains: [web, application-security]
+    controls:
+      gdpr: [gdpr:32]
+      nis2: [nis2:21.2.e]
+      iso_27001: [iso27001:A.8.9, iso27001:A.8.24]
+      soc2: [soc2:CC6.7]
+
+  PM-COK-04:
+    owner: cto
+    secondary_owners: [security]
+    domains: [web, application-security]
+    controls:
+      gdpr: [gdpr:32, gdpr:5.1.c]
+      iso_27001: [iso27001:A.8.9]
+      soc2: [soc2:CC6.7]
+
+  PM-STO-01:
+    owner: cto
+    secondary_owners: [dpo]
+    domains: [web, consent]
+    controls:
+      eprivacy: [eprivacy:5.3, it:privacy-code:122]
+      gdpr: [gdpr:6.1.a]
+      iso_27701: [iso27701:7.2.3]
+
+  PM-STO-02:
+    owner: cto
+    secondary_owners: [dpo]
+    domains: [web, inventory]
+    controls:
+      eprivacy: [eprivacy:5.3]
+      gdpr: [gdpr:13, gdpr:30]
+      iso_27001: [iso27001:A.5.9]
+
+  PM-DOC-01:
+    owner: dpo
+    secondary_owners: [legal]
+    domains: [governance, documentation]
+    controls:
+      gdpr: [gdpr:12, gdpr:13]
+      iso_27001: [iso27001:A.5.31, iso27001:A.5.34]
+      iso_27701: [iso27701:7.3.2]
+      soc2: [soc2:P1.1]
+      agid: [it:agid:transparency]
+
+  PM-DOC-02:
+    owner: dpo
+    secondary_owners: [legal]
+    domains: [governance, documentation]
+    controls:
+      gdpr: [gdpr:13]
+      iso_27701: [iso27701:7.3.2, iso27701:7.3.3]
+      soc2: [soc2:P1.1]
+
+  PM-DOC-03:
+    owner: dpo
+    secondary_owners: [cto]
+    domains: [governance, documentation, consent]
+    controls:
+      eprivacy: [it:privacy-code:122]
+      gdpr: [gdpr:13]
+      iso_27701: [iso27701:7.3.2]
+
+  PM-SEC-01:
+    owner: sysops
+    secondary_owners: [security]
+    domains: [infrastructure, application-security, tls]
+    controls:
+      gdpr: [gdpr:32]
+      nis2: [nis2:21.2.h, nis2:21.2.e]
+      iso_27001: [iso27001:A.8.24, iso27001:A.8.9]
+      soc2: [soc2:CC6.7]
+      agid: [it:agid:comms-protection]
+
+  PM-SEC-02:
+    owner: sysops
+    secondary_owners: [dpo]
+    domains: [infrastructure, privacy-engineering]
+    controls:
+      gdpr: [gdpr:5.1.c, gdpr:32]
+      nis2: [nis2:21.2.e]
+      iso_27001: [iso27001:A.8.9, iso27001:A.8.23]
+
+  PM-SEC-03:
+    owner: security
+    secondary_owners: [cto]
+    domains: [application-security, supply-chain]
+    controls:
+      gdpr: [gdpr:25, gdpr:32]
+      nis2: [nis2:21.2.e, nis2:21.2.d]
+      iso_27001: [iso27001:A.8.23, iso27001:A.8.26, iso27001:A.8.28]
+      soc2: [soc2:CC6.6, soc2:CC7.1]
+
+  PM-FRM-01:
+    owner: cto
+    secondary_owners: [dpo, procurement]
+    domains: [web, third-parties, supply-chain]
+    controls:
+      gdpr: [gdpr:13, gdpr:28, gdpr:44]
+      nis2: [nis2:21.2.d]
+      iso_27001: [iso27001:A.5.14, iso27001:A.5.19]
+      iso_27701: [iso27701:7.2.6]
+
+  PM-AI-01:
+    owner: dpo
+    secondary_owners: [cto, legal]
+    domains: [ai-governance, transparency]
+    controls:
+      ai_act: [ai-act:50]
+      gdpr: [gdpr:13, gdpr:22]
+      iso_27001: [iso27001:A.5.34]
+      soc2: [soc2:P1.1]
+
+  PM-IAM-01:
+    owner: cto
+    secondary_owners: [security]
+    domains: [identity, session, application-security]
+    controls:
+      gdpr: [gdpr:32]
+      nis2: [nis2:21.2.e]
+      iso_27001: [iso27001:A.8.9, iso27001:A.8.26]
+      soc2: [soc2:CC6.6]
+
+  PM-IAM-02:
+    owner: cto
+    secondary_owners: [security]
+    domains: [identity, session, application-security]
+    controls:
+      gdpr: [gdpr:32]
+      nis2: [nis2:21.2.h]
+      iso_27001: [iso27001:A.8.24, iso27001:A.8.9]
+      soc2: [soc2:CC6.7]
+
+  PM-IAM-03:
+    owner: sysops
+    secondary_owners: [security, cto]
+    domains: [identity, credentials, infrastructure, tls]
+    controls:
+      gdpr: [gdpr:32]
+      nis2: [nis2:21.2.h]
+      iso_27001: [iso27001:A.8.24]
+      soc2: [soc2:CC6.7]
+      agid: [it:agid:comms-protection]
+
+  PM-IAM-04:
+    owner: security
+    secondary_owners: [cto, dpo, procurement]
+    domains: [identity, credentials, third-parties, supply-chain]
+    controls:
+      gdpr: [gdpr:28, gdpr:32, gdpr:44]
+      nis2: [nis2:21.2.d]
+      iso_27001: [iso27001:A.5.14, iso27001:A.5.19]
+      iso_27701: [iso27701:7.2.6]
+
+  PM-IAM-05:
+    owner: security
+    secondary_owners: [cto]
+    domains: [identity, credentials, application-security]
+    controls:
+      gdpr: [gdpr:32]
+      nis2: [nis2:21.2.e]
+      iso_27001: [iso27001:A.8.26, iso27001:A.8.28]
+      soc2: [soc2:CC6.6]
+
+  PM-REJ-01:
+    owner: dpo
+    secondary_owners: [cto]
+    domains: [privacy-engineering, consent, web]
+    controls:
+      gdpr: [gdpr:7, gdpr:7.1, gdpr:6.1.a]
+      eprivacy: [eprivacy:5.3, it:privacy-code:122]
+      iso_27701: [iso27701:7.2.3, iso27701:7.3.5]
+      soc2: [soc2:P3.1]
+
+  PM-REJ-02:
+    owner: cto
+    secondary_owners: [dpo]
+    domains: [web, consent]
+    controls:
+      eprivacy: [eprivacy:5.3, it:privacy-code:122]
+      gdpr: [gdpr:7.1]
+      iso_27701: [iso27701:7.2.3]
+
+  PM-REJ-03:
+    owner: cto
+    secondary_owners: [dpo]
+    domains: [web, consent, storage]
+    controls:
+      eprivacy: [eprivacy:5.3, it:privacy-code:122]
+      gdpr: [gdpr:7.1]
+      iso_27701: [iso27701:7.2.3]
+
+  PM-REJ-04:
+    owner: dpo
+    secondary_owners: [cto]
+    domains: [consent, method]
+    controls:
+      eprivacy: [eprivacy:5.3]
+      gdpr: [gdpr:7]
+
+  PM-DPIA-01:
+    owner: dpo
+    secondary_owners: [legal, cto]
+    domains: [governance, privacy-engineering]
+    controls:
+      gdpr: [gdpr:35, gdpr:35.7, gdpr:30]
+      iso_27701: [iso27701:7.2.5, iso27701:7.2.8]
+      soc2: [soc2:P1.1]
+
+  PM-COST-01:
+    owner: sysops
+    secondary_owners: [procurement]
+    domains: [infrastructure, tls, cost]
+    controls:
+      iso_27001: [iso27001:A.8.24, iso27001:A.5.23]
+      agid: [it:agid:economy, it:const:97, it:law-241:1]

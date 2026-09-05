@@ -1,0 +1,26 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# `pass: refusal` — this rule belongs to the refusal pass, an opt-in mode that
+# interacts with the consent mechanism. It never fires in a passive scan.
+id: PM-REJ-03
+severity: high
+confidence: certain
+subject: storage
+tags:
+- consent
+- storage
+- refusal
+pass: refusal
+references:
+- eprivacy:5.3
+- it:privacy-code:122
+condition:
+  refusal_performed: true
+  storage_class_any:
+  - tracking
+remediation:
+  source: rule
+  effort: medium

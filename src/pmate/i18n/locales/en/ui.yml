@@ -1,0 +1,958 @@
+# English — source language. Every other locale falls back to this file key by
+# key, so this one must stay complete. Placeholders are `{name}` and are
+# substituted at render time; an unknown placeholder is left visible.
+
+enum:
+  Severity:
+    critical: Critical
+    high: High
+    medium: Medium
+    low: Low
+    info: Informational
+  Confidence:
+    certain: observed
+    probable: indicated
+  Effort:
+    low: low
+    medium: medium
+    high: high
+  Owner:
+    dpo: DPO / privacy
+    cto: Engineering
+    sysops: Infrastructure
+    security: Security
+    legal: Legal
+    procurement: Procurement
+  ConsentClass:
+    required: prior consent required
+    technical: strictly necessary
+    uncertain: arguable
+  TransferScope:
+    eea: EEA
+    adequacy: outside the EEA, adequacy decision
+    non_eea: outside the EEA
+  DataClass:
+    tracking: tracking
+    functional: functional
+    unknown: unclassified
+  VendorCategory:
+    identity: identity provider
+    analytics: analytics
+    ads: advertising
+    fonts: web fonts
+    cdn: content delivery
+    tag_manager: tag manager
+    captcha: anti-abuse
+    embed: embedded content
+    social: social
+    maps: maps
+    media: media
+    chat: live chat
+    forms: forms
+    payments: payments
+    consent: consent management
+    email: email marketing
+    infra: infrastructure
+    security: security
+  Detection:
+    request: observed request
+    header: response header
+  FindingStatus:
+    open: open
+    in_progress: in progress
+    resolved: resolved
+    accepted_risk: risk accepted
+  Grade:
+    A: A
+    B: B
+    C: C
+    D: D
+    F: F
+    INCONCLUSIVE: INCONCLUSIVE
+  ScanStatus:
+    ok: completed
+    unreachable: target unreachable
+    robots_skip: skipped, disallowed by robots.txt
+    error: failed
+  DocumentKind:
+    privacy: privacy notice
+    cookie: cookie policy
+    terms: legal notice
+    accessibility: accessibility statement
+  DataType:
+    identity_attributes: identity attributes (name, email, role)
+    account_identifier: account identifier
+    authentication_events: authentication events
+    ip: IP address
+    user_agent: user agent
+    referer: referring page
+    page_viewed: page viewed
+    client_id: client identifier
+    browsing_history: browsing history
+    session_recording: session recording
+    mouse_movements: mouse movements
+    fingerprinting: device fingerprinting signals
+    ad_identifiers: advertising identifiers
+    inferred_interests: inferred interests
+    email: email address
+    form_answers: form answers
+    conversations: conversation content
+    consent_proof: proof of consent
+    approximate_location: approximate location
+    requested_location: requested location
+    antifraud_signals: anti-fraud signals
+    device_identifiers: device identifiers
+    request_metadata: request metadata
+    aggregated_metrics: aggregated metrics
+    videos_watched: videos watched
+    open_rate: message open rate
+    comments: comments
+    email_hash: hashed email address
+    visitor_id: visitor identifier
+
+report:
+  title: Privacy assessment — {domain}
+  document_title: "Privacy assessment — {domain}"
+  description: >
+    Passive privacy conformance assessment of {domain} — findings, full evidence
+    and reproducibility record.
+  subtitle_observed: "Passive observation of the public page · {timestamp} UTC"
+  subtitle_url: "Page observed"
+  subtitle_scan: "Scan reference"
+  verdict_conformant: conformant on the points observed
+  verdict_not_conformant: not conformant on the points observed
+  footer: "privacymate · passive assessment · not legal advice"
+
+  headings:
+    pages: Pages observed
+    responsibility: Work by owner
+    index: Index of findings
+    findings: Findings in detail
+    no_findings: No findings on the page observed, with the method stated at the end of this document.
+    inventory: Recipients observed
+    evidence: Full evidence
+    requests: Requests observed on first load
+    cookies: Cookies present on first visit
+    storage: Terminal storage
+    headers: Main response headers
+    tls: TLS certificate
+    documents: Legal documents read
+    documents_attempted: Documents looked for and not available
+    reproducibility: Reproducibility
+    parameters: Observation parameters
+    rerun: How to re-run and how to check
+    rule_digests: Digests of the individual rules applied
+    method: Method and limits
+    snippets: Passages satisfying the elements recognised
+
+  labels:
+    not_declared: not declared
+    cookies_set: Cookies
+    requests_count: Requests
+    page_kind: Kind
+    severity: Severity
+    priority: Priority
+    findings_count: Findings
+    owner: Owner
+    secondary_owner: involve
+    confidence: confidence
+    identifier: Identifier
+    finding: Finding
+    of_which_serious: of which serious
+    quick_wins: quick wins
+    areas: Areas
+    legal_references: Legal references
+    control_mapping: Control mapping
+    evidence: Evidence observed
+    verification: How to check this yourself
+    remediation: "Remediation — {effort} effort"
+    alternatives: Alternatives
+    page_title: Page title
+    platform: Platform detected
+    third_parties: Third parties contacted
+    cookies_first_visit: Cookies on first visit
+    storage_keys: Terminal storage keys
+    consent_mechanism: Consent mechanism
+    documents_read: Legal documents read
+    evidence_digest: Evidence digest
+    ruleset_digest: Ruleset digest
+    none_detected: none detected
+    none: none
+    not_detected: not detected
+    "yes": "yes"
+    "no": "NO"
+    service: Service
+    entity: Legal entity
+    jurisdiction: Juris.
+    transfer: Transfer
+    consent: Consent
+    declared: Declared
+    time_ms: t (ms)
+    host: Host
+    type: Type
+    status: Status
+    path: Path
+    name: Name
+    domain: Domain
+    class: Class
+    secure: Secure
+    http_only: HttpOnly
+    same_site: SameSite
+    lifetime: Lifetime
+    session: session
+    persistent: persistent
+    size: Size
+    key: Key
+    url: URL
+    file: File
+    digest: SHA-256
+    issuer: Issuer
+    classification: Classification
+    valid_from: Valid from
+    valid_until: Valid until
+    days: "{n} days"
+    protocol: Protocol
+    fingerprint: SHA-256 fingerprint
+    extracted_text: Extracted text
+    characters: "{n} characters"
+    discovery: How it was found
+    outcome: Outcome
+    elements_present: "Art. 13 elements present"
+    elements_missing: Elements not recognised
+    vendors_named: Vendors named
+    vendors_negated: Named only to exclude them
+    engine: Engine
+    computed_on: Computed on
+    knowledge_digest: Knowledge base digest
+
+  legend:
+    requests_entry_only: >
+      The table below lists the requests of the entry page ({url}); the other pages are counted in the table above and detailed in the attached JSON.
+    pages: >
+      Pages are chosen deterministically — one per kind, then a leaf page, then the main navigation — so two scans of the same site remain comparable. Links are followed from the entry page only: a conformance check is not a crawl.
+    severity_priority: >
+      <strong>Severity</strong> is how much the finding weighs in legal terms.
+      <strong>Priority</strong> is the order in which to deal with it — severity
+      corrected for the effort required, so that a high finding fixable in ten
+      minutes comes before one that needs a supplier negotiation. P1 is the most
+      urgent, P5 the least.
+    owner: >
+      The owner is whoever holds the technical or organisational lever to close
+      the finding, not whoever is legally accountable for the processing.
+    inventory: >
+      Third parties that received data when the page loaded, in the shape a
+      record of processing activities (Art. 30 GDPR) and a supplier register
+      need them. "Declared" says whether the party is named in the legal
+      documents that were read.
+    requests: >
+      No user interaction took place. Time is measured from the start of
+      navigation: a request at t = 200 ms cannot follow a consent the user never
+      gave.
+    headers: >
+      Values are reproduced in full: they are evidence, and a truncated value
+      cannot be verified.
+    documents_attempted: >
+      Listed because they are part of the evidence: they show where the document
+      was looked for before concluding it is not reachable.
+    rule_digests: >
+      Appendix: lets a reader establish whether a rule changed between two
+      scans, and which one.
+    negated_vendors: >
+      Mentioned only in the negative ("we do not use…"): this does not count as
+      declaring a recipient.
+    reproducibility: >
+      This document can be derived again from scratch. The configuration
+      digests identify the rules and knowledge base that were applied: same
+      digests and same target means the same analysis was applied. The evidence
+      digest ties the report to the observation attached to it; it is not stable
+      across runs, because sites change — which is exactly what makes it possible
+      to prove that they did.
+    quick_wins: >
+      <strong>{n} low-effort fixes on high or critical findings.</strong> These
+      come first: {ids}.
+    truncated_requests: >
+      Showing {shown} of {total} requests; the complete list, with full URLs, is
+      in the attached JSON.
+    more_items: "(+{n} in the attached JSON)"
+    no_documents_read: "No legal document was read: see the list of attempts below."
+    no_third_parties: No third party was contacted on load.
+    no_cookies: No cookie was set on first visit.
+    no_storage: No write to terminal storage was observed.
+    unusable_document: reachable but not recognisable as a "{kind}" document
+
+  summary:
+    third_parties: >
+      On loading the page, with no interaction from the user, the site contacted
+      <strong>{n} third parties</strong>
+    third_parties_transfers: ", {n} of which process data outside the European Economic Area"
+    third_parties_transfers_all: ", all of which process data outside the European Economic Area"
+    third_parties_undeclared: "; <strong>{n} are not named</strong> in the published legal documents"
+    third_parties_none: >
+      No request to any third party was observed when the page loaded: the site
+      serves everything from its own domain.
+    storage_intro: Before any choice by the user the site has already set
+    cookies:
+      one: 1 cookie
+      other: "{n} cookies"
+    storage_keys:
+      one: 1 terminal storage key
+      other: "{n} terminal storage keys"
+    storage_join: " and "
+    storage_tracking:
+      one: ", 1 of which is attributable to tracking"
+      other: ", {n} of which are attributable to tracking"
+    storage_none: No cookie and no write to the terminal on first visit.
+    consent_missing: >
+      {n} of the services observed require prior consent, but no mechanism to
+      collect it was detected on the page.
+    consent_present: "A consent mechanism is present ({names})."
+    verdict: >
+      The overall outcome is <strong>{grade}</strong>: {total} findings, of which
+      {critical} critical and {high} high
+    verdict_quick: "; {n} can be closed with a low-effort fix"
+
+  posture_label:
+    method: Method
+    pages: Pages
+    interaction: Interaction
+    consent: Consent
+    extra_requests: Extra requests
+    intrusive_tests: Intrusive tests
+    robots: robots.txt
+    user_agent: User-Agent
+  posture:
+    pages:
+      one: only the page submitted, one page load per second per host
+      other: >
+        at most {n} pages of the same site, chosen deterministically, one page
+        load per second per host
+    method: only the public page indicated is loaded, with a headless browser
+    interaction: none — no clicks, no form submissions, no authentication
+    consent: >
+      no choice is expressed: what the site does to a visitor who has not yet
+      decided is what gets observed
+    extra_requests: only the legal documents linked from the page, one per kind
+    intrusive_tests: none — no fuzzing, no enumeration, no access to restricted areas
+    robots: honoured for every URL the engine requests
+    user_agent: "{ua}"
+
+  limits:
+    partial: >
+      Part of the observation did not complete: {probes}. What those reads would
+      have found is unknown, and this report does not treat it as absent. Repeat
+      the scan before drawing a conclusion from a silence in those areas.
+    title: Stated limits.
+    body: >
+      The observation covers a single page and a single visit: tools present
+      elsewhere do not show up, and two consecutive loads may differ. No consent
+      was expressed, so behaviour after acceptance is not verified. Art. 13
+      elements are recognised from the text: an unusual wording can escape
+      detection, which is why documentary findings carry "indicated" confidence.
+      The mapping to ISO, NIS2 and SOC 2 orients the work and does not attest
+      conformity to those schemes.
+    disclaimer: >
+      Assessment carried out by observing only the traffic generated by the
+      browser when loading public pages, with ordinarily available tools.
+      Independent technical research conducted in good faith: it is not legal
+      advice nor professional data protection consultancy.
+
+verification:
+  clean_window: >
+    Open a private browsing window (no pre-existing cookies, no extensions) and
+    the developer tools on the Network tab, with "preserve log" ticked.
+  closing: >
+    Every check must be done in a clean window: a pre-existing cookie or consent
+    changes what the site does and makes the comparison meaningless.
+  vendor_request:
+    - "{clean_window}"
+    - "Load {url} and do **not** interact with the page."
+    - "Filter requests by `{host}`: the request appears before any click."
+  vendor_request_sample: "Request observed during this assessment: `{url}`"
+  vendor_request_cli: >
+    From the command line the same fact shows up with: `curl -s {url} | grep -o {host} | sort -u` (this catches static inclusions; anything injected by a script is only visible on the Network tab).
+  vendor_header:
+    - "Run: `curl -sSI {url}` and read the response headers."
+    - >
+      The header that identifies the provider is reported in the evidence
+      (`server`, `cf-ray`, `x-github-request-id`, …).
+    - Compare with the list of processors in the privacy notice.
+  vendor_document: "Check whether the provider is named in {url} (text search in the page)."
+  cookie:
+    - "{clean_window}"
+    - "Load {url} without interacting."
+    - "Developer tools → Application → Cookies → `{domain}`: the cookie «{name}» is already there."
+    - "Alternatively, the headers: `curl -sSI {url} | grep -i set-cookie`."
+  storage:
+    - "{clean_window}"
+    - "Load {url} without interacting."
+    - "Developer tools → Application → {kind} → the key «{key}» is already written."
+    - "Or in the console: `Object.keys(localStorage)` and `Object.keys(sessionStorage)`."
+  form:
+    - "Open {url} and inspect the `<form>` element indicated in the evidence."
+    - "Its `action` attribute points to `{action}`."
+    - >
+      No submission was made during the observation: the finding concerns the
+      destination the form declares.
+  headers:
+    - "Run: `curl -sSI {url}`."
+    - >
+      Compare the headers present with those the finding expects (the complete
+      list of observed headers is in the evidence).
+  tls:
+    - >
+      Run: `openssl s_client -connect {host}:443 -servername {host} </dev/null 2>/dev/null |
+      openssl x509 -noout -issuer -dates -fingerprint -sha256`.
+    - Compare issuer and fingerprint with those in the TLS section of the evidence.
+  documents_found:
+    - "Open {url} and look in the text for the elements listed as missing."
+    - >
+      The document was read in full: the "legal documents" section reports its
+      URL, length and the SHA-256 digest of the extracted text, so the same
+      version can be compared.
+  documents_missing:
+    - "Look for a link to the privacy notice in {url}, footer included."
+    - >
+      Try the conventional paths: /privacy, /privacy-policy, /cookie-policy. The
+      list of paths attempted and their outcome is in the documents section of
+      the evidence.
+  consent:
+    - "{clean_window}"
+    - >
+      Load {url}: observe whether a choice mechanism appears and, at the same
+      time, which cookies and storage keys are already present before any choice.
+    - >
+      In the console: `typeof window.__tcfapi` — if it returns `undefined`, the
+      standard consent API is not exposed.
+  ai:
+    - "Open {url} and look for a visible notice about the automated nature of the component."
+    - Check the privacy notice for a section on the use of AI systems.
+
+evidence:
+  criteria_met: Criteria met on the observable surface
+  criteria_not_assessable: Criteria not assessable from outside
+  observed_signals: What was observed
+  has_password: Contains a password field
+  page: Page
+  first_seen_page: First seen on
+  pages: Pages that contacted it
+  detected_via: Detected via
+  reached_through: Reached through the embedded document
+  hosts: Hosts contacted
+  observed_requests: Requests observed
+  resource_types: Resource types
+  transfer: Transfer
+  transfer_basis: Basis for the transfer
+  declared_in: Named in the document
+  name: Name
+  domain: Domain
+  secure: Secure
+  http_only: HttpOnly
+  same_site: SameSite
+  session: Session cookie
+  classification: Classification
+  attributed_to: Attributed to
+  kind: Kind
+  key: Key
+  size: Size
+  action: Form action
+  method: Method
+  fields: Fields
+  privacy_checkbox: Privacy checkbox present
+  missing_elements: Missing elements
+  conditional_elements: Elements due only in certain cases
+  document: Document
+  consent_required_vendors: Services requiring consent
+  cmp_detected: Consent platform detected
+  issuer: Certificate issuer
+  expiry: Expiry
+  observed_headers: Headers observed
+  csp_report_only: Report-only policy served (enforces nothing)
+  legal_links_found: Legal links found
+  cookie_elements_present: Cookie-policy elements present
+  platform_constraint: Platform constraint
+
+record:
+  findings_digest_note: >
+    Covers the findings as published. The evidence digest above covers the
+    observation they were derived from; this one detects a document whose
+    findings were edited after the fact.
+  digest_note: Same digests and same target means the same analysis was applied.
+  evidence_digest_computed_on: canonical JSON of the "observation" block (sorted keys, no whitespace)
+  evidence_digest_note: >
+    Identifies this observation; it is not stable across runs, because sites
+    change. Its purpose is to tie the report to the attached evidence and to
+    reveal later modification.
+  rerun:
+    - pip install -e . && python -m playwright install chromium
+    - "pmate scan {url} --json evidence.json --md report.md --pdf report.pdf"
+    - "pmate verify evidence.json   # recomputes every digest in this section"
+    - >
+      Each individual finding also carries the steps to check it with a browser
+      and curl, without this tool.
+  parameters:
+    user_agent: user agent
+    wait_after_domcontentloaded_ms: wait after DOMContentLoaded (ms)
+    navigation_timeout_ms: navigation timeout (ms)
+    scan_budget_s: per-scan budget (s)
+    robots_respected: robots.txt honoured
+    max_documents: maximum documents read
+    max_requests_recorded: maximum requests recorded
+  engine:
+    engine: engine
+    python: python
+    system: system
+    playwright: playwright
+    browser: browser
+    weasyprint: weasyprint
+
+verdict:
+  conformant_note: No finding of critical or high severity on the page observed.
+  not_conformant_note: There are findings that require action before the site can be considered conformant.
+  inconclusive_note: "The site was not loaded: this outcome is not a favourable one."
+  inconclusive_blocking: observation failed — no finding can be ruled out
+  robots_skip: the site's robots.txt does not allow the declared user agent to read this URL
+
+cli:
+  scan_summary: "{url} -> {grade} ({n} findings)"
+  verify_evidence_intact: "evidence intact    : {value}"
+  verify_findings_intact: 'findings intact    : {value}'
+  verify_declared: "  declared         : {value}"
+  verify_recomputed: "  recomputed       : {value}"
+  verify_ruleset: "ruleset unchanged  : {value}"
+  verify_knowledge: "knowledge unchanged: {value}"
+  diff_header: "{target}  {before} → {after}  ({days} days)"
+  diff_resolved: "  resolved    : {n}"
+  diff_new: "  new         : {n}"
+  diff_persisting: "  persisting  : {n}"
+  diff_open_since: "  ! open for {days} days: {id}"
+
+remediation:
+  constraint:
+    github-pages: >
+      Not fixable on GitHub Pages: the platform serves a fixed set of response
+      headers and offers no way to add one. Either put a CDN or reverse proxy in
+      front of the site that can set headers (Cloudflare, Fastly, a Caddy or
+      nginx instance), or move the hosting somewhere that lets you configure
+      them. Everything below applies once you are somewhere a header can be set.
+  depends_on_vendor: >
+    The fix depends on which third party triggered this finding: each vendor in
+    the knowledge base names the pattern that applies to it.
+  depends_on_vendor_step: >
+    Look up the vendor — `pmate remediation <vendor-id>` — or one of the patterns
+    it may name: {patterns}.
+  unknown_third_party: Unidentified third party
+  transfer_basis:
+    dpf: EU–US Data Privacy Framework
+    scc: Standard Contractual Clauses
+    dpf_scc: EU–US Data Privacy Framework / Standard Contractual Clauses
+    adequacy: adequacy decision
+  pattern:
+    self_host_asset:
+      summary: Serve the asset from your own domain and drop the call to {product}.
+      steps:
+        - Download the file at the version currently in use and serve it from your own domain.
+        - Remove every reference to {hosts} from templates and stylesheets.
+        - Re-check in a clean window that the page no longer contacts {product} on load.
+    replace_with_eu_alternative:
+      summary: Replace {product} with an equivalent that does not export data, or gate it behind consent.
+      steps:
+        - Establish what {product} is actually used for, and whether a lighter tool covers it.
+        - Adopt one of the alternatives below, self-hosted or processed within the EEA.
+        - If {product} has to stay, load it only after explicit consent and declare the transfer in the notice.
+    remove_or_consent_gate:
+      summary: Remove {product}, or load it only after explicit consent.
+      steps:
+        - >
+          Establish whether {product} still serves an active purpose; if it does
+          not, removing it closes the finding permanently.
+        - >
+          If it stays, make the script conditional on consent — the request must
+          not leave the browser before the user chooses.
+        - Declare {vendor} among the recipients in the privacy notice, with purpose and transfer.
+    click_to_load:
+      summary: Replace the embed with a local preview that loads {product} only when the user asks for it.
+      steps:
+        - Replace the iframe or widget with a static preview served from your own domain.
+        - Load the third-party component only on an explicit click, and say what will happen.
+        - "Declare {vendor} in the notice: once loaded, the component receives the visitor's data."
+    declare_processor:
+      summary: "Necessary provider: nothing to remove, but it has to be declared."
+      steps:
+        - List {vendor} among the processors in the privacy notice, with the purpose it serves.
+        - State the transfer ({transfer}) and the basis relied on, and keep a copy available.
+        - Confirm the processing agreement under Art. 28 is signed and current.
+    scope_to_page:
+      summary: Load {product} only on the pages that actually need it.
+      steps:
+        - Remove {product} from the global layout; include it only where the function is used.
+        - Declare {vendor} in the notice, together with the purpose it serves.
+    verify_prior_blocking:
+      summary: "Consent platform: technical by nature, but it has to actually block."
+      steps:
+        - Enable automatic prior blocking in the platform's configuration.
+        - Verify in a clean window that no third-party request leaves before a choice is made.
+        - "Declare {vendor} in the notice: it processes the proof of consent."
+    session_replay:
+      summary: "Session recording: explicit prior consent, or removal."
+      steps:
+        - Remove {product} if the recordings are not being used for a defined purpose.
+        - "If it stays: explicit prior consent, automatic masking of input fields, a stated retention period."
+        - Declare {vendor} in the notice, stating what a recording contains.
+    identify_unknown:
+      summary: Identify what {product} is, decide whether it is needed, and declare it if it stays.
+      steps:
+        - Establish which component of the site loads {hosts} and what purpose it serves.
+        - If it is not needed, remove it; if it is, self-host the asset where possible.
+        - If the service stays, sign the processing agreement and list it among the recipients in the notice.
+  extra:
+    badges_are_fetched_per_view: >
+      A badge is fetched on every page view, not once: a README with ten of them
+      discloses the visitor to the badge service ten times. The image is static —
+      caching it at build time removes the transfer without changing the page.
+    idp_receives_identity: >
+      An identity provider receives who the user is, not merely that a visitor arrived: state the categories of identity attributes it receives, and for how long authentication events are kept.
+    remove_font_link: Remove every <link rel="preconnect"/"stylesheet"> pointing at {hosts}.
+    remove_gtag: Remove gtag.js and the measurement tag from the template.
+    audit_container: Take stock of the tags actually active in the container before deciding.
+    consent_mode_not_enough: >
+      Consent Mode is not sufficient on its own: the request to the tag manager
+      leaves the browser regardless.
+    assess_spam_volume: >
+      Measure the actual volume of spam first: a honeypot plus rate limiting is
+      often enough, and it profiles nobody.
+    nocookie_is_not_enough: >
+      The youtube-nocookie domain reduces the cookies set but does not remove the
+      transfer of the visitor's IP address.
+    no_cookie_wall: Access to the content must not depend on accepting advertising.
+    check_request_path: >
+      Check the path of the request (recaptcha, fonts, ads, …) and apply the fix
+      for that specific service.
+    record_in_ropa: Record the processing in the register of processing activities.
+    verify_transfer_chain: Verify the whole transfer chain, including onward transfers by the provider.
+    enable_masking: Enable automatic suppression of sensitive fields in the recordings.
+    matomo_consent_exempt_config: >
+      Configure it to be consent-exempt: IP anonymisation of at least two bytes,
+      cookieless tracking, Do Not Track honoured.
+    prefer_self_hosted: Prefer the self-hosted instance over the cloud service.
+    map_subprocessors: Map the chain of sub-processors and keep it in the register.
+    no_adequacy_decision: >
+      The destination country has no adequacy decision: removal is the safe
+      option; anything else requires a transfer impact assessment.
+    wordpress_disable_avatars: "In WordPress: Settings → Discussion → disable avatars, or use a local avatar plugin."
+    jetpack_disable_stats: >
+      Disable the Jetpack Stats module and the Site Accelerator, which also routes
+      images through wp.com.
+    vimeo_dnt: Add the dnt=1 parameter to the embed.
+    declare_antifraud: Declare the anti-fraud purpose and the transfer in the notice.
+    separate_form_from_tracking: Separate the form itself (necessary) from the tracking code (optional).
+    verify_dpa: Verify the processing agreement is signed and covers the current processing.
+    cmp_is_also_a_transfer: >
+      The consent platform is itself a transfer outside the EEA and has to be
+      declared like any other recipient.
+    prefer_eu_region: Choose an EU region for processing where the provider offers one.
+    asset_from_widget: >
+      If the asset comes from an embedded widget, the fix belongs to the widget:
+      remove it or load it on click.
+  alternative:
+    link_out_to_channel: a link to the channel, opened only when the visitor chooses
+    cached_badge_svg: the badge SVG, fetched once at build time and served from your own origin
+    fontsource: Fontsource (self-hosted via npm)
+    system_fonts: system fonts
+    matomo_self_hosted: Matomo (self-hosted)
+    umami_self_hosted: Umami (self-hosted)
+    plausible_eu: Plausible (EU)
+    cloudflare_web_analytics: Cloudflare Web Analytics
+    web_analytics_italia: Web Analytics Italia (Italian public bodies)
+    turnstile: Cloudflare Turnstile
+    altcha: Altcha (self-hosted, proof of work)
+    honeypot_rate_limit: honeypot plus rate limiting
+    leaflet_osm: Leaflet with OpenStreetMap tiles
+    maptiler_eu: MapTiler (EU)
+    external_map_link: a plain link to the map
+    lite_youtube_embed: lite-youtube-embed
+    peertube: PeerTube
+    self_hosted_video: self-hosted video
+    inline_svg_icons: inline SVG icons
+    local_avatars: locally generated avatars
+    brevo: Brevo (FR)
+    mailerlite: MailerLite
+    listmonk: Listmonk (self-hosted)
+    cal_com_self_hosted: Cal.com (self-hosted)
+    isso: Isso
+    commento: Commento
+    giscus: Giscus
+    static_share_links: static share links, with no script
+    matomo_heatmaps: Matomo Heatmaps (self-hosted)
+    moderated_usability_testing: moderated usability testing with consenting participants
+
+constraint:
+  response_headers_fixed:
+    github-pages: >
+      GitHub Pages serves a fixed set of response headers and provides no way to
+      add one — no configuration file, no dashboard setting, no header rules.
+      The finding is true and the exposure is real; it simply cannot be closed
+      while the site is served from this platform.
+
+platform:
+  wordpress:
+    hint: >
+      Fixes are usually made in the theme (header.php / functions.php) or by
+      disabling the plugin that injects the resource. Check Jetpack (Stats,
+      Photon), Gravatar and social sharing plugins.
+  astro:
+    hint: >
+      Static site: fixes go in the .astro components and the base layout, then
+      rebuild and redeploy. HTTP headers belong on the CDN or the server that
+      serves the build.
+  nextjs:
+    hint: Work in app/layout or _document, and in the headers section of next.config.
+  hugo:
+    hint: Edit the layouts and partials, then regenerate the site.
+  joomla:
+    hint: >
+      Work on the active template and the modules; many trackers are inserted by
+      third-party extensions.
+  drupal:
+    hint: Work on the theme and the enabled modules.
+  shopify:
+    hint: >
+      Hosted platform: some transfers cannot be removed and have to be declared;
+      additional tags are removed from the theme or from the installed apps.
+  wix:
+    hint: >
+      Closed hosted platform: technical room for manoeuvre is limited, so the
+      notice has to declare the provider and its processing.
+  squarespace:
+    hint: "Hosted platform: work from Settings → Cookies & Visitor Data."
+  opencity-italia:
+    hint: >
+      Open-source platform for Italian public bodies: the fix should go upstream
+      to the platform supplier, so every body using it is fixed at once.
+  municipium:
+    hint: "Platform for Italian public bodies supplied by Maggioli: open a ticket with the supplier."
+
+art13:
+  controller: Identity of the controller (Art. 13(1)(a))
+  contact: Contact details of the controller (Art. 13(1)(a))
+  dpo: Contact details of the data protection officer (Art. 13(1)(b))
+  purposes: Purposes of the processing (Art. 13(1)(c))
+  legal_basis: Legal basis (Art. 13(1)(c))
+  recipients: Recipients or categories of recipients (Art. 13(1)(e))
+  transfers: Transfers to third countries (Art. 13(1)(f))
+  retention: Retention period (Art. 13(2)(a))
+  rights: Rights of the data subject (Art. 13(2)(b) — Arts. 15-22)
+  complaint: Right to lodge a complaint with the supervisory authority (Art. 13(2)(d))
+  profiling: Automated decision-making and profiling (Art. 13(2)(f))
+  last_updated: Date the document was last updated
+
+discovery:
+  path_is_a_document: the path names a document
+  path_related: the path is related
+  link_text_exact: the link text matches exactly
+  link_text_short_related: short, related link text
+  editorial_section: an editorial section (an article, not a document)
+  deep_path: deeply nested path
+  long_text: long link text (reads like a content title)
+
+documents:
+  error:
+    no_response: no response from the server
+    http_status: not available (HTTP {status})
+    too_short: too short to be a document ({n} characters)
+    not_recognisable: reachable, but does not read like a "{kind}" document
+
+cookie_policy:
+  cookie_list: List of cookies with names and lifetimes
+  how_to_withdraw: Instructions to disable them and withdraw consent
+
+diff:
+  configuration_changed: >
+    These two scans were produced by different engine configurations ({changed}
+    differ). Part of what appears below describes the change in the engine, not
+    a change on the site: a finding a rule no longer produces is listed as
+    resolved, and nobody fixed anything. Re-scan the earlier state with the
+    current engine before reading this as remediation.
+  configuration_unknown: >
+    One of these scans does not record which engine configuration produced it,
+    so the two cannot be shown to be the same analysis. Read the comparison as
+    indicative rather than as measurement.
+  note: >
+    A "resolved" finding means it is no longer observable with the same method,
+    not that its cause was removed: a tracker present only on other pages
+    disappears from this comparison while remaining active.
+
+page_choice:
+  entry: the page that was submitted
+  first_of_kind: "first {kind} page found"
+  deep: a deep page — articles carry embeds a landing page never shows
+  navigation: main navigation
+  robots_skip: "not visited: disallowed by robots.txt"
+  other_host: >
+    not visited: same organisation, different site. A separate deployment
+    needs a separate scan — findings from it, reported here, would name the
+    wrong host and send you to the wrong codebase.
+
+page_kind:
+  entry: entry page
+  contact: contact
+  form: form
+  services: services
+  about: about
+  content: article
+  account: account
+  search: search
+  other: other
+
+consent_pass:
+  verification:
+    field_verified: >
+      field-verified — this exact call has been exercised against a real
+      installation of the platform and observed to do what the vendor describes.
+    documented: >
+      documented only — transcribed from the vendor's documentation and never
+      run against a live installation. The call may exist, return cleanly and
+      do nothing, which from outside the page is indistinguishable from a site
+      that ignored the refusal. Findings from this pass are stated as
+      indications rather than as facts.
+  title: Refusal pass — {domain}
+  document_title: "Refusal pass — {domain}"
+  description: >
+    What {domain} does after the visitor refuses consent, measured through the
+    refusal path the consent platform's own vendor documents.
+  intro: >
+    This is a separate assessment with a separate method. The standard report
+    observes a visitor who has not decided and never touches the page. This one
+    exercises the refusal the site itself offers, reloads, and compares. The two
+    answer different questions and are deliberately not mixed.
+  outcome:
+    refused: refusal performed through the documented path
+    no_consent_mechanism: no consent mechanism detected, nothing to refuse
+    platform_not_recognised: consent mechanism present, no documented refusal path known for it
+    platform_not_ready: consent platform detected but its interface was not ready
+    control_ambiguous: the documented control matched more than one element, so nothing was clicked
+    refusal_failed: the documented refusal path was attempted and did not complete
+  summary:
+    honoured: >
+      After the refusal and a fresh page load, no service requiring consent was
+      contacted and no tracking identifier remained on the device.
+    survived: >
+      After the refusal and a fresh page load, {vendors} services requiring
+      consent were still contacted and {tracking} tracking identifiers were still
+      present on the device.
+  footer: "privacymate · refusal pass · not legal advice"
+  labels:
+    third_parties_after: Third parties contacted after the refusal
+    cookies_after: Cookies present after the refusal
+    storage_after: Terminal storage keys after the refusal
+    platform: Consent platform
+    method: Method
+    action: Exactly what was executed
+    documentation: Vendor documentation
+    verification: How far this path is proven
+    outcome: Outcome
+    markers: Markers detected
+    before: Before refusal
+    after: After refusal
+    survived: Still present after refusal
+  posture:
+    method_refusal: >
+      the page is loaded, the consent mechanism is refused through the path its
+      own vendor documents, the page is loaded again, and the two observations
+      are compared
+    interaction_refusal: >
+      exactly one action: the documented refusal call or a click on the single
+      control the vendor publishes. No other click, no form submitted, no
+      navigation, no retry with a different method
+    platform_limit: >
+      only consent platforms listed in the engine's catalogue, identified by
+      their own readiness check. An unrecognised platform is reported as such
+      and left untouched
+    meaning: >
+      a refusal expressed by an automated agent measures the technical behaviour
+      of the mechanism; it is not the exercise of a data subject's will
+
+fleet:
+  footer: "privacymate · fleet assessment · not legal advice"
+  quick_wins: "{n} findings across the estate are low-effort fixes on serious findings."
+  posture:
+    courtesy: >
+      every target shares one courtesy budget per host: dozens of sites behind one
+      hosting provider must not add up to a load test
+  limits:
+    aggregate: >
+      An aggregate says how often something recurs, never how serious it is for a
+      given site: a finding repeated on forty sites may be one template to fix, and
+      a finding on one site may be the one that matters. The per-site reports remain
+      the document of record.
+  title: Fleet privacy assessment
+  headline: >
+    {scanned} of {targets} targets observed ({failed} unreachable). {actionable} carry a finding above informational, {affected} carry at least one of any kind, {clean} carry none.
+  headings:
+    repeated: What is repeated across the estate
+    vendors: Third parties, by how many sites use them
+    targets: Every target
+    clean: Sites with no findings
+  labels:
+    courtesy: Courtesy
+    grade: Grade
+    sites: Sites
+    site: Site
+    examples: Examples
+    undeclared_on: Undeclared on
+    pages: Pages
+  legend:
+    grades: >
+      One grade per site, on the fail-closed scale: F with any critical finding, D with any high, C medium, B low, A clean.
+    repeated: >
+      Ranked by the number of sites affected, never by the number of findings:
+      the same font CDN on thirty sites is one decision taken once and repeated,
+      not thirty problems. Fixing it where it is made fixes all of them.
+    vendors: >
+      A third party used across the estate belongs in one processor register
+      entry and one contract, not in thirty separate conversations.
+
+dpia:
+  heading: Impact assessment screening
+  transfers_heading: Transfers to assess
+  legend: >
+    A screening, never a determination. It counts the criteria visible from
+    outside and names the ones that are not: a report that presented itself as
+    complete would let someone conclude "no assessment needed" from evidence that
+    never covered the question.
+  transfers_legend: >
+    For every recipient outside the EEA, the questions a transfer impact
+    assessment has to answer, pre-filled with what was observed. Where the
+    knowledge base holds an equivalent, it is listed: the cheapest transfer
+    impact assessment is the transfer you do not make.
+  met: Met on the observable surface
+  not_assessable: Not assessable from outside — to be answered by the controller
+  threshold: Two or more criteria met usually calls for an assessment.
+  labels:
+    criterion: Criterion
+    state: State
+    evidence: What was observed
+    recipient: Recipient
+    country: Country
+    basis: Transfer basis
+    data: Data disclosed
+    declared: Declared
+    alternatives: Equivalents that would remove the transfer
+    questions: Questions the assessment must answer
+  questions:
+    - Which entity actually receives the data, and in which country is it established?
+    - On what basis does the transfer rest, and is a copy of the instrument available?
+    - >
+      Is the recipient subject to legislation permitting public authority access
+      beyond what EU law would allow?
+    - What supplementary measures apply — encryption, pseudonymisation, contractual and organisational?
+    - Is the transfer necessary at all, or is an equivalent available inside the EEA?
+  criteria:
+    evaluation_scoring: Evaluation or scoring, including profiling
+    automated_decision: Automated decision-making with legal or similarly significant effect
+    systematic_monitoring: Systematic monitoring of data subjects
+    sensitive_data: Special categories, or data of a highly personal nature
+    large_scale: Processing on a large scale
+    matching_combining: Matching or combining datasets
+    vulnerable_subjects: Data concerning vulnerable data subjects
+    innovative_technology: Innovative use of new technology
+    prevents_rights: Processing that prevents data subjects from exercising a right or using a service

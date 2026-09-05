@@ -1,0 +1,97 @@
+# Privacy conformance as a required check.
+#
+# Copy into .github/workflows/ of the repository that produces the site. On a
+# pull request the scan runs against the deployed preview or the live site, the
+# findings land in the Security tab anchored to the lines that cause them, and
+# the job fails according to `fail-on`.
+#
+# Adoption without drama: start at `critical`, tighten to `high`, then to
+# `not-conformant` once the backlog is triaged. A gate that blocks everything on
+# day one gets disabled on day two.
+
+name: privacy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # a site changes without the repository changing: a supplier adds a tag, a
+    # CDN starts serving an extra host. Weekly catches that.
+    - cron: "17 6 * * 1"
+
+permissions:
+  contents: read
+  security-events: write # upload SARIF to code scanning
+  id-token: write # keyless signing of the attestation (Fulcio/Rekor)
+
+jobs:
+  privacy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      # NOT YET PUBLISHED. `fabriziosalmi/scanprivacy` does not exist on GitHub
+      # — this project lives on a private GitLab instance — so copying this file
+      # as-is fails at this step with "repository not found".
+      #
+      # Every other `uses:` here is pinned to a commit, deliberately, because a
+      # version tag can be moved by whoever controls the repository. This one
+      # cannot be pinned: inventing a SHA for a commit that does not exist would
+      # look like the same guarantee while providing none.
+      #
+      # Two forms that work today:
+      #
+      #   in this repository        uses: ./
+      #   vendored into yours       uses: ./third_party/privacymate
+      #
+      # When it is published, replace the reference with `owner/repo@<sha>` and
+      # remove this block. tests/test_workflows.py fails until then, so the note
+      # cannot quietly outlive the situation it describes.
+      - id: privacy
+        uses: fabriziosalmi/scanprivacy@v1 # unpublished — see the note above
+        with:
+          url: https://www.example.org
+          fail-on: critical
+          source-root: .
+          badge-file: .github/badges/privacy.svg
+          pdf-file: privacymate-report.pdf
+          attest: privacymate.intoto.json
+          sign: cosign-keyless
+
+      - name: Keep the evidence with the run
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: privacymate-${{ github.sha }}
+          path: |
+            privacymate.json
+            privacymate.sarif
+            privacymate-report.pdf
+            privacymate.intoto.json
+            privacymate.intoto.json.sigbundle
+          retention-days: 90
+
+      - name: Say it in the pull request
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        with:
+          script: |
+            const grade = '${{ steps.privacy.outputs.grade }}';
+            const findings = '${{ steps.privacy.outputs.findings }}';
+            const anchored = '${{ steps.privacy.outputs.anchored }}';
+            const digest = '${{ steps.privacy.outputs.evidence-digest }}';
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: [
+                `**privacymate — ${grade}**`,
+                ``,
+                `${findings} findings, ${anchored} anchored to a source line.`,
+                `Details in the Security tab; full evidence in the run artifacts.`,
+                ``,
+                `<sub>evidence digest \`${digest.slice(0, 16)}…\` — reproduce with `,
+                `\`pmate verify privacymate.json\`</sub>`,
+              ].join('\n')
+            });

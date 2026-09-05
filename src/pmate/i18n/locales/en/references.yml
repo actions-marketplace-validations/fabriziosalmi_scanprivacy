@@ -1,0 +1,96 @@
+# Legal and control references, keyed.
+#
+# A reference is not a translatable sentence: it is a pointer into a legal
+# instrument. Two dimensions are involved and they are NOT the same:
+#
+#   language      — how the pointer is written ("Art." vs "Artikel")
+#   jurisdiction  — which instrument applies (Art. 122 of the Italian privacy
+#                   code, §25 TDDDG in Germany, Art. 82 LCEN in France)
+#
+# Keeping references as keys lets a report be produced in Italian for a German
+# controller citing the German transposition. Jurisdiction packs (`de:`, `fr:`)
+# get added next to `it:` without touching a single rule.
+
+# ---------------------------------------------------------------- GDPR
+gdpr:5.1.a: GDPR Art. 5(1)(a) — lawfulness, fairness and transparency
+gdpr:5.1.c: GDPR Art. 5(1)(c) — data minimisation
+gdpr:6: GDPR Art. 6 — lawfulness of processing
+gdpr:6.1.a: GDPR Art. 6(1)(a) — consent as a legal basis
+gdpr:7: GDPR Art. 7 — conditions for consent
+gdpr:7.1: GDPR Art. 7(1) — the controller must be able to demonstrate consent
+gdpr:12: GDPR Art. 12 — transparent, concise and easily accessible information
+gdpr:13: GDPR Art. 13 — information to be provided to the data subject
+gdpr:13.1.e: GDPR Art. 13(1)(e) — recipients or categories of recipients
+gdpr:13.1.f: GDPR Art. 13(1)(f) — transfers to third countries
+gdpr:22: GDPR Art. 22 — automated individual decision-making
+gdpr:25: GDPR Art. 25 — data protection by design and by default
+gdpr:28: GDPR Art. 28 — processor
+gdpr:30: GDPR Art. 30 — records of processing activities
+gdpr:32: GDPR Art. 32 — security of processing
+gdpr:44: GDPR Arts. 44-49 — transfers of personal data to third countries
+
+# ------------------------------------------------------------- ePrivacy
+eprivacy:5.3: >
+  ePrivacy Directive 2002/58/EC Art. 5(3) — storing information on, or gaining
+  access to information stored in, a user's terminal equipment
+
+# ---------------------------------------------------------------- AI Act
+ai-act:50: AI Act (EU) 2024/1689 Art. 50 — transparency obligations towards natural persons
+
+# ------------------------------------------------------------------ NIS2
+nis2:21.2.d: NIS2 Directive (EU) 2022/2555 Art. 21(2)(d) — supply chain security
+nis2:21.2.e: >
+  NIS2 Directive (EU) 2022/2555 Art. 21(2)(e) — security in acquisition,
+  development and maintenance
+nis2:21.2.h: NIS2 Directive (EU) 2022/2555 Art. 21(2)(h) — cryptography and encryption
+
+# --------------------------------------------------- Italy (jurisdiction pack)
+it:privacy-code:122: Art. 122 of the Italian Privacy Code (Legislative Decree 196/2003)
+it:garante:cookie-2021: Italian DPA guidelines on cookies and other tracking tools, 10 June 2021
+it:garante:cookie-2021-4: Italian DPA guidelines on cookies, 10 June 2021, § 4 — prior blocking
+it:const:97: Art. 97 of the Italian Constitution — sound administration
+it:law-241:1: Art. 1 of Italian Law 241/1990 — economy of administrative action
+it:agid:transparency: AgID — transparency obligations for public bodies
+it:agid:comms-protection: AgID minimum ICT security measures — protection of communications
+it:agid:economy: Economy in the acquisition of services by public bodies
+
+# ------------------------------------------------- ISO/IEC 27001:2022 Annex A
+iso27001:A.5.9: ISO/IEC 27001:2022 A.5.9 — inventory of information and other associated assets
+iso27001:A.5.14: ISO/IEC 27001:2022 A.5.14 — information transfer
+iso27001:A.5.19: ISO/IEC 27001:2022 A.5.19 — information security in supplier relationships
+iso27001:A.5.21: ISO/IEC 27001:2022 A.5.21 — managing information security in the ICT supply chain
+iso27001:A.5.23: ISO/IEC 27001:2022 A.5.23 — information security for use of cloud services
+iso27001:A.5.31: ISO/IEC 27001:2022 A.5.31 — legal, statutory, regulatory and contractual requirements
+iso27001:A.5.34: ISO/IEC 27001:2022 A.5.34 — privacy and protection of PII
+iso27001:A.8.9: ISO/IEC 27001:2022 A.8.9 — configuration management
+iso27001:A.8.23: ISO/IEC 27001:2022 A.8.23 — web filtering
+iso27001:A.8.24: ISO/IEC 27001:2022 A.8.24 — use of cryptography
+iso27001:A.8.26: ISO/IEC 27001:2022 A.8.26 — application security requirements
+iso27001:A.8.28: ISO/IEC 27001:2022 A.8.28 — secure coding
+
+# ------------------------------------------------------- ISO/IEC 27701:2019
+iso27701:7.2.2: ISO/IEC 27701 7.2.2 — identify lawful basis
+iso27701:7.2.3: ISO/IEC 27701 7.2.3 — determine when and how consent is to be obtained
+iso27701:7.2.6: ISO/IEC 27701 7.2.6 — contracts with PII processors
+iso27701:7.2.8: ISO/IEC 27701 7.2.8 — records related to processing PII
+iso27701:7.3.1: ISO/IEC 27701 7.3.1 — determining and fulfilling obligations to PII principals
+iso27701:7.3.2: ISO/IEC 27701 7.3.2 — determining information for PII principals
+iso27701:7.3.3: ISO/IEC 27701 7.3.3 — providing information to PII principals
+iso27701:7.3.5: ISO/IEC 27701 7.3.5 — providing mechanism to modify or withdraw consent
+iso27701:7.5.1: ISO/IEC 27701 7.5.1 — identify basis for PII transfer between jurisdictions
+
+# ------------------------------------------ SOC 2 (AICPA Trust Services Criteria)
+soc2:CC6.6: SOC 2 CC6.6 — logical access security measures against external threats
+soc2:CC6.7: SOC 2 CC6.7 — restricted transmission, movement and removal of information
+soc2:CC7.1: SOC 2 CC7.1 — detection of configuration changes and vulnerabilities
+soc2:CC9.2: SOC 2 CC9.2 — vendor and business partner risk management
+soc2:P1.1: SOC 2 P1.1 — notice about privacy practices
+soc2:P3.1: SOC 2 P3.1 — personal information collected consistently with objectives
+soc2:P3.2: SOC 2 P3.2 — explicit consent for sensitive personal information
+soc2:P6.1: SOC 2 P6.1 — consent for disclosure of personal information to third parties
+
+gdpr:35: GDPR Art. 35 — data protection impact assessment
+gdpr:35.7: GDPR Art. 35(7) — minimum content of an assessment
+edpb:wp248: EDPB guidelines WP248 rev.01 — criteria for a likely high risk
+edpb:recommendations-01-2020: EDPB Recommendations 01/2020 — supplementary measures for transfers
+iso27701:7.2.5: ISO/IEC 27701 7.2.5 — privacy impact assessment

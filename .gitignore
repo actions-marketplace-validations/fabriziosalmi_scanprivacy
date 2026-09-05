@@ -1,0 +1,48 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+dist/
+build/
+*.log
+
+# Credentials. `pmate scan --sign cosign-key --key <path>` takes a private key,
+# and the obvious place to leave one is the directory you ran the command in.
+# A signing key in the history is not a mistake you can take back by deleting
+# the file, so the ignore has to be here before the first time it matters.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+cosign.key
+cosign.pub.pem
+data/scans/
+reports/
+*.sarif
+*-badge.svg
+privacymate.json
+
+# An operator's own measurements. `data/baseline/<date>/` holds kept snapshots
+# and `data/fleet-targets.txt` the list of sites to scan — both are the estate
+# of whoever runs this, not part of the engine, and this repository is the
+# engine. Committing them shipped 46 files nothing references, and a map of one
+# person's properties with a grade against each.
+#
+# They stay on disk. `data/baseline/README.md` is tracked, because the
+# convention is worth documenting even though the data is not.
+# The glob is deliberately loose. A directory renamed by hand — `mv data/fleet
+# data/fleet-old` before a rescan — walked straight out of a narrower pattern
+# and the next `git add -A` committed 46 estate files back in, four commits
+# after they were removed. Nothing complained. tests/test_repo_hygiene.py now
+# fails on a tracked scan result, because a rule enforced only by a filename
+# pattern is a rule that holds until somebody types a different filename.
+data/baseline/*/
+data/fleet*
+!data/fleet-targets.txt.example
+

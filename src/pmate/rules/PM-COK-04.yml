@@ -1,0 +1,23 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# A reviewer of this file is checking one thing only: does the condition
+# describe the fact the rule claims to have found?
+id: PM-COK-04
+severity: low
+confidence: certain
+subject: cookie
+tags:
+- cookies
+- security
+- third-parties
+references:
+- gdpr:32
+- gdpr:5.1.c
+condition:
+  cookie_samesite_none: true
+remediation:
+  source: rule
+  effort: low

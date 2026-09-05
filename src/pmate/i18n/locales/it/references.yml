@@ -1,0 +1,90 @@
+# Riferimenti normativi e di controllo, per chiave.
+#
+# Lingua e giurisdizione sono dimensioni diverse: questo file traduce il modo in
+# cui il riferimento è scritto, non decide quale strumento si applica. Le chiavi
+# `it:` valgono per un titolare italiano; per la Germania si aggiungerà `de:`
+# senza toccare una sola regola.
+
+# ---------------------------------------------------------------- GDPR
+gdpr:5.1.a: Art. 5.1.a GDPR — liceità, correttezza e trasparenza
+gdpr:5.1.c: Art. 5.1.c GDPR — minimizzazione dei dati
+gdpr:6: Art. 6 GDPR — liceità del trattamento
+gdpr:6.1.a: Art. 6.1.a GDPR — il consenso come base giuridica
+gdpr:7: Art. 7 GDPR — condizioni per il consenso
+gdpr:7.1: Art. 7.1 GDPR — il titolare deve poter dimostrare il consenso
+gdpr:12: Art. 12 GDPR — informazioni concise, trasparenti e facilmente accessibili
+gdpr:13: Art. 13 GDPR — informazioni da fornire all'interessato
+gdpr:13.1.e: Art. 13.1.e GDPR — destinatari o categorie di destinatari
+gdpr:13.1.f: Art. 13.1.f GDPR — trasferimenti verso paesi terzi
+gdpr:22: Art. 22 GDPR — processo decisionale automatizzato relativo alle persone fisiche
+gdpr:25: Art. 25 GDPR — protezione dei dati fin dalla progettazione e per impostazione predefinita
+gdpr:28: Art. 28 GDPR — responsabile del trattamento
+gdpr:30: Art. 30 GDPR — registro delle attività di trattamento
+gdpr:32: Art. 32 GDPR — sicurezza del trattamento
+gdpr:44: Artt. 44-49 GDPR — trasferimento di dati personali verso paesi terzi
+
+# ------------------------------------------------------------- ePrivacy
+eprivacy:5.3: >
+  Art. 5(3) Direttiva 2002/58/CE (ePrivacy) — archiviazione di informazioni sul
+  terminale dell'utente o accesso a informazioni ivi archiviate
+
+# ---------------------------------------------------------------- AI Act
+ai-act:50: Art. 50 Reg. (UE) 2024/1689 (AI Act) — obblighi di trasparenza verso le persone fisiche
+
+# ------------------------------------------------------------------ NIS2
+nis2:21.2.d: Art. 21.2.d Dir. (UE) 2022/2555 (NIS2) — sicurezza della catena di fornitura
+nis2:21.2.e: >
+  Art. 21.2.e Dir. (UE) 2022/2555 (NIS2) — sicurezza nell'acquisizione, sviluppo
+  e manutenzione
+nis2:21.2.h: Art. 21.2.h Dir. (UE) 2022/2555 (NIS2) — crittografia e cifratura
+
+# ------------------------------------------------------ Italia (giurisdizione)
+it:privacy-code:122: Art. 122 del Codice privacy (D.lgs. 196/2003)
+it:garante:cookie-2021: Linee guida del Garante su cookie e altri strumenti di tracciamento, 10 giugno 2021
+it:garante:cookie-2021-4: Linee guida del Garante sui cookie, 10 giugno 2021, § 4 — blocco preventivo
+it:const:97: Art. 97 della Costituzione — buon andamento della pubblica amministrazione
+it:law-241:1: Art. 1 L. 241/1990 — economicità dell'azione amministrativa
+it:agid:transparency: AgID — obblighi di trasparenza per i soggetti pubblici
+it:agid:comms-protection: Misure minime AgID di sicurezza ICT — protezione delle comunicazioni
+it:agid:economy: Economicità nell'acquisizione di servizi da parte dei soggetti pubblici
+
+# ------------------------------------------------- ISO/IEC 27001:2022 Annex A
+iso27001:A.5.9: ISO/IEC 27001:2022 A.5.9 — inventario degli asset informativi
+iso27001:A.5.14: ISO/IEC 27001:2022 A.5.14 — trasferimento di informazioni
+iso27001:A.5.19: ISO/IEC 27001:2022 A.5.19 — sicurezza nei rapporti con i fornitori
+iso27001:A.5.21: ISO/IEC 27001:2022 A.5.21 — sicurezza nella catena di fornitura ICT
+iso27001:A.5.23: ISO/IEC 27001:2022 A.5.23 — sicurezza per l'uso di servizi cloud
+iso27001:A.5.31: ISO/IEC 27001:2022 A.5.31 — requisiti legali, statutari, regolamentari e contrattuali
+iso27001:A.5.34: ISO/IEC 27001:2022 A.5.34 — privacy e protezione dei dati personali
+iso27001:A.8.9: ISO/IEC 27001:2022 A.8.9 — gestione delle configurazioni
+iso27001:A.8.23: ISO/IEC 27001:2022 A.8.23 — filtraggio web
+iso27001:A.8.24: ISO/IEC 27001:2022 A.8.24 — uso della crittografia
+iso27001:A.8.26: ISO/IEC 27001:2022 A.8.26 — requisiti di sicurezza applicativa
+iso27001:A.8.28: ISO/IEC 27001:2022 A.8.28 — codifica sicura
+
+# ------------------------------------------------------- ISO/IEC 27701:2019
+iso27701:7.2.2: ISO/IEC 27701 7.2.2 — individuazione della base giuridica
+iso27701:7.2.3: ISO/IEC 27701 7.2.3 — quando e come raccogliere il consenso
+iso27701:7.2.6: ISO/IEC 27701 7.2.6 — contratti con i responsabili del trattamento
+iso27701:7.2.8: ISO/IEC 27701 7.2.8 — registrazioni relative al trattamento
+iso27701:7.3.1: ISO/IEC 27701 7.3.1 — individuazione e adempimento degli obblighi verso gli interessati
+iso27701:7.3.2: ISO/IEC 27701 7.3.2 — determinazione delle informazioni da fornire agli interessati
+iso27701:7.3.3: ISO/IEC 27701 7.3.3 — informazioni fornite agli interessati
+iso27701:7.3.5: ISO/IEC 27701 7.3.5 — meccanismi per modificare o revocare il consenso
+iso27701:7.5.1: ISO/IEC 27701 7.5.1 — base per il trasferimento fra giurisdizioni
+
+# ------------------------------------------ SOC 2 (AICPA Trust Services Criteria)
+soc2:CC6.6: SOC 2 CC6.6 — misure di sicurezza logica contro minacce esterne
+soc2:CC6.7: SOC 2 CC6.7 — trasmissione, spostamento e rimozione delle informazioni
+soc2:CC7.1: SOC 2 CC7.1 — rilevamento di modifiche di configurazione e vulnerabilità
+soc2:CC9.2: SOC 2 CC9.2 — gestione del rischio dei fornitori
+soc2:P1.1: SOC 2 P1.1 — informativa sulle pratiche privacy
+soc2:P3.1: SOC 2 P3.1 — raccolta coerente con le finalità dichiarate
+soc2:P3.2: SOC 2 P3.2 — consenso esplicito per dati particolari
+soc2:P6.1: SOC 2 P6.1 — consenso alla comunicazione a terzi
+
+gdpr:35: Art. 35 GDPR — valutazione d'impatto sulla protezione dei dati
+gdpr:35.7: Art. 35.7 GDPR — contenuto minimo della valutazione
+edpb:wp248: Linee guida EDPB WP248 rev.01 — criteri per un rischio elevato probabile
+edpb:recommendations-01-2020: Raccomandazioni EDPB 01/2020 — misure supplementari per i trasferimenti
+iso27701:7.2.5: ISO/IEC 27701 7.2.5 — valutazione d'impatto sulla privacy

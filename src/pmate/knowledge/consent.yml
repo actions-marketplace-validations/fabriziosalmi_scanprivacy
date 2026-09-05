@@ -1,0 +1,126 @@
+# Consent platforms this engine is allowed to interact with, and how.
+#
+# THE RULE THIS FILE EXISTS TO ENFORCE: the engine never guesses. It does not
+# look for a button whose text resembles "Reject", it does not click the second
+# button in a banner, it does not try three things until one works. It calls the
+# refusal method the platform's own vendor documents, on a platform it has
+# positively identified — or it does nothing and says so in the report.
+#
+# Clicking blindly on somebody else's site is how a scanner unsubscribes a
+# mailing list, empties a cart or logs someone out. "Unlikely" is not a standard.
+#
+# Fields
+#   id             matches the CMP id used by the passive detector
+#   name           shown in the report
+#   detect         JavaScript expression, must return truthy when the platform
+#                  is loaded AND ready to take the call
+#   method         api — call the documented function
+#                  dom — click a selector the vendor publishes
+#   expression     exactly what gets evaluated (api), verbatim in the report
+#   selector       exactly what gets clicked (dom); must match one visible
+#                  element, or the engine refuses to act
+#   documentation  where the vendor documents it — cited in the report, so a
+#                  reader can check we used the supported path
+#   note           anything a reader should know about what the call means
+#   verification   field_verified — this exact path has been exercised against a
+#                    real installation and observed to do what the vendor says
+#                  documented — transcribed from the vendor's documentation and
+#                    never run against a live site
+#
+# THE SECOND RULE: the difference above reaches the reader. A refusal performed
+# through a merely documented path may have called a function that exists,
+# returns cleanly, and does nothing — the engine cannot tell from outside. A
+# finding built on it ("this service kept running after the visitor refused")
+# is then an accusation resting on an unproven premise, and it is stated as an
+# indication rather than as a fact. iubenda is why: its production build did
+# not expose `_iub.cs.api.reject` at all.
+
+version: 1
+
+platforms:
+  - id: cookiebot
+    name: Cookiebot (Usercentrics)
+    detect: "typeof window.Cookiebot === 'object' && typeof window.Cookiebot.decline === 'function'"
+    method: api
+    expression: "window.Cookiebot.decline()"
+    documentation: https://www.cookiebot.com/en/developer/
+    note: >
+      Declines every non-necessary category and persists the choice in the
+      CookieConsent cookie.
+    verification: field_verified
+
+  - id: iubenda
+    name: iubenda Cookie Solution
+    detect: "typeof window._iub === 'object' && window._iub.cs && window._iub.cs.api && typeof window._iub.cs.api.reject === 'function'"
+    method: api
+    expression: "window._iub.cs.api.reject()"
+    documentation: https://www.iubenda.com/en/help/1205-how-to-configure-your-cookie-solution-advanced-guide
+    note: Rejects all purposes and stores the refusal.
+    verification: documented
+
+  - id: onetrust
+    name: OneTrust
+    detect: "typeof window.OneTrust === 'object' && typeof window.OneTrust.RejectAll === 'function'"
+    method: api
+    expression: "window.OneTrust.RejectAll()"
+    documentation: https://my.onetrust.com/s/article/UUID-29158b4e-92c7-1fbb-8e0a-d5d4a0c0e58d
+    note: Rejects every optional group.
+    verification: documented
+
+  - id: usercentrics
+    name: Usercentrics
+    detect: "typeof window.UC_UI === 'object' && typeof window.UC_UI.rejectAllServices === 'function'"
+    method: api
+    expression: "window.UC_UI.rejectAllServices()"
+    documentation: https://usercentrics.com/docs/web/features/api/
+    note: Rejects every service the platform manages.
+    verification: documented
+
+  - id: klaro
+    name: Klaro
+    detect: "typeof window.klaro === 'object' && typeof window.klaro.getManager === 'function'"
+    method: api
+    expression: "window.klaro.getManager().declineAll(); window.klaro.getManager().saveAndApplyConsents()"
+    documentation: https://klaro.org/docs/api
+    note: Declines every app and persists the decision.
+    verification: documented
+
+  - id: complianz
+    name: Complianz
+    detect: "typeof window.cmplz_deny_all === 'function'"
+    method: api
+    expression: "window.cmplz_deny_all()"
+    documentation: https://complianz.io/documentation/
+    note: The plugin's own deny-all entry point.
+    verification: documented
+
+  - id: tarteaucitron
+    name: tarteaucitron.js
+    detect: "typeof window.tarteaucitron === 'object' && window.tarteaucitron.userInterface && typeof window.tarteaucitron.userInterface.respondAll === 'function'"
+    method: api
+    expression: "window.tarteaucitron.userInterface.respondAll(false)"
+    documentation: https://tarteaucitron.io/en/install/
+    note: Answers "no" to every service.
+    verification: documented
+
+  - id: borlabs
+    name: Borlabs Cookie
+    detect: "typeof window.BorlabsCookie === 'object' && window.BorlabsCookie.Consents && typeof window.BorlabsCookie.Consents.deny === 'function'"
+    method: api
+    expression: "window.BorlabsCookie.Consents.deny()"
+    documentation: https://borlabs.io/borlabs-cookie/javascript-api/
+    note: Denies every non-essential service group.
+    verification: documented
+
+  - id: cookieyes
+    name: CookieYes
+    detect: "document.querySelectorAll('.cky-btn-reject').length === 1"
+    method: dom
+    selector: ".cky-btn-reject"
+    documentation: https://www.cookieyes.com/documentation/
+    note: >
+      No public refusal API is documented; the reject control carries a stable
+      published class. The engine clicks it only when exactly one visible
+      element matches.
+    verification: documented
+

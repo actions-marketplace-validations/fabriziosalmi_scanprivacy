@@ -1,0 +1,26 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# A reviewer of this file is checking one thing only: does the condition
+# describe the fact the rule claims to have found?
+id: PM-CNS-03
+severity: critical
+confidence: certain
+subject: site
+tags:
+- consent
+- eprivacy
+- cmp
+references:
+- eprivacy:5.3
+- it:privacy-code:122
+- it:garante:cookie-2021-4
+- gdpr:7.1
+condition:
+  cmp_present: true
+  tracking_state_before_consent: true
+remediation:
+  source: rule
+  effort: medium

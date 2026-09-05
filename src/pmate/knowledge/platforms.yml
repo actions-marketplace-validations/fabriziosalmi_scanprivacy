@@ -1,0 +1,51 @@
+# Platform fingerprints. Their purpose is remediation targeting, not
+# attribution: knowing the site is WordPress changes *how* the fix is written
+# ("disable the Jetpack Stats module"), never *what* the finding is.
+#
+# The hint shown to the reader is a phrase, so it lives in the locale
+# catalogues under `platform.<id>.hint`.
+platforms:
+- id: wordpress
+  name: WordPress
+  generator_regex: WordPress
+  html_regex: /wp-content/|/wp-includes/|wp-json
+- id: astro
+  name: Astro
+  generator_regex: Astro
+  html_regex: astro-island|/_astro/
+- id: nextjs
+  name: Next.js
+  generator_regex: Next\.js
+  html_regex: /_next/static/|__NEXT_DATA__
+- id: hugo
+  name: Hugo
+  generator_regex: Hugo
+  html_regex: ''
+- id: joomla
+  name: Joomla
+  generator_regex: Joomla
+  html_regex: /media/jui/|option=com_
+- id: drupal
+  name: Drupal
+  generator_regex: Drupal
+  html_regex: /sites/default/files/|drupal-settings-json
+- id: shopify
+  name: Shopify
+  generator_regex: Shopify
+  html_regex: cdn\.shopify\.com|Shopify\.theme
+- id: wix
+  name: Wix
+  generator_regex: Wix\.com
+  html_regex: static\.parastorage\.com|wixstatic\.com
+- id: squarespace
+  name: Squarespace
+  generator_regex: Squarespace
+  html_regex: static1\.squarespace\.com
+- id: opencity-italia
+  name: OpenCity Italia
+  generator_regex: OpenCity|opencity[- ]italia
+  html_regex: opencityitalia\.it
+- id: municipium
+  name: Municipium (Maggioli)
+  generator_regex: Municipium
+  html_regex: municipiumapp\.it|municipium

@@ -1,0 +1,448 @@
+# Aliases: the strings searched in a site's OWN privacy notice to decide whether
+# a vendor is actually declared. They are language-specific by nature — a notice
+# written in English names things the way English does — and the engine matches
+# against the union of every locale, because the language of the notice is not
+# known in advance.
+#
+# Word-boundary matching applies: an alias must be specific enough that it
+# cannot fire on ordinary prose. "meta" matched "metà" once; that is the bar.
+adobe-analytics:
+  aliases:
+  - adobe
+  - demdex
+  - experience cloud
+aws-cloudfront:
+  aliases:
+  - aws
+  - amazon web services
+  - cloudfront
+bootstrap-cdn:
+  aliases:
+  - bootstrapcdn
+  - bootstrap
+calendly:
+  aliases:
+  - calendly
+cdnjs:
+  aliases:
+  - cdnjs
+cloudflare-analytics:
+  aliases:
+  - cloudflare insights
+  - cloudflare web analytics
+  - cloudflareinsights
+cloudflare-cdn:
+  aliases:
+  - cloudflare
+cookiebot:
+  aliases:
+  - cookiebot
+  - usercentrics
+cookieyes:
+  aliases:
+  - cookieyes
+disqus:
+  aliases:
+  - disqus
+fastly:
+  aliases:
+  - fastly
+fly-io:
+  aliases:
+  - fly.io
+fontawesome:
+  aliases:
+  - font awesome
+  - fontawesome
+github-pages:
+  aliases:
+  - github
+google-ads:
+  aliases:
+  - google ads
+  - doubleclick
+  - adsense
+  - pubblicità
+google-analytics:
+  aliases:
+  - google analytics
+  - analytics.google
+  - ga4
+  - _ga
+google-fonts:
+  aliases:
+  - google fonts
+  - fonts.googleapis
+  - gstatic
+  - web fonts
+google-generic:
+  aliases:
+  - google
+google-maps:
+  aliases:
+  - google maps
+  - maps.google
+google-recaptcha:
+  aliases:
+  - recaptcha
+google-tag-manager:
+  aliases:
+  - tag manager
+  - googletagmanager
+  - gtm
+gravatar:
+  aliases:
+  - gravatar
+  - automattic
+hotjar:
+  aliases:
+  - hotjar
+hubspot:
+  aliases:
+  - hubspot
+instagram:
+  aliases:
+  - instagram
+intercom:
+  aliases:
+  - intercom
+iubenda:
+  aliases:
+  - iubenda
+jquery-cdn:
+  aliases:
+  - jquery
+jsdelivr:
+  aliases:
+  - jsdelivr
+linkedin-cdn:
+  aliases:
+  - linkedin
+  - licdn
+linkedin-insight:
+  aliases:
+  - linkedin
+mailchimp:
+  aliases:
+  - mailchimp
+matomo-cloud:
+  aliases:
+  - matomo
+  - piwik
+meta-pixel:
+  aliases:
+  - facebook
+  - meta platforms
+  - meta pixel
+  - fbevents
+microsoft-clarity:
+  aliases:
+  - clarity
+  - microsoft clarity
+netlify:
+  aliases:
+  - netlify
+onetrust:
+  aliases:
+  - onetrust
+  - cookielaw
+paypal:
+  aliases:
+  - paypal
+plausible:
+  aliases:
+  - plausible
+sharethis:
+  aliases:
+  - sharethis
+  - addthis
+  - addtoany
+  - share buttons
+sociablekit:
+  aliases:
+  - sociablekit
+stripe:
+  aliases:
+  - stripe
+tawkto:
+  aliases:
+  - tawk
+tiktok-pixel:
+  aliases:
+  - tiktok
+typeform:
+  aliases:
+  - typeform
+umami:
+  aliases:
+  - umami
+unpkg:
+  aliases:
+  - unpkg
+vercel:
+  aliases:
+  - vercel
+vimeo:
+  aliases:
+  - vimeo
+webanalytics-italia:
+  aliases:
+  - web analytics italia
+  - webanalytics.italia
+wordpress-stats:
+  aliases:
+  - jetpack
+  - wordpress.com
+  - automattic
+  - site stats
+x-twitter:
+  aliases:
+  - twitter
+  - x corp
+  - x (twitter)
+yandex-metrica:
+  aliases:
+  - yandex
+youtube:
+  aliases:
+  - youtube
+  - youtube-nocookie
+  - embedded video
+youtube-nocookie-note:
+  aliases:
+  - youtube-nocookie
+
+
+adobe-analytics:
+  aliases:
+  - adobe
+  - demdex
+  - experience cloud
+apple-identity:
+  aliases:
+  - sign in with apple
+auth0:
+  aliases:
+  - auth0
+aws-cloudfront:
+  aliases:
+  - aws
+  - amazon web services
+  - cloudfront
+bootstrap-cdn:
+  aliases:
+  - bootstrapcdn
+  - bootstrap
+calendly:
+  aliases:
+  - calendly
+cdnjs:
+  aliases:
+  - cdnjs
+cloudflare-analytics:
+  aliases:
+  - cloudflare insights
+  - cloudflare web analytics
+  - cloudflareinsights
+cloudflare-cdn:
+  aliases:
+  - cloudflare
+cookiebot:
+  aliases:
+  - cookiebot
+  - usercentrics
+cookieyes:
+  aliases:
+  - cookieyes
+disqus:
+  aliases:
+  - disqus
+fastly:
+  aliases:
+  - fastly
+fly-io:
+  aliases:
+  - fly.io
+fontawesome:
+  aliases:
+  - font awesome
+  - fontawesome
+github-pages:
+  aliases:
+  - github
+google-ads:
+  aliases:
+  - google ads
+  - doubleclick
+  - adsense
+  - pubblicità
+google-analytics:
+  aliases:
+  - google analytics
+  - analytics.google
+  - ga4
+  - _ga
+google-fonts:
+  aliases:
+  - google fonts
+  - fonts.googleapis
+  - gstatic
+  - web fonts
+google-generic:
+  aliases:
+  - google
+google-identity:
+  aliases:
+  - sign in with google
+  - google sign-in
+  - google identity
+google-maps:
+  aliases:
+  - google maps
+  - maps.google
+google-recaptcha:
+  aliases:
+  - recaptcha
+google-tag-manager:
+  aliases:
+  - tag manager
+  - googletagmanager
+  - gtm
+gravatar:
+  aliases:
+  - gravatar
+  - automattic
+hotjar:
+  aliases:
+  - hotjar
+hubspot:
+  aliases:
+  - hubspot
+instagram:
+  aliases:
+  - instagram
+intercom:
+  aliases:
+  - intercom
+iubenda:
+  aliases:
+  - iubenda
+jquery-cdn:
+  aliases:
+  - jquery
+jsdelivr:
+  aliases:
+  - jsdelivr
+keycloak:
+  aliases:
+  - keycloak
+linkedin-cdn:
+  aliases:
+  - linkedin
+  - licdn
+linkedin-insight:
+  aliases:
+  - linkedin
+mailchimp:
+  aliases:
+  - mailchimp
+matomo-cloud:
+  aliases:
+  - matomo
+  - piwik
+meta-identity:
+  aliases:
+  - facebook login
+meta-pixel:
+  aliases:
+  - facebook
+  - meta platforms
+  - meta pixel
+  - fbevents
+microsoft-clarity:
+  aliases:
+  - clarity
+  - microsoft clarity
+microsoft-entra:
+  aliases:
+  - entra id
+  - azure ad
+  - microsoft entra
+netlify:
+  aliases:
+  - netlify
+okta:
+  aliases:
+  - okta
+onetrust:
+  aliases:
+  - onetrust
+  - cookielaw
+paypal:
+  aliases:
+  - paypal
+plausible:
+  aliases:
+  - plausible
+sharethis:
+  aliases:
+  - sharethis
+  - addthis
+  - addtoany
+  - share buttons
+sociablekit:
+  aliases:
+  - sociablekit
+spid:
+  aliases:
+  - spid
+stripe:
+  aliases:
+  - stripe
+tawkto:
+  aliases:
+  - tawk
+tiktok-pixel:
+  aliases:
+  - tiktok
+typeform:
+  aliases:
+  - typeform
+umami:
+  aliases:
+  - umami
+unpkg:
+  aliases:
+  - unpkg
+vercel:
+  aliases:
+  - vercel
+vimeo:
+  aliases:
+  - vimeo
+webanalytics-italia:
+  aliases:
+  - web analytics italia
+  - webanalytics.italia
+wordpress-stats:
+  aliases:
+  - jetpack
+  - wordpress.com
+  - automattic
+  - site stats
+x-twitter:
+  aliases:
+  - twitter
+  - x corp
+  - x (twitter)
+yandex-metrica:
+  aliases:
+  - yandex
+youtube:
+  aliases:
+  - youtube
+  - youtube-nocookie
+  - embedded video
+youtube-nocookie-note:
+  aliases:
+  - youtube-nocookie

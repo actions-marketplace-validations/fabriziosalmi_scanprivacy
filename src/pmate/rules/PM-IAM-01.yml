@@ -1,0 +1,26 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# Identity surface. Everything below is observed without submitting anything,
+# without authenticating and without probing for administrative paths: only
+# what the page itself exposes to a visitor who opens it.
+id: PM-IAM-01
+severity: high
+confidence: certain
+subject: cookie
+tags:
+- identity
+- session
+- security
+references:
+- gdpr:32
+- iso27001:A.8.9
+- soc2:CC6.6
+condition:
+  cookie_looks_like_session: true
+  cookie_attribute_missing: httponly
+remediation:
+  source: rule
+  effort: low

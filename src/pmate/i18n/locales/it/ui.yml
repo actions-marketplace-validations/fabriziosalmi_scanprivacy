@@ -1,0 +1,974 @@
+# Italiano. Le chiavi assenti ricadono sull'inglese, quindi questo file può
+# restare parziale senza rompere nulla — ma un report misto si vede, e la
+# suite di test verifica che sia completo.
+
+enum:
+  Severity:
+    critical: Critica
+    high: Alta
+    medium: Media
+    low: Bassa
+    info: Informativa
+  Confidence:
+    certain: osservata
+    probable: indiziaria
+  Effort:
+    low: basso
+    medium: medio
+    high: alto
+  Owner:
+    dpo: DPO / privacy
+    cto: Sviluppo
+    sysops: Sistemi e infrastruttura
+    security: Sicurezza
+    legal: Legale
+    procurement: Acquisti
+  ConsentClass:
+    required: consenso preventivo necessario
+    technical: strettamente necessario
+    uncertain: opinabile
+  TransferScope:
+    eea: SEE
+    adequacy: fuori dal SEE, con decisione di adeguatezza
+    non_eea: fuori dal SEE
+  DataClass:
+    tracking: tracciamento
+    functional: funzionale
+    unknown: non classificato
+  VendorCategory:
+    identity: provider di identità
+    analytics: analisi statistiche
+    ads: pubblicità
+    fonts: caratteri tipografici
+    cdn: distribuzione contenuti
+    tag_manager: gestore di tag
+    captcha: anti-abuso
+    embed: contenuti incorporati
+    social: social
+    maps: mappe
+    media: contenuti multimediali
+    chat: chat con l'utente
+    forms: moduli
+    payments: pagamenti
+    consent: gestione del consenso
+    email: email marketing
+    infra: infrastruttura
+    security: sicurezza
+  Detection:
+    request: richiesta osservata
+    header: header di risposta
+  FindingStatus:
+    open: aperto
+    in_progress: in lavorazione
+    resolved: risolto
+    accepted_risk: rischio accettato
+  Grade:
+    A: A
+    B: B
+    C: C
+    D: D
+    F: F
+    INCONCLUSIVE: NON CONCLUSIVO
+  ScanStatus:
+    ok: completata
+    unreachable: obiettivo irraggiungibile
+    robots_skip: saltata, non consentita da robots.txt
+    error: fallita
+  DocumentKind:
+    privacy: informativa privacy
+    cookie: cookie policy
+    terms: note legali
+    accessibility: dichiarazione di accessibilità
+  DataType:
+    identity_attributes: attributi di identità (nome, email, ruolo)
+    account_identifier: identificatore dell'account
+    authentication_events: eventi di autenticazione
+    ip: indirizzo IP
+    user_agent: user agent
+    referer: pagina di provenienza
+    page_viewed: pagina visitata
+    client_id: identificatore del client
+    browsing_history: cronologia di navigazione
+    session_recording: registrazione della sessione
+    mouse_movements: movimenti del mouse
+    fingerprinting: segnali di fingerprinting del dispositivo
+    ad_identifiers: identificatori pubblicitari
+    inferred_interests: interessi inferiti
+    email: indirizzo email
+    form_answers: risposte al modulo
+    conversations: contenuto delle conversazioni
+    consent_proof: prova del consenso
+    approximate_location: posizione approssimativa
+    requested_location: posizione richiesta
+    antifraud_signals: segnali antifrode
+    device_identifiers: identificatori di dispositivo
+    request_metadata: metadati della richiesta
+    aggregated_metrics: metriche aggregate
+    videos_watched: video visualizzati
+    open_rate: apertura dei messaggi
+    comments: commenti
+    email_hash: email in forma di hash
+    visitor_id: identificatore del visitatore
+
+report:
+  title: Verifica privacy — {domain}
+  document_title: "Verifica privacy — {domain}"
+  description: >
+    Verifica passiva di conformità privacy di {domain} — rilievi, evidenza
+    integrale e riproducibilità.
+  subtitle_observed: "Osservazione passiva della pagina pubblica · {timestamp} UTC"
+  subtitle_url: "Pagina osservata"
+  subtitle_scan: "Riferimento scansione"
+  verdict_conformant: conforme sui punti osservati
+  verdict_not_conformant: non conforme sui punti osservati
+  footer: "privacymate · verifica passiva · non costituisce parere legale"
+
+  headings:
+    pages: Pagine osservate
+    responsibility: Ripartizione per responsabile
+    index: Indice dei rilievi
+    findings: Rilievi in dettaglio
+    no_findings: Nessun rilievo sulla pagina osservata, con il metodo dichiarato in fondo al documento.
+    inventory: Destinatari osservati
+    evidence: Evidenza integrale
+    requests: Richieste osservate al primo caricamento
+    cookies: Cookie presenti alla prima visita
+    storage: Memoria del terminale
+    headers: Header della risposta principale
+    tls: Certificato TLS
+    documents: Documenti legali letti
+    documents_attempted: Documenti cercati e non disponibili
+    reproducibility: Riproducibilità
+    parameters: Parametri di osservazione
+    rerun: Come rieseguire e come controllare
+    rule_digests: Impronte delle singole regole applicate
+    method: Metodo e limiti
+    snippets: Passaggi che soddisfano gli elementi riconosciuti
+
+  labels:
+    not_declared: non dichiarato
+    cookies_set: Cookie
+    requests_count: Richieste
+    page_kind: Tipo
+    severity: Gravità
+    priority: Priorità
+    findings_count: Rilievi
+    owner: Responsabile
+    secondary_owner: coinvolgere
+    confidence: confidenza
+    identifier: Identificativo
+    finding: Rilievo
+    of_which_serious: di cui gravi
+    quick_wins: interventi rapidi
+    areas: Aree
+    legal_references: Riferimenti normativi
+    control_mapping: Mappatura controlli
+    evidence: Evidenza osservata
+    verification: Come verificarlo in autonomia
+    remediation: "Correzione — impegno {effort}"
+    alternatives: Alternative
+    page_title: Titolo pagina
+    platform: Piattaforma riconosciuta
+    third_parties: Terze parti contattate
+    cookies_first_visit: Cookie alla prima visita
+    storage_keys: Chiavi di memoria del terminale
+    consent_mechanism: Meccanismo di consenso
+    documents_read: Documenti legali letti
+    evidence_digest: Impronta dell'evidenza
+    ruleset_digest: Impronta del ruleset
+    none_detected: nessuno rilevato
+    none: nessuno
+    not_detected: non riconosciuta
+    "yes": "sì"
+    "no": "NO"
+    service: Servizio
+    entity: Soggetto
+    jurisdiction: Giur.
+    transfer: Trasferimento
+    consent: Consenso
+    declared: Dichiarato
+    time_ms: t (ms)
+    host: Host
+    type: Tipo
+    status: Stato
+    path: Percorso
+    name: Nome
+    domain: Dominio
+    class: Classe
+    secure: Secure
+    http_only: HttpOnly
+    same_site: SameSite
+    lifetime: Durata
+    session: sessione
+    persistent: persistente
+    size: Dimensione
+    key: Chiave
+    url: URL
+    file: File
+    digest: SHA-256
+    issuer: Emittente
+    classification: Classificazione
+    valid_from: Valido dal
+    valid_until: Valido fino al
+    days: "{n} giorni"
+    protocol: Protocollo
+    fingerprint: Impronta SHA-256
+    extracted_text: Testo estratto
+    characters: "{n} caratteri"
+    discovery: Come è stato individuato
+    outcome: Esito
+    elements_present: "Elementi art. 13 presenti"
+    elements_missing: Elementi non riconosciuti
+    vendors_named: Fornitori nominati
+    vendors_negated: Nominati per escluderli
+    engine: Motore
+    computed_on: Calcolata su
+    knowledge_digest: Impronta knowledge base
+
+  legend:
+    requests_entry_only: >
+      La tabella seguente elenca le richieste della pagina di ingresso ({url}); le altre pagine sono conteggiate nella tabella qui sopra e dettagliate nel JSON allegato.
+    pages: >
+      Le pagine sono scelte in modo deterministico — una per tipo, poi una pagina profonda, poi la navigazione principale — così due scansioni dello stesso sito restano confrontabili. I link si seguono solo dalla pagina di ingresso: una verifica di conformità non è un crawl.
+    severity_priority: >
+      <strong>Gravità</strong>: quanto pesa il rilievo sul piano normativo.
+      <strong>Priorità</strong>: in quale ordine conviene affrontarlo — è la
+      gravità corretta per l'impegno richiesto, così che un rilievo alto
+      risolvibile in dieci minuti venga prima di uno che richiede una trattativa
+      con un fornitore. P1 è il più urgente, P5 il meno.
+    owner: >
+      Il responsabile indicato è chi ha la leva tecnica o organizzativa per
+      chiudere il rilievo, non chi risponde giuridicamente del trattamento.
+    inventory: >
+      Soggetti terzi che hanno ricevuto dati al caricamento della pagina, nella
+      forma utile a compilare o riconciliare il registro dei trattamenti
+      (art. 30 GDPR) e il registro dei fornitori. «Dichiarato» indica se il
+      soggetto è nominato nei documenti legali letti.
+    requests: >
+      Nessuna interazione dell'utente. Il tempo è misurato dall'avvio della
+      navigazione: una richiesta a t = 200 ms non può seguire un consenso che
+      l'utente non ha prestato.
+    headers: >
+      Valori riportati per esteso: sono evidenza, e un valore troncato non è
+      verificabile.
+    documents_attempted: >
+      Elencati perché fanno parte dell'evidenza: dicono dove il documento è
+      stato cercato prima di concludere che non è raggiungibile.
+    rule_digests: >
+      Appendice: consente di stabilire se una regola è cambiata fra due
+      scansioni, e quale.
+    negated_vendors: >
+      Citati solo in forma negativa («non utilizziamo…»): non contano come
+      dichiarazione di un destinatario.
+    reproducibility: >
+      Questo documento è ricavabile daccapo. Le impronte di configurazione
+      identificano regole e knowledge base applicate: a parità di impronte e di
+      obiettivo, l'analisi applicata è la stessa. L'impronta dell'evidenza lega
+      il report all'osservazione allegata; non è stabile fra esecuzioni, perché
+      i siti cambiano — ed è esattamente ciò che consente di dimostrare che sono
+      cambiati.
+    quick_wins: >
+      <strong>{n} interventi a impegno basso su rilievi di gravità alta o
+      critica.</strong> Sono i primi da fare: {ids}.
+    truncated_requests: >
+      Mostrate {shown} richieste su {total}; l'elenco completo, con gli URL per
+      esteso, è nel JSON allegato.
+    more_items: "(+{n} nell'allegato JSON)"
+    no_documents_read: "Nessun documento legale è stato letto: si veda l'elenco dei tentativi qui sotto."
+    no_third_parties: Nessuna terza parte contattata al caricamento.
+    no_cookies: Nessun cookie impostato alla prima visita.
+    no_storage: Nessuna scrittura sulla memoria del terminale.
+    unusable_document: raggiungibile ma non riconoscibile come documento «{kind}»
+
+  summary:
+    third_parties: >
+      Al caricamento della pagina, senza alcuna interazione dell'utente, il sito
+      ha contattato <strong>{n} soggetti terzi</strong>
+    third_parties_transfers: ", di cui {n} trattano dati fuori dallo Spazio Economico Europeo"
+    third_parties_transfers_all: ", tutti con trattamento fuori dallo Spazio Economico Europeo"
+    third_parties_undeclared: "; <strong>{n} non risultano nominati</strong> nei documenti legali pubblicati"
+    third_parties_none: >
+      Al caricamento della pagina non è stata osservata alcuna richiesta verso
+      soggetti terzi: il sito si serve solo del proprio dominio.
+    storage_intro: Prima di qualunque scelta dell'utente il sito ha già impostato
+    cookies:
+      one: 1 cookie
+      other: "{n} cookie"
+    storage_keys:
+      one: 1 chiave di memoria del terminale
+      other: "{n} chiavi di memoria del terminale"
+    storage_join: " e "
+    storage_tracking:
+      one: ", di cui 1 riconducibile a tracciamento"
+      other: ", di cui {n} riconducibili a tracciamento"
+    storage_none: Nessun cookie e nessuna scrittura sul terminale alla prima visita.
+    consent_missing: >
+      {n} dei servizi osservati richiedono il consenso preventivo, ma nella
+      pagina non è stato rilevato alcun meccanismo per raccoglierlo.
+    consent_present: "È presente un meccanismo di consenso ({names})."
+    verdict: >
+      L'esito complessivo è <strong>{grade}</strong>: {total} rilievi, di cui
+      {critical} critici e {high} alti
+    verdict_quick: "; {n} si chiudono con un intervento a impegno basso"
+
+  posture_label:
+    method: Metodo
+    pages: Pagine
+    interaction: Interazione
+    consent: Consenso
+    extra_requests: Richieste aggiuntive
+    intrusive_tests: Test intrusivi
+    robots: robots.txt
+    user_agent: User-Agent
+  posture:
+    pages:
+      one: solo la pagina indicata, un caricamento al secondo per host
+      other: >
+        al più {n} pagine dello stesso sito, scelte in modo deterministico, un
+        caricamento al secondo per host
+    method: caricamento della sola pagina pubblica indicata, con browser headless
+    interaction: nessuna — nessun click, nessun invio di moduli, nessuna autenticazione
+    consent: >
+      nessuna scelta espressa: si osserva ciò che il sito fa a un visitatore che
+      non ha ancora deciso
+    extra_requests: solo i documenti legali collegati dalla pagina, uno per tipo
+    intrusive_tests: nessuno — nessun fuzzing, nessuna enumerazione, nessun accesso ad aree riservate
+    robots: rispettato per ogni URL richiesto dal motore
+    user_agent: "{ua}"
+
+  limits:
+    partial: >
+      Una parte dell'osservazione non è andata a termine: {probes}. Ciò che
+      quelle letture avrebbero trovato non è noto, e questo report non lo tratta
+      come assente. Ripetere la scansione prima di trarre conclusioni da un
+      silenzio in quelle aree.
+    title: Limiti dichiarati.
+    body: >
+      L'osservazione riguarda una sola pagina e una sola visita: strumenti
+      presenti altrove non emergono, e due caricamenti consecutivi possono
+      differire. Non è stato espresso alcun consenso, quindi non è verificato il
+      comportamento successivo all'accettazione. Il riconoscimento degli
+      elementi dell'art. 13 è testuale: una formula inconsueta può sfuggire, per
+      questo i rilievi documentali hanno confidenza «indiziaria». La mappatura
+      verso ISO, NIS2 e SOC 2 orienta il lavoro e non attesta conformità a quegli
+      schemi.
+    disclaimer: >
+      Verifica condotta osservando esclusivamente il traffico generato dal
+      browser al caricamento di pagine pubbliche, con gli strumenti
+      ordinariamente disponibili. Ricerca tecnica indipendente, condotta in buona
+      fede: non costituisce parere legale né consulenza professionale in materia
+      di protezione dei dati.
+
+verification:
+  clean_window: >
+    Aprire una finestra di navigazione in incognito (nessun cookie pregresso,
+    nessuna estensione) e gli strumenti per sviluppatori sulla scheda Rete,
+    spuntando «conserva log».
+  closing: >
+    Ogni verifica va condotta in finestra pulita: un cookie o un consenso
+    pregresso cambia ciò che il sito fa e rende il confronto non comparabile.
+  vendor_request:
+    - "{clean_window}"
+    - "Caricare {url} e **non** interagire con la pagina."
+    - "Filtrare le richieste per `{host}`: la richiesta compare prima di qualunque click."
+  vendor_request_sample: "Richiesta osservata durante questa verifica: `{url}`"
+  vendor_request_cli: >
+    Da riga di comando lo stesso fatto si ottiene con: `curl -s {url} | grep -o {host} | sort -u` (cattura le inclusioni statiche; quelle iniettate da script si vedono solo nella scheda Rete).
+  vendor_header:
+    - "Eseguire: `curl -sSI {url}` e leggere gli header di risposta."
+    - >
+      L'intestazione che identifica il fornitore è riportata nell'evidenza
+      (`server`, `cf-ray`, `x-github-request-id`, …).
+    - Confrontare con l'elenco dei responsabili del trattamento nell'informativa.
+  vendor_document: "Verificare se il fornitore è nominato in {url} (ricerca testuale nella pagina)."
+  cookie:
+    - "{clean_window}"
+    - "Caricare {url} senza interagire."
+    - "Strumenti per sviluppatori → Applicazione → Cookie → `{domain}`: il cookie «{name}» è già presente."
+    - "In alternativa, gli header: `curl -sSI {url} | grep -i set-cookie`."
+  storage:
+    - "{clean_window}"
+    - "Caricare {url} senza interagire."
+    - "Strumenti per sviluppatori → Applicazione → {kind} → la chiave «{key}» è già scritta."
+    - "Oppure in console: `Object.keys(localStorage)` e `Object.keys(sessionStorage)`."
+  form:
+    - "Aprire {url} e ispezionare l'elemento `<form>` indicato nell'evidenza."
+    - "L'attributo `action` punta a `{action}`."
+    - >
+      Nessun invio è stato effettuato durante l'osservazione: il rilievo
+      riguarda la destinazione dichiarata dal modulo.
+  headers:
+    - "Eseguire: `curl -sSI {url}`."
+    - >
+      Confrontare gli header presenti con quelli attesi dal rilievo (l'elenco
+      completo degli header osservati è nell'evidenza).
+  tls:
+    - >
+      Eseguire: `openssl s_client -connect {host}:443 -servername {host} </dev/null 2>/dev/null |
+      openssl x509 -noout -issuer -dates -fingerprint -sha256`.
+    - Confrontare emittente e impronta con quelli riportati nella sezione TLS dell'evidenza.
+  documents_found:
+    - "Aprire {url} e cercare nel testo gli elementi elencati come mancanti."
+    - >
+      Il documento è stato letto integralmente: la sezione «documenti legali» ne
+      riporta URL, lunghezza e impronta SHA-256 del testo estratto, così da poter
+      confrontare la stessa versione.
+  documents_missing:
+    - "Cercare un collegamento all'informativa in {url}, footer compreso."
+    - >
+      Provare i percorsi convenzionali: /privacy, /privacy-policy,
+      /cookie-policy. L'elenco dei percorsi tentati e il loro esito sono nella
+      sezione documenti dell'evidenza.
+  consent:
+    - "{clean_window}"
+    - >
+      Caricare {url}: osservare se compare un meccanismo di scelta e,
+      contemporaneamente, quali cookie e chiavi di memoria sono già presenti
+      prima di qualunque scelta.
+    - >
+      In console: `typeof window.__tcfapi` — se restituisce `undefined`, non è
+      esposta l'API di consenso standard.
+  ai:
+    - "Aprire {url} e cercare un avviso visibile sulla natura automatica del componente."
+    - Verificare nell'informativa la presenza di una sezione sull'uso di sistemi di IA.
+
+evidence:
+  criteria_met: Criteri soddisfatti sulla superficie osservabile
+  criteria_not_assessable: Criteri non valutabili dall'esterno
+  observed_signals: Che cosa è stato osservato
+  has_password: Contiene un campo password
+  page: Pagina
+  first_seen_page: Vista per la prima volta su
+  pages: Pagine che lo contattano
+  detected_via: Rilevato tramite
+  reached_through: Raggiunto tramite il documento incorporato
+  hosts: Host contattati
+  observed_requests: Richieste osservate
+  resource_types: Tipi di risorsa
+  transfer: Trasferimento
+  transfer_basis: Base del trasferimento
+  declared_in: Nominato nel documento
+  name: Nome
+  domain: Dominio
+  secure: Secure
+  http_only: HttpOnly
+  same_site: SameSite
+  session: Cookie di sessione
+  classification: Classificazione
+  attributed_to: Attribuito a
+  kind: Tipo
+  key: Chiave
+  size: Dimensione
+  action: Destinazione del modulo
+  method: Metodo
+  fields: Campi
+  privacy_checkbox: Casella privacy presente
+  missing_elements: Elementi mancanti
+  conditional_elements: Elementi dovuti solo in certi casi
+  document: Documento
+  consent_required_vendors: Servizi che richiedono consenso
+  cmp_detected: Piattaforma di consenso rilevata
+  issuer: Emittente del certificato
+  expiry: Scadenza
+  observed_headers: Header osservati
+  csp_report_only: Policy servita in sola segnalazione (non applica nulla)
+  legal_links_found: Link legali trovati
+  cookie_elements_present: Elementi della cookie policy presenti
+  platform_constraint: Vincolo della piattaforma
+
+record:
+  findings_digest_note: >
+    Copre i rilievi così come pubblicati. Il digest dell'evidenza qui sopra
+    copre l'osservazione da cui derivano; questo rileva un documento i cui
+    rilievi sono stati modificati a posteriori.
+  digest_note: A parità di impronte e di obiettivo, l'analisi applicata è la stessa.
+  evidence_digest_computed_on: JSON canonico del blocco «observation» (chiavi ordinate, senza spazi)
+  evidence_digest_note: >
+    Identifica questa osservazione; non è stabile fra esecuzioni, perché i siti
+    cambiano. Serve a legare il report all'evidenza allegata e a rilevare
+    modifiche successive.
+  rerun:
+    - pip install -e . && python -m playwright install chromium
+    - "pmate scan {url} --json evidenza.json --md report.md --pdf report.pdf"
+    - "pmate verify evidenza.json   # ricalcola tutte le impronte di questa sezione"
+    - >
+      Ogni singolo rilievo riporta inoltre i passi per verificarlo con un
+      browser e curl, senza questo strumento.
+  parameters:
+    user_agent: user agent
+    wait_after_domcontentloaded_ms: attesa dopo DOMContentLoaded (ms)
+    navigation_timeout_ms: timeout di navigazione (ms)
+    scan_budget_s: budget per scansione (s)
+    robots_respected: robots.txt rispettato
+    max_documents: documenti massimi letti
+    max_requests_recorded: richieste registrate massime
+  engine:
+    engine: motore
+    python: python
+    system: sistema
+    playwright: playwright
+    browser: browser
+    weasyprint: weasyprint
+
+verdict:
+  conformant_note: Nessun rilievo di gravità critica o alta sulla pagina osservata.
+  not_conformant_note: Presenti rilievi che richiedono intervento prima di considerare il sito conforme.
+  inconclusive_note: "Il sito non è stato caricato: l'esito non è un esito favorevole."
+  inconclusive_blocking: osservazione non riuscita — nessun rilievo può essere escluso
+  robots_skip: il robots.txt del sito non consente allo user agent dichiarato di leggere questo URL
+
+cli:
+  scan_summary: "{url} -> {grade} ({n} rilievi)"
+  verify_evidence_intact: "evidenza integra   : {value}"
+  verify_findings_intact: 'rilievi integri    : {value}'
+  verify_declared: "  dichiarata       : {value}"
+  verify_recomputed: "  ricalcolata      : {value}"
+  verify_ruleset: "ruleset invariato  : {value}"
+  verify_knowledge: "knowledge invariata: {value}"
+  diff_header: "{target}  {before} → {after}  ({days} giorni)"
+  diff_resolved: "  risolti     : {n}"
+  diff_new: "  nuovi       : {n}"
+  diff_persisting: "  persistenti : {n}"
+  diff_open_since: "  ! aperto da {days} giorni: {id}"
+
+remediation:
+  constraint:
+    github-pages: >
+      Non risolvibile su GitHub Pages: la piattaforma invia un insieme fisso di
+      header di risposta e non permette di aggiungerne. Le due strade sono
+      anteporre al sito una CDN o un reverse proxy in grado di impostare gli
+      header (Cloudflare, Fastly, un'istanza Caddy o nginx), oppure spostare
+      l'hosting dove gli header siano configurabili. Quanto segue vale una volta
+      che ci si trova dove un header si può impostare.
+  depends_on_vendor: >
+    La correzione dipende da quale terza parte ha generato il rilievo: ogni
+    fornitore nella knowledge base indica il pattern che gli si applica.
+  depends_on_vendor_step: >
+    Consultare il fornitore — `pmate remediation <vendor-id>` — o uno dei pattern
+    che può indicare: {patterns}.
+  unknown_third_party: Terza parte non identificata
+  transfer_basis:
+    dpf: EU–US Data Privacy Framework
+    scc: Clausole contrattuali standard
+    dpf_scc: EU–US Data Privacy Framework / clausole contrattuali standard
+    adequacy: decisione di adeguatezza
+  pattern:
+    self_host_asset:
+      summary: Servire la risorsa dal proprio dominio ed eliminare la chiamata a {product}.
+      steps:
+        - Scaricare il file alla versione in uso e servirlo dal proprio dominio.
+        - Rimuovere ogni riferimento a {hosts} da template e fogli di stile.
+        - Riverificare in finestra pulita che la pagina non contatti più {product} al caricamento.
+    replace_with_eu_alternative:
+      summary: Sostituire {product} con uno strumento equivalente che non esporti dati, oppure subordinarlo al consenso.
+      steps:
+        - Stabilire a cosa serve davvero {product} e se uno strumento più leggero copre la stessa esigenza.
+        - Adottare una delle alternative indicate, self-hosted o con trattamento nel SEE.
+        - Se {product} deve restare, caricarlo solo dopo consenso esplicito e dichiarare il trasferimento in informativa.
+    remove_or_consent_gate:
+      summary: Rimuovere {product}, oppure caricarlo solo dopo consenso esplicito.
+      steps:
+        - >
+          Stabilire se {product} risponde ancora a una finalità attiva; se non è
+          così, rimuoverlo chiude il rilievo in modo definitivo.
+        - >
+          Se resta, condizionare lo script al consenso: la richiesta non deve
+          partire prima che l'utente abbia scelto.
+        - Dichiarare {vendor} fra i destinatari nell'informativa, con finalità e trasferimento.
+    click_to_load:
+      summary: Sostituire l'embed con un'anteprima locale che carica {product} solo su richiesta dell'utente.
+      steps:
+        - Sostituire l'iframe o il widget con un'anteprima statica servita dal proprio dominio.
+        - Caricare il componente di terza parte solo su click esplicito, dicendo cosa accadrà.
+        - "Dichiarare {vendor} in informativa: una volta caricato, il componente riceve i dati del visitatore."
+    declare_processor:
+      summary: "Fornitore necessario: non c'è nulla da rimuovere, ma va dichiarato."
+      steps:
+        - Indicare {vendor} fra i responsabili nell'informativa, con la finalità che assolve.
+        - Indicare il trasferimento ({transfer}) e la base su cui si fonda, tenendone copia disponibile.
+        - Verificare che l'accordo ex art. 28 sia firmato e aggiornato.
+    scope_to_page:
+      summary: Caricare {product} solo sulle pagine che ne hanno davvero bisogno.
+      steps:
+        - Rimuovere {product} dal layout globale e includerlo solo dove la funzione serve.
+        - Dichiarare {vendor} in informativa, insieme alla finalità.
+    verify_prior_blocking:
+      summary: "Piattaforma di consenso: tecnica per natura, ma deve bloccare davvero."
+      steps:
+        - Attivare il blocco preventivo automatico nella configurazione della piattaforma.
+        - Verificare in finestra pulita che nessuna richiesta a terzi parta prima della scelta.
+        - "Dichiarare {vendor} in informativa: tratta la prova del consenso."
+    session_replay:
+      summary: "Registrazione della sessione: consenso esplicito preventivo, oppure rimozione."
+      steps:
+        - Rimuovere {product} se le registrazioni non sono usate per una finalità definita.
+        - "Se resta: consenso esplicito preventivo, mascheramento automatico dei campi, periodo di conservazione dichiarato."
+        - Dichiarare {vendor} in informativa, indicando cosa contiene una registrazione.
+    identify_unknown:
+      summary: Identificare cosa sia {product}, decidere se serve e dichiararlo se resta.
+      steps:
+        - Stabilire quale componente del sito carica {hosts} e a quale finalità risponde.
+        - Se non è necessario, rimuoverlo; se lo è, self-hostare la risorsa quando possibile.
+        - Se il servizio resta, firmare l'accordo ex art. 28 e citarlo fra i destinatari nell'informativa.
+  extra:
+    badges_are_fetched_per_view: >
+      Un badge viene scaricato a ogni visualizzazione, non una volta sola: un README
+      con dieci badge espone il visitatore al servizio dieci volte. L'immagine è
+      statica: metterla in cache in fase di build elimina il trasferimento senza
+      cambiare la pagina.
+    idp_receives_identity: >
+      Un provider di identità riceve chi è l'utente, non soltanto che un visitatore è arrivato: indicare le categorie di attributi di identità che riceve e per quanto tempo sono conservati gli eventi di autenticazione.
+    remove_font_link: Rimuovere ogni <link rel="preconnect"/"stylesheet"> verso {hosts}.
+    remove_gtag: Rimuovere gtag.js e il tag di misurazione dal template.
+    audit_container: Censire i tag effettivamente attivi nel container prima di decidere.
+    consent_mode_not_enough: >
+      Il Consent Mode da solo non basta: la richiesta verso il tag manager parte
+      comunque.
+    assess_spam_volume: >
+      Misurare prima il volume reale di spam: spesso un honeypot con rate limiting
+      è sufficiente, e non profila nessuno.
+    nocookie_is_not_enough: >
+      Il dominio youtube-nocookie riduce i cookie impostati ma non elimina il
+      trasferimento dell'indirizzo IP del visitatore.
+    no_cookie_wall: L'accesso al contenuto non deve dipendere dall'accettazione della pubblicità.
+    check_request_path: >
+      Verificare il path della richiesta (recaptcha, fonts, ads, …) e applicare la
+      correzione specifica di quel servizio.
+    record_in_ropa: Riportare il trattamento nel registro delle attività di trattamento.
+    verify_transfer_chain: Verificare l'intera catena di trasferimento, inclusi i trasferimenti successivi del fornitore.
+    enable_masking: Attivare la soppressione automatica dei campi sensibili nelle registrazioni.
+    matomo_consent_exempt_config: >
+      Configurarlo in modo esente da consenso: anonimizzazione IP di almeno due
+      byte, tracciamento senza cookie, Do Not Track rispettato.
+    prefer_self_hosted: Preferire l'istanza self-hosted al servizio cloud.
+    map_subprocessors: Mappare la catena dei sub-responsabili e mantenerla nel registro.
+    no_adequacy_decision: >
+      Il paese di destinazione non ha una decisione di adeguatezza: la rimozione è
+      l'opzione sicura; qualunque altra richiede una valutazione d'impatto sul
+      trasferimento.
+    wordpress_disable_avatars: "In WordPress: Impostazioni → Discussione → disattivare gli avatar, oppure plugin di avatar locali."
+    jetpack_disable_stats: >
+      Disattivare il modulo Jetpack Stats e il Site Accelerator, che instrada
+      anche le immagini attraverso wp.com.
+    vimeo_dnt: Aggiungere il parametro dnt=1 all'embed.
+    declare_antifraud: Dichiarare in informativa la finalità antifrode e il trasferimento.
+    separate_form_from_tracking: Separare il modulo in sé (necessario) dal codice di tracciamento (facoltativo).
+    verify_dpa: Verificare che l'accordo sul trattamento sia firmato e copra il trattamento in corso.
+    cmp_is_also_a_transfer: >
+      La piattaforma di consenso è essa stessa un trasferimento fuori dal SEE e va
+      dichiarata come ogni altro destinatario.
+    prefer_eu_region: Scegliere una regione UE per il trattamento, dove il fornitore la offre.
+    asset_from_widget: >
+      Se la risorsa proviene da un widget incorporato, la correzione riguarda il
+      widget: rimuoverlo o caricarlo al click.
+  alternative:
+    link_out_to_channel: un collegamento al canale, aperto solo se il visitatore lo sceglie
+    cached_badge_svg: l'SVG del badge, scaricato una volta in fase di build e servito dal proprio dominio
+    fontsource: Fontsource (self-hosted via npm)
+    system_fonts: caratteri di sistema
+    matomo_self_hosted: Matomo (self-hosted)
+    umami_self_hosted: Umami (self-hosted)
+    plausible_eu: Plausible (UE)
+    cloudflare_web_analytics: Cloudflare Web Analytics
+    web_analytics_italia: Web Analytics Italia (per le PA)
+    turnstile: Cloudflare Turnstile
+    altcha: Altcha (self-hosted, proof of work)
+    honeypot_rate_limit: honeypot con rate limiting
+    leaflet_osm: Leaflet con tile OpenStreetMap
+    maptiler_eu: MapTiler (UE)
+    external_map_link: un semplice link alla mappa
+    lite_youtube_embed: lite-youtube-embed
+    peertube: PeerTube
+    self_hosted_video: video self-hosted
+    inline_svg_icons: icone SVG inline
+    local_avatars: avatar generati localmente
+    brevo: Brevo (FR)
+    mailerlite: MailerLite
+    listmonk: Listmonk (self-hosted)
+    cal_com_self_hosted: Cal.com (self-hosted)
+    isso: Isso
+    commento: Commento
+    giscus: Giscus
+    static_share_links: link di condivisione statici, senza script
+    matomo_heatmaps: Matomo Heatmaps (self-hosted)
+    moderated_usability_testing: test di usabilità moderati con partecipanti consenzienti
+
+constraint:
+  response_headers_fixed:
+    github-pages: >
+      GitHub Pages invia un insieme fisso di header di risposta e non offre alcun
+      modo per aggiungerne uno: nessun file di configurazione, nessuna
+      impostazione, nessuna regola sugli header. Il rilievo è fondato e
+      l'esposizione è reale, ma non può essere chiuso finché il sito è servito da
+      questa piattaforma.
+
+platform:
+  wordpress:
+    hint: >
+      Gli interventi si fanno tipicamente a livello di tema (header.php /
+      functions.php) o disattivando il plugin che inietta la risorsa. Verificare
+      Jetpack (Stats, Photon), Gravatar e i plugin di condivisione social.
+  astro:
+    hint: >
+      Sito statico: gli interventi si fanno nei componenti .astro e nel layout
+      base, poi rebuild e redeploy. Gli header HTTP vanno impostati sul CDN o sul
+      server che serve il build.
+  nextjs:
+    hint: Intervenire in app/layout o _document, e negli header di next.config.
+  hugo:
+    hint: Modificare i layout e i partial, poi rigenerare il sito.
+  joomla:
+    hint: >
+      Intervenire sul template attivo e sui moduli; molti tracker sono inseriti
+      da estensioni di terze parti.
+  drupal:
+    hint: Intervenire sul tema e sui moduli abilitati.
+  shopify:
+    hint: >
+      Piattaforma in hosting: alcuni trasferimenti non sono eliminabili e vanno
+      dichiarati; i tag aggiuntivi si tolgono dal tema o dalle app installate.
+  wix:
+    hint: >
+      Piattaforma chiusa in hosting: il margine tecnico è limitato, quindi
+      l'informativa deve dichiarare il fornitore e i suoi trattamenti.
+  squarespace:
+    hint: "Piattaforma in hosting: intervenire da Impostazioni → Cookies & Visitor Data."
+  opencity-italia:
+    hint: >
+      Piattaforma open source per la PA: la correzione va portata al fornitore
+      della piattaforma, così da sistemare tutti gli enti che la usano.
+  municipium:
+    hint: "Piattaforma PA fornita da Maggioli: aprire un ticket al fornitore."
+
+art13:
+  controller: Identità del titolare del trattamento (art. 13.1.a)
+  contact: Dati di contatto del titolare (art. 13.1.a)
+  dpo: Dati di contatto del responsabile della protezione dei dati (art. 13.1.b)
+  purposes: Finalità del trattamento (art. 13.1.c)
+  legal_basis: Base giuridica (art. 13.1.c)
+  recipients: Destinatari o categorie di destinatari (art. 13.1.e)
+  transfers: Trasferimenti verso paesi terzi (art. 13.1.f)
+  retention: Periodo di conservazione (art. 13.2.a)
+  rights: Diritti dell'interessato (art. 13.2.b — artt. 15-22)
+  complaint: Diritto di reclamo all'autorità di controllo (art. 13.2.d)
+  profiling: Processo decisionale automatizzato e profilazione (art. 13.2.f)
+  last_updated: Data di ultimo aggiornamento del documento
+
+discovery:
+  path_is_a_document: il path indica un documento
+  path_related: path attinente
+  link_text_exact: testo del link esatto
+  link_text_short_related: testo breve attinente
+  editorial_section: sezione editoriale (articolo, non documento)
+  deep_path: path profondo
+  long_text: testo lungo (titolo di contenuto)
+
+documents:
+  error:
+    no_response: nessuna risposta dal server
+    http_status: non disponibile (HTTP {status})
+    too_short: contenuto troppo breve per essere un documento ({n} caratteri)
+    not_recognisable: pagina raggiungibile ma non riconoscibile come documento «{kind}»
+
+cookie_policy:
+  cookie_list: Elenco dei cookie con denominazione e durata
+  how_to_withdraw: Istruzioni per disabilitarli e revocare il consenso
+
+diff:
+  configuration_changed: >
+    Le due scansioni sono state prodotte da configurazioni diverse del motore
+    ({changed} differiscono). Parte di quanto segue descrive la modifica al
+    motore, non un cambiamento sul sito: un rilievo che una regola non produce
+    più risulta risolto, e nessuno ha corretto nulla. Rieseguire la scansione
+    dello stato precedente con il motore attuale prima di leggere questi numeri
+    come remediation.
+  configuration_unknown: >
+    Una delle due scansioni non registra con quale configurazione del motore è
+    stata prodotta, quindi non si può dimostrare che siano la stessa analisi.
+    Leggere il confronto come indicativo, non come misura.
+  note: >
+    Un rilievo «risolto» significa che non è più osservabile con lo stesso
+    metodo, non che la causa sia stata rimossa: un tracker presente solo su
+    altre pagine sparisce da questo confronto pur restando attivo.
+
+page_choice:
+  entry: la pagina indicata
+  first_of_kind: "prima pagina di tipo {kind} trovata"
+  deep: pagina profonda — gli articoli portano incorporazioni che una landing non mostra
+  navigation: navigazione principale
+  robots_skip: "non visitata: esclusa da robots.txt"
+  other_host: >
+    non visitato: stessa organizzazione, sito diverso. Un deployment
+    separato richiede una scansione separata: i rilievi che ne derivano,
+    riportati qui, indicherebbero l'host sbagliato e manderebbero chi legge
+    sul codice sbagliato.
+
+page_kind:
+  entry: pagina di ingresso
+  contact: contatti
+  form: modulo
+  services: servizi
+  about: chi siamo
+  content: articolo
+  account: area utente
+  search: ricerca
+  other: altro
+
+consent_pass:
+  verification:
+    field_verified: >
+      verificato sul campo — questa esatta chiamata è stata eseguita contro
+      un'installazione reale della piattaforma e si è osservato che fa quanto il
+      fornitore dichiara.
+    documented: >
+      solo documentato — trascritto dalla documentazione del fornitore e mai
+      eseguito contro un'installazione reale. La chiamata può esistere,
+      terminare senza errori e non fare nulla: dall'esterno della pagina questo
+      è indistinguibile da un sito che ha ignorato il rifiuto. I rilievi di
+      questa passata sono espressi come indizi, non come fatti.
+  title: Passata di rifiuto — {domain}
+  document_title: "Passata di rifiuto — {domain}"
+  description: >
+    Che cosa fa {domain} dopo che il visitatore ha rifiutato il consenso,
+    misurato attraverso la via di rifiuto documentata dal fornitore stesso della
+    piattaforma di consenso.
+  intro: >
+    Questa è una verifica separata con un metodo separato. Il report standard
+    osserva un visitatore che non ha deciso e non tocca mai la pagina. Questa
+    esercita il rifiuto che il sito stesso offre, ricarica e confronta. Le due
+    rispondono a domande diverse e non sono mescolate di proposito.
+  outcome:
+    refused: rifiuto eseguito attraverso la via documentata
+    no_consent_mechanism: nessun meccanismo di consenso rilevato, niente da rifiutare
+    platform_not_recognised: meccanismo di consenso presente, nessuna via di rifiuto documentata nota
+    platform_not_ready: piattaforma di consenso rilevata ma con interfaccia non pronta
+    control_ambiguous: il controllo documentato corrispondeva a più di un elemento, quindi non è stato premuto nulla
+    refusal_failed: la via di rifiuto documentata è stata tentata e non è andata a buon fine
+  summary:
+    honoured: >
+      Dopo il rifiuto e un nuovo caricamento della pagina, nessun servizio che
+      richiede consenso è stato contattato e nessun identificatore di
+      tracciamento è rimasto sul dispositivo.
+    survived: >
+      Dopo il rifiuto e un nuovo caricamento della pagina, {vendors} servizi che
+      richiedono consenso sono stati contattati ugualmente e {tracking}
+      identificatori di tracciamento erano ancora presenti sul dispositivo.
+  footer: "privacymate · passata di rifiuto · non costituisce parere legale"
+  labels:
+    third_parties_after: Terze parti contattate dopo il rifiuto
+    cookies_after: Cookie presenti dopo il rifiuto
+    storage_after: Chiavi di memoria dopo il rifiuto
+    platform: Piattaforma di consenso
+    method: Metodo
+    action: Che cosa è stato eseguito esattamente
+    documentation: Documentazione del fornitore
+    verification: Quanto è provato questo percorso
+    outcome: Esito
+    markers: Marcatori rilevati
+    before: Prima del rifiuto
+    after: Dopo il rifiuto
+    survived: Ancora presente dopo il rifiuto
+  posture:
+    method_refusal: >
+      la pagina viene caricata, il meccanismo di consenso viene rifiutato per la
+      via documentata dal fornitore stesso, la pagina viene ricaricata e le due
+      osservazioni vengono confrontate
+    interaction_refusal: >
+      esattamente un'azione: la chiamata di rifiuto documentata oppure un click
+      sull'unico controllo pubblicato dal fornitore. Nessun altro click, nessun
+      modulo inviato, nessuna navigazione, nessun secondo tentativo con un
+      metodo diverso
+    platform_limit: >
+      solo le piattaforme di consenso presenti nel catalogo del motore,
+      identificate dalla loro stessa verifica di prontezza. Una piattaforma non
+      riconosciuta viene dichiarata come tale e lasciata intatta
+    meaning: >
+      un rifiuto espresso da un agente automatico misura il comportamento
+      tecnico del meccanismo; non è l'esercizio della volontà di un interessato
+
+fleet:
+  footer: "privacymate · verifica del parco siti · non costituisce parere legale"
+  quick_wins: "{n} rilievi nel parco siti sono interventi a impegno basso su rilievi gravi."
+  posture:
+    courtesy: >
+      ogni obiettivo condivide un solo budget di cortesia per host: decine di siti
+      dietro un unico fornitore di hosting non devono sommarsi in un test di carico
+  limits:
+    aggregate: >
+      Un aggregato dice quanto spesso una cosa ricorre, mai quanto è grave per un
+      singolo sito: un rilievo ripetuto su quaranta siti può essere un template da
+      correggere, e un rilievo su un sito solo può essere quello che conta. I report
+      per singolo sito restano il documento di riferimento.
+  title: Verifica privacy del parco siti
+  headline: >
+    {scanned} obiettivi osservati su {targets} ({failed} irraggiungibili). {actionable} presentano un rilievo oltre l'informativo, {affected} ne presentano almeno uno di qualunque tipo, {clean} nessuno.
+  headings:
+    repeated: Che cosa si ripete nel parco siti
+    vendors: Terze parti, per quanti siti le usano
+    targets: Tutti gli obiettivi
+    clean: Siti senza rilievi
+  labels:
+    courtesy: Cortesia
+    grade: Esito
+    sites: Siti
+    site: Sito
+    examples: Esempi
+    undeclared_on: Non dichiarata su
+    pages: Pagine
+  legend:
+    grades: >
+      Un esito per sito, sulla scala fail-closed: F con un rilievo critico, D con uno alto, C medio, B basso, A pulito.
+    repeated: >
+      Ordinato per numero di siti interessati, mai per numero di rilievi: lo
+      stesso CDN di caratteri su trenta siti è una decisione presa una volta e
+      ripetuta, non trenta problemi. Correggerla dove è stata presa li risolve
+      tutti.
+    vendors: >
+      Una terza parte usata in tutto il parco siti sta in una voce del registro
+      dei responsabili e in un contratto, non in trenta conversazioni separate.
+
+dpia:
+  heading: Screening per la valutazione d'impatto
+  transfers_heading: Trasferimenti da valutare
+  legend: >
+    Uno screening, mai una determinazione. Conta i criteri visibili dall'esterno
+    e nomina quelli che non lo sono: un report che si presentasse come completo
+    permetterebbe di concludere «nessuna valutazione necessaria» a partire da
+    un'evidenza che non ha mai coperto la domanda.
+  transfers_legend: >
+    Per ogni destinatario fuori dal SEE, le domande a cui una valutazione
+    d'impatto sul trasferimento deve rispondere, precompilate con quanto
+    osservato. Dove la knowledge base ha un equivalente, è indicato: la
+    valutazione d'impatto meno costosa è il trasferimento che non si fa.
+  met: Soddisfatti sulla superficie osservabile
+  not_assessable: Non valutabili dall'esterno — a cui deve rispondere il titolare
+  threshold: Due o più criteri soddisfatti richiedono di norma una valutazione.
+  labels:
+    criterion: Criterio
+    state: Stato
+    evidence: Che cosa è stato osservato
+    recipient: Destinatario
+    country: Paese
+    basis: Base del trasferimento
+    data: Dati comunicati
+    declared: Dichiarato
+    alternatives: Equivalenti che eliminerebbero il trasferimento
+    questions: Domande a cui la valutazione deve rispondere
+  questions:
+    - Quale soggetto riceve effettivamente i dati e in quale paese è stabilito?
+    - Su quale base si fonda il trasferimento, ed è disponibile copia dello strumento?
+    - >
+      Il destinatario è soggetto a normative che consentono l'accesso delle
+      autorità pubbliche oltre quanto il diritto dell'Unione ammetterebbe?
+    - Quali misure supplementari si applicano — cifratura, pseudonimizzazione, contrattuali e organizzative?
+    - Il trasferimento è davvero necessario, o esiste un equivalente all'interno del SEE?
+  criteria:
+    evaluation_scoring: Valutazione o attribuzione di punteggio, inclusa la profilazione
+    automated_decision: Decisioni automatizzate con effetti giuridici o similmente significativi
+    systematic_monitoring: Monitoraggio sistematico degli interessati
+    sensitive_data: Categorie particolari di dati, o dati di natura altamente personale
+    large_scale: Trattamento su larga scala
+    matching_combining: Combinazione o raffronto di insiemi di dati
+    vulnerable_subjects: Dati relativi a interessati vulnerabili
+    innovative_technology: Uso innovativo di nuove tecnologie
+    prevents_rights: Trattamento che impedisce agli interessati di esercitare un diritto o avvalersi di un servizio

@@ -1,0 +1,30 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# A reviewer of this file is checking one thing only: does the condition
+# describe the fact the rule claims to have found?
+id: PM-TRF-01
+severity: high
+confidence: certain
+subject: vendor
+tags:
+- transfers
+- third-parties
+references:
+- gdpr:13.1.f
+- gdpr:44
+- gdpr:5.1.a
+condition:
+  vendor_third_party: true
+  # The site answers for the embed it chose, not for what that embed
+  # loads inside itself — which it cannot see, configure or prevent.
+  vendor_via_embed: false
+  vendor_extra_eea: true
+  vendor_consent_class_any:
+  - required
+  - uncertain
+remediation:
+  source: vendor
+  effort: low

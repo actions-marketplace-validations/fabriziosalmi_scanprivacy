@@ -1,0 +1,41 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# `pass: refusal` — this rule belongs to the refusal pass, an opt-in mode that
+# interacts with the consent mechanism. It never fires in a passive scan.
+id: PM-REJ-01
+severity: critical
+confidence: certain
+subject: vendor
+tags:
+- consent
+- eprivacy
+- refusal
+pass: refusal
+references:
+- eprivacy:5.3
+- it:privacy-code:122
+- gdpr:7
+- it:garante:cookie-2021-4
+condition:
+  refusal_performed: true
+  vendor_third_party: true
+  # The site answers for the embed it chose, not for what that embed
+  # loads inside itself — which it cannot see, configure or prevent.
+  vendor_via_embed: false
+  vendor_consent_class_any:
+  - required
+  vendor_resource_type_any:
+  - script
+  - xhr
+  - fetch
+  - document
+  - iframe
+  - eventsource
+  - websocket
+  - other
+remediation:
+  source: vendor
+  effort: medium

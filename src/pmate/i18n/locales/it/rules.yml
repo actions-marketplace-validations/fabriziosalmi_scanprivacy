@@ -1,0 +1,538 @@
+# Testi delle regole — italiano.
+#
+# I segnaposto arrivano dal soggetto su cui la regola è scattata:
+#   vendor   {vendor} {product} {category} {jurisdiction} {hosts} {transfer} {data_types}
+#   cookie   {name} {domain} {class} {lifetime}
+#   storage  {key} {kind} {class}
+#   form     {action} {action_host}
+#   site     {site} {host}
+
+PM-TRF-01:
+  title_generic: "Trasferimento di dati personali fuori dal SEE al primo caricamento"
+  title: Trasferimento di dati personali verso {vendor} ({transfer}) al primo caricamento
+  description: >
+    All'apertura della pagina, senza alcuna azione dell'utente, il browser
+    contatta {hosts} ({product}, {vendor}). La richiesta comunica {data_types} a
+    un soggetto stabilito in {jurisdiction}: si tratta di un trattamento di dati
+    personali e, insieme, di un trasferimento fuori dallo Spazio Economico Europeo
+    che avviene prima e indipendentemente da qualunque scelta del visitatore.
+
+PM-TRF-02:
+  title_generic: "Fornitore tecnico fuori dal SEE"
+  title: "Fornitore tecnico fuori dal SEE: {product} ({vendor})"
+  description: >
+    Il servizio si appoggia a {product} ({vendor}, {jurisdiction}), fornitore
+    necessario alla consegna della pagina: non richiede consenso, ma resta un
+    destinatario di dati personali fuori dallo Spazio Economico Europeo. Il
+    rilievo è informativo e serve a tenere allineati il registro dei trattamenti e
+    l'informativa; diventa un problema solo se il fornitore non è dichiarato o se
+    manca l'accordo ex art. 28.
+
+PM-DIS-01:
+  title_generic: "Terza parte attiva sul sito ma non nominata nell'informativa"
+  title: "{product} è attivo sul sito ma non è nominato nell'informativa"
+  description: >
+    Il sito contatta {hosts} ({product}, {vendor}) al caricamento della pagina, ma
+    nessuno dei documenti legali pubblicati nomina questo soggetto né una
+    categoria di destinatari che lo comprenda in modo riconoscibile. È il
+    disallineamento fra comportamento osservato e dichiarazione resa: chi legge
+    l'informativa non può sapere che i propri dati raggiungono {vendor}.
+  remediation:
+    summary: >
+      Allineare informativa e comportamento: o si rimuove {product}, oppure lo si
+      dichiara con nome, finalità e — se del caso — trasferimento.
+    steps:
+      - >
+        Decidere se {product} è necessario: se non lo è, rimuoverlo è la
+        correzione più economica e definitiva.
+      - "Se resta: verificare che esista un accordo ex art. 28 GDPR con {vendor}."
+      - >
+        Aggiungere {vendor} all'elenco dei destinatari o responsabili
+        nell'informativa, indicando finalità e categorie di dati.
+      - >
+        Se il trattamento comporta un trasferimento ({transfer}), indicare la base
+        del trasferimento e come ottenerne copia.
+
+PM-CNS-01:
+  title_generic: "Servizio che richiede consenso caricato prima di qualunque consenso"
+  title: "{product} viene caricato prima di qualunque consenso"
+  description: >
+    {product} ({vendor}) accede al terminale dell'utente — vi scrive o vi legge
+    identificatori — e viene caricato alla semplice apertura della pagina. Per
+    strumenti di questo tipo il consenso deve essere raccolto **prima**
+    dell'installazione: qui il trattamento è già avvenuto quando l'utente vede la
+    pagina, quindi un eventuale banner interviene comunque troppo tardi.
+
+PM-CNS-02:
+  title: Servizi che richiedono consenso, senza alcun meccanismo per raccoglierlo
+  description: >
+    Sul sito sono attivi servizi di terze parti che, per come operano, richiedono
+    il consenso preventivo dell'utente, ma la pagina non presenta alcun meccanismo
+    per raccoglierlo: nessun banner, nessuna piattaforma di consenso, nessuna API
+    di consenso rilevata. Il trattamento avviene quindi senza una base giuridica
+    utilizzabile.
+  remediation:
+    summary: >
+      Prima scelta: eliminare i servizi che richiedono consenso, così il banner
+      non serve. Seconda scelta: introdurre un meccanismo di consenso che blocchi
+      davvero gli script fino alla scelta.
+    steps:
+      - >
+        Verificare quali servizi sono davvero necessari: nella maggior parte dei
+        siti informativi si possono togliere tutti, e il sito resta senza banner.
+      - >
+        Per ciò che resta, adottare una piattaforma di consenso configurata in
+        blocco preventivo: nessuno script prima della scelta.
+      - >
+        Il rifiuto deve essere semplice quanto l'accettazione, e la scelta deve
+        essere revocabile in ogni momento.
+      - >
+        Verificare il risultato con una visita pulita: prima della scelta non deve
+        partire alcuna richiesta verso quei servizi.
+
+PM-CNS-03:
+  title: Meccanismo di consenso presente, ma il tracciamento parte prima della scelta
+  description: >
+    La pagina espone un meccanismo di consenso, ma alla prima visita — senza che
+    l'utente abbia accettato nulla — sono già presenti sul terminale cookie o
+    chiavi di memoria riconducibili a tracciamento. Il blocco preventivo non è
+    attivo: la piattaforma documenta una scelta che di fatto non condiziona il
+    comportamento del sito. È l'ipotesi più esposta, perché prova che l'obbligo è
+    conosciuto e non rispettato.
+  remediation:
+    summary: Attivare il blocco preventivo nella piattaforma di consenso e verificarlo con una visita pulita.
+    steps:
+      - Nella configurazione della piattaforma attivare il blocco automatico degli script prima del consenso.
+      - >
+        Marcare gli script di terze parti come bloccabili (`type=text/plain` più
+        l'attributo di categoria della piattaforma, o equivalente).
+      - >
+        Rimuovere i tag inseriti fuori dal controllo della piattaforma:
+        inclusioni dirette nel tema, tag manager caricato in testa.
+      - >
+        Riverificare in finestra pulita: nessun cookie di tracciamento e nessuna
+        richiesta ai fornitori prima della scelta.
+
+PM-COK-01:
+  title_generic: "Cookie di tracciamento impostato alla prima visita"
+  title: Cookie di tracciamento «{name}» impostato alla prima visita
+  description: >
+    Il cookie «{name}» (dominio {domain}, {lifetime}) è riconducibile a
+    tracciamento ed è presente sul terminale già alla prima visita, senza
+    interazione dell'utente. Per questa categoria il consenso preventivo è
+    obbligatorio e non risulta raccolto prima dell'installazione.
+  remediation:
+    summary: Non installare «{name}» prima del consenso; rimuovere lo strumento che lo genera se non è necessario.
+    steps:
+      - "Individuare lo script che imposta «{name}»: di norma il fornitore a cui il nome è riconducibile."
+      - Rimuoverlo, oppure condizionarne il caricamento al consenso.
+      - Verificare in finestra pulita che il cookie non compaia più prima della scelta.
+
+PM-COK-02:
+  title_generic: "Cookie impostato alla prima visita, natura non determinabile dall'esterno"
+  title: Cookie «{name}» impostato alla prima visita, natura non determinabile dall'esterno
+  description: >
+    Alla semplice apertura della pagina viene impostato il cookie «{name}»
+    (dominio {domain}, {lifetime}), il cui nome non consente di stabilire
+    dall'esterno se sia strettamente necessario o di tracciamento. Anche quando è
+    tecnico, la sua presenza attiva l'obbligo di informare: denominazione,
+    finalità, durata e titolarità vanno indicate.
+  remediation:
+    summary: Classificare il cookie e documentarlo nella sezione cookie dell'informativa.
+    steps:
+      - "Stabilire quale componente imposta «{name}» e a quale finalità risponde."
+      - "Se è tecnico: indicarlo in informativa con finalità e durata; nessun banner necessario."
+      - "Se non lo è: subordinarlo al consenso preventivo."
+
+PM-COK-03:
+  title_generic: "Cookie senza attributo Secure"
+  title: Cookie «{name}» senza attributo Secure
+  description: >
+    Il cookie «{name}» (dominio {domain}) è impostato senza l'attributo `Secure`:
+    può quindi essere trasmesso su connessioni non cifrate. È una misura tecnica
+    elementare, richiesta dall'art. 32 in proporzione al rischio.
+  remediation:
+    summary: Aggiungere gli attributi Secure e SameSite alla direttiva Set-Cookie.
+    steps:
+      - "Impostare `Secure` su tutti i cookie del sito: nessun costo, nessun effetto funzionale su HTTPS."
+      - "Impostare `SameSite=Lax` come default, `Strict` dove non servono navigazioni cross-site."
+      - Impostare `HttpOnly` sui cookie che JavaScript non ha ragione di leggere.
+
+PM-COK-04:
+  title_generic: "Cookie con SameSite=None"
+  title: "Cookie «{name}» con SameSite=None: viaggia in contesti cross-site"
+  description: >
+    Il cookie «{name}» (dominio {domain}) dichiara `SameSite=None`: viene quindi
+    inviato anche quando la richiesta parte da un altro sito. È la configurazione
+    che rende possibile il riconoscimento dell'utente fra siti diversi; se il
+    cookie non ha bisogno di questo comportamento, l'attributo va ristretto.
+  remediation:
+    summary: Restringere SameSite dove il comportamento cross-site non serve.
+    steps:
+      - >
+        Verificare se «{name}» debba davvero essere inviato in contesti
+        cross-site: tipicamente serve solo a widget incorporati e pagamenti.
+      - "Se non serve: passare a `SameSite=Lax`, o a `Strict` per i cookie di sessione."
+      - >
+        Se il cookie è di terza parte la scelta non è nelle proprie mani: la leva
+        è rimuovere o posticipare il componente che lo imposta.
+
+PM-STO-01:
+  title_generic: "Identificatore di tracciamento scritto nella memoria del terminale alla prima visita"
+  title: Identificatore di tracciamento scritto in {kind} («{key}») alla prima visita
+  description: >
+    Alla prima visita viene scritta in {kind} la chiave «{key}», riconducibile a
+    tracciamento. L'art. 5(3) ePrivacy copre ogni forma di archiviazione o accesso
+    al terminale: usare `localStorage` invece dei cookie non sottrae all'obbligo
+    di consenso preventivo.
+  remediation:
+    summary: Rimuovere lo strumento che scrive «{key}», o subordinarlo al consenso.
+    steps:
+      - "Individuare lo script che scrive «{key}» in {kind}."
+      - >
+        Se la funzione è ottenibile senza stato per-utente (per esempio una scelta
+        deterministica lato server), preferirla: elimina del tutto il trigger di
+        consenso.
+      - Altrimenti condizionare la scrittura al consenso e documentarla in informativa.
+
+PM-STO-02:
+  title_generic: "Scrittura nella memoria del terminale alla prima visita, natura non determinabile"
+  title: Scrittura in {kind} («{key}») alla prima visita, natura non determinabile
+  description: >
+    Alla prima visita il sito scrive in {kind} la chiave «{key}». Non è
+    determinabile dall'esterno se la scrittura sia strettamente necessaria al
+    servizio richiesto dall'utente. Se lo è, non serve consenso ma va comunque
+    documentata; se non lo è, serve consenso preventivo.
+  remediation:
+    summary: Classificare la chiave e documentarla nella sezione cookie e storage dell'informativa.
+    steps:
+      - "Stabilire quale componente scrive «{key}» e se la funzione è richiesta dall'utente."
+      - "Documentare la chiave insieme ai cookie: nome, finalità, durata."
+
+PM-DOC-01:
+  title: Informativa privacy non raggiungibile dalla pagina pubblica
+  description: >
+    Dalla pagina pubblica non è raggiungibile un'informativa privacy leggibile:
+    nessun link riconoscibile, oppure il documento collegato non è accessibile.
+    L'informazione deve essere fornita al momento della raccolta dei dati e
+    restare facilmente accessibile: qui l'obbligo non risulta assolto in alcuna
+    forma verificabile dall'esterno.
+  remediation:
+    summary: Pubblicare un'informativa ex art. 13 e collegarla dal footer di ogni pagina.
+    steps:
+      - >
+        Redigere l'informativa con tutti gli elementi dell'art. 13: titolare,
+        contatti, finalità, base giuridica, destinatari, trasferimenti,
+        conservazione, diritti, reclamo all'autorità di controllo.
+      - Pubblicarla a un URL stabile (per esempio /privacy) e collegarla dal footer di ogni pagina.
+      - Indicare la data di ultimo aggiornamento e mantenerla allineata a ogni modifica dei servizi usati.
+
+PM-DOC-02:
+  title: Informativa presente ma priva di elementi obbligatori dell'art. 13
+  description: >
+    L'informativa pubblicata è raggiungibile e leggibile, ma nel testo non
+    risultano espressi alcuni elementi che l'art. 13 richiede. La verifica è
+    testuale e va confermata leggendo il documento: un elemento espresso con
+    formule inconsuete può sfuggire al riconoscimento automatico.
+  remediation:
+    summary: Integrare l'informativa con gli elementi risultati assenti.
+    steps:
+      - Riprendere l'elenco degli elementi mancanti riportato nell'evidenza.
+      - Aggiungere per ciascuno un paragrafo esplicito, con intestazione riconoscibile.
+      - >
+        Verificare in particolare base giuridica, periodo di conservazione e
+        diritto di reclamo all'autorità di controllo: sono gli elementi più spesso
+        omessi.
+
+PM-DOC-03:
+  title: Cookie o storage impostati alla prima visita senza una sezione cookie completa
+  description: >
+    Il sito scrive sul terminale dell'utente alla prima visita, ma la
+    documentazione pubblicata non contiene una sezione cookie completa: mancano la
+    durata dei singoli cookie e/o le istruzioni per disabilitarli e revocare la
+    scelta.
+  remediation:
+    summary: Pubblicare una cookie policy con elenco puntuale e istruzioni di revoca.
+    steps:
+      - >
+        Elencare ogni cookie e ogni chiave di storage: denominazione, finalità,
+        durata, titolarità (prima o terza parte).
+      - Indicare come disabilitarli dal browser e come revocare il consenso già prestato.
+      - Collegare la sezione dal banner, se presente, e dal footer.
+
+PM-SEC-01:
+  title: Strict-Transport-Security assente
+  description: >
+    La risposta della pagina non include l'header `Strict-Transport-Security`: il
+    browser non riceve istruzione di usare esclusivamente HTTPS per le visite
+    successive, restando esposto a un downgrade della connessione.
+  remediation:
+    summary: Impostare HSTS a livello di server o CDN.
+    steps:
+      - "Aggiungere `Strict-Transport-Security: max-age=31536000; includeSubDomains`."
+      - Verificare che tutti i sottodomini siano effettivamente serviti in HTTPS prima di attivare includeSubDomains.
+      - Valutare il preload solo quando la configurazione è stabile.
+
+PM-SEC-02:
+  title: Referrer-Policy assente o permissiva
+  description: >
+    Il sito non impone una politica restrittiva sul referrer. In assenza, ogni
+    richiesta verso terze parti porta con sé l'URL completo della pagina di
+    provenienza: un dato che può rivelare ciò che l'utente stava consultando, e
+    che viene comunicato al terzo senza necessità.
+  remediation:
+    summary: Impostare una Referrer-Policy restrittiva.
+    steps:
+      - "Aggiungere `Referrer-Policy: strict-origin-when-cross-origin` (o `no-referrer` dove non serve alcun referrer)."
+      - Impostarlo a livello di server o CDN così da coprire ogni risposta, non solo l'HTML.
+
+PM-SEC-03:
+  title: Content-Security-Policy assente
+  description: >
+    Non è dichiarata alcuna Content-Security-Policy. Oltre al profilo di
+    sicurezza, la CSP è lo strumento che rende *verificabile* la promessa
+    contenuta nell'informativa: senza `connect-src` e `script-src` espliciti,
+    qualunque script incluso — anche introdotto per errore o da un fornitore — può
+    aprire un canale verso terzi non dichiarati.
+  remediation:
+    summary: Adottare una CSP che elenchi esplicitamente le destinazioni ammesse.
+    steps:
+      - "Partire in sola osservazione con `Content-Security-Policy-Report-Only` e raccogliere le violazioni."
+      - "Consolidare `default-src 'self'` più le sole destinazioni realmente necessarie."
+      - >
+        Passare all'enforcement: la policy diventa il presidio tecnico che
+        impedisce trasferimenti non dichiarati.
+
+PM-FRM-01:
+  title_generic: "Modulo pubblico che invia i dati a un dominio di terza parte"
+  title: Modulo pubblico che invia i dati a un dominio di terza parte ({action_host})
+  description: >
+    Nella pagina è presente un modulo il cui `action` punta a {action_host},
+    dominio diverso da quello del sito. I dati inseriti dall'utente vengono quindi
+    trasmessi direttamente a un soggetto terzo, che deve essere dichiarato in
+    informativa e legato da un accordo ex art. 28. Nessun invio è stato effettuato
+    durante l'osservazione: il rilievo riguarda la destinazione dichiarata dal
+    modulo.
+  remediation:
+    summary: >
+      Dichiarare il destinatario e verificarne il ruolo contrattuale, oppure
+      raccogliere i dati sul proprio dominio.
+    steps:
+      - Verificare quale servizio riceve i dati e a quale titolo (responsabile o titolare autonomo).
+      - Firmare l'accordo ex art. 28 se assente; indicare il servizio fra i destinatari nell'informativa.
+      - "Se il destinatario è fuori dal SEE: indicare la base del trasferimento accanto al modulo."
+      - >
+        Valutare la raccolta sul proprio dominio con inoltro server-to-server:
+        riduce l'esposizione dell'utente.
+
+PM-AI-01:
+  title: Componente conversazionale o di IA senza informazione all'utente
+  description: >
+    Nella pagina è presente un componente riconducibile a un sistema
+    conversazionale o di intelligenza artificiale, ma né la pagina né
+    l'informativa dichiarano all'utente che sta interagendo con un sistema di IA.
+    L'art. 50 dell'AI Act richiede che l'interazione sia resa nota, in modo chiaro
+    e riconoscibile, al più tardi al primo contatto. Il rilievo va confermato: il
+    riconoscimento è basato su marcatori testuali.
+  remediation:
+    summary: Dichiarare esplicitamente la natura artificiale del sistema e i dati che tratta.
+    steps:
+      - Aggiungere un avviso visibile nel componente («stai parlando con un assistente automatico»).
+      - Indicare in informativa il fornitore del modello, i dati trattati e la conservazione delle conversazioni.
+      - >
+        Se le risposte possono incidere su decisioni verso l'utente, prevedere
+        l'intervento umano e documentarlo.
+
+PM-COST-01:
+  title: Certificato TLS commerciale in luogo di alternative gratuite equivalenti
+  description: >
+    Il servizio usa un certificato TLS emesso da una CA commerciale, mentre sono
+    disponibili alternative gratuite di pari livello di sicurezza e
+    interoperabilità (Let's Encrypt, ZeroSSL, le CA incluse nei contratti di
+    hosting e CDN già in essere). Non è un rilievo privacy: è una spesa evitabile
+    a parità di risultato tecnico, riportata perché emerge dalla stessa
+    osservazione.
+  remediation:
+    summary: Migrare a una CA gratuita con rinnovo automatico ACME.
+    steps:
+      - Attivare ACME sul reverse proxy o sul CDN in uso (Caddy, Traefik, Certbot, Cloudflare).
+      - Verificare il rinnovo automatico prima della scadenza del certificato attuale.
+
+PM-REJ-01:
+  title_generic: "Servizio che richiede consenso caricato anche dopo il rifiuto"
+  title: "{product} viene caricato anche dopo il rifiuto del visitatore"
+  description: >
+    Il meccanismo di consenso è stato rifiutato per la via documentata dal
+    fornitore stesso, la pagina è stata ricaricata e {product} ({vendor}) è stato
+    contattato ugualmente da {hosts}. Il rifiuto è stato registrato e ignorato:
+    il meccanismo produce la registrazione di una scelta che non governa il
+    comportamento del sito. È l'ipotesi più esposta che esista, perché l'obbligo
+    è dimostrabilmente conosciuto — il sito ha costruito un modo per rifiutare —
+    e il rifiuto non produce effetti.
+
+PM-REJ-02:
+  title_generic: "Cookie di tracciamento impostato anche dopo il rifiuto"
+  title: "Il cookie di tracciamento «{name}» viene impostato anche dopo il rifiuto"
+  description: >
+    Dopo un rifiuto documentato e un nuovo caricamento della pagina, il cookie
+    «{name}» (dominio {domain}) è di nuovo sul terminale. Il consenso è stato
+    negato e l'identificatore è stato scritto lo stesso.
+  remediation:
+    summary: Fare in modo che il rifiuto blocchi davvero ciò che imposta «{name}».
+    steps:
+      - "Riprodurlo: rifiutare, ricaricare e leggere i cookie — i passi esatti sono nella sezione evidenza."
+      - >
+        Individuare perché il rifiuto non raggiunge quello script: un tag incluso
+        fuori dal controllo della piattaforma di consenso, un tag manager
+        caricato in testa, o una categoria classificata a torto come
+        strettamente necessaria.
+      - Portare lo script sotto il blocco preventivo della piattaforma e riverificare con un rifiuto pulito.
+      - >
+        Finché non è sistemato, la posizione più sicura è rimuovere lo strumento:
+        una registrazione di consenso che non vincola è peggio di nessuna
+        registrazione.
+
+PM-REJ-03:
+  title_generic: "Identificatore nella memoria del terminale sopravvissuto al rifiuto"
+  title: "L'identificatore in {kind} («{key}») sopravvive al rifiuto"
+  description: >
+    Dopo un rifiuto documentato e un nuovo caricamento, la chiave «{key}» viene
+    di nuovo scritta in {kind}. L'art. 5(3) ePrivacy copre ogni archiviazione sul
+    terminale: spostare l'identificatore fuori da un cookie non lo sposta fuori
+    dalla norma.
+  remediation:
+    summary: Portare la scrittura sotto la decisione di consenso, o rimuovere ciò che la esegue.
+    steps:
+      - "Individuare lo script che scrive «{key}» dopo il rifiuto."
+      - Collocarlo sotto il blocco preventivo della piattaforma di consenso.
+      - >
+        Se la funzione non richiede stato per-utente, preferire
+        un'implementazione senza stato: elimina del tutto la questione del
+        consenso.
+
+PM-REJ-04:
+  title: Meccanismo di consenso presente, senza una via documentata per rifiutare
+  description: >
+    È stato rilevato un meccanismo di consenso, ma questo motore non dispone di
+    una via di rifiuto documentata per quella piattaforma e quindi non ha
+    interagito con la pagina. Lo si dichiara invece di nasconderlo: la verifica
+    non è stata eseguita, e da questo report non si può trarre alcuna conclusione
+    sul comportamento del sito dopo un rifiuto. Indovinare quale controllo
+    premere sul sito di qualcun altro non è un'opzione che il metodo consente.
+  remediation:
+    summary: Verificare il rifiuto a mano, oppure segnalarci di quale piattaforma si tratta.
+    steps:
+      - >
+        Rifiutare manualmente in finestra pulita, ricaricare e controllare i
+        cookie e la scheda Rete: lo stesso confronto che questa passata esegue
+        automaticamente.
+      - >
+        Se la piattaforma pubblica un'API di rifiuto, può essere aggiunta al
+        catalogo del motore e la verifica diventa automatica per chiunque la usi.
+
+PM-IAM-01:
+  title_generic: "Cookie di sessione leggibile da JavaScript"
+  title: "Il cookie di sessione «{name}» è leggibile da JavaScript"
+  description: >
+    Il cookie «{name}» (dominio {domain}) trasporta un identificatore di sessione
+    ed è impostato senza `HttpOnly`: qualunque script in esecuzione sulla pagina
+    può leggerlo, compreso ogni script di terza parte che il sito carica. Un
+    identificatore di sessione rubato è un utente autenticato, senza che nessuna
+    password sia mai entrata in gioco.
+  remediation:
+    summary: Impostare HttpOnly sul cookie di sessione.
+    steps:
+      - "Aggiungere `HttpOnly` alla direttiva Set-Cookie di «{name}»: nessun codice applicativo ne ha bisogno."
+      - "Aggiungere contestualmente `Secure` e `SameSite=Lax`: è una sola modifica, nello stesso punto."
+      - >
+        Già che si è lì, contare gli script di terza parte presenti sulla pagina:
+        ciascuno di essi può leggere ciò che JavaScript può leggere.
+
+PM-IAM-02:
+  title_generic: "Cookie di sessione senza attributo Secure"
+  title: "Il cookie di sessione «{name}» non ha l'attributo Secure"
+  description: >
+    Il cookie «{name}» (dominio {domain}) trasporta un identificatore di sessione
+    e può essere trasmesso su una connessione non cifrata. Una sola richiesta in
+    chiaro basta a divulgarlo.
+  remediation:
+    summary: Impostare Secure sul cookie di sessione.
+    steps:
+      - "Aggiungere `Secure` alla direttiva Set-Cookie di «{name}»."
+      - Verificare che l'intera origine sia servita in HTTPS, redirect compresi, così nulla si rompe.
+
+PM-IAM-03:
+  title: Campo password su una pagina non servita in HTTPS
+  description: >
+    La pagina {action} contiene un campo password ed è stata consegnata in HTTP
+    non cifrato. Tutto ciò che vi viene digitato viaggia in chiaro, e la pagina
+    stessa può essere modificata in transito — inclusa la destinazione del modulo.
+  remediation:
+    summary: Servire la pagina in HTTPS e imporlo.
+    steps:
+      - Servire l'intera origine in HTTPS e reindirizzare l'HTTP in modo permanente.
+      - "Aggiungere `Strict-Transport-Security` così che il browser non tenti più l'HTTP in chiaro."
+      - Verificare che non resti alcun URL http:// assoluto nella pagina o nell'action del modulo.
+
+PM-IAM-04:
+  title_generic: "Credenziali inviate a un dominio di terza parte"
+  title: Credenziali inviate a un dominio di terza parte ({action_host})
+  description: >
+    Un modulo contenente un campo password invia i dati a {action_host}, dominio
+    diverso da quello del sito. Le credenziali vengono quindi consegnate a un
+    soggetto terzo, che deve essere legato da un accordo ex art. 28 e nominato in
+    informativa. Nessun invio è stato effettuato durante l'osservazione: il
+    rilievo riguarda la destinazione dichiarata dal modulo.
+  remediation:
+    summary: Stabilire chi riceve le credenziali e a quale titolo.
+    steps:
+      - Verificare quale servizio le riceve e in quale ruolo (responsabile o titolare autonomo).
+      - Firmare l'accordo ex art. 28 se assente e indicare il servizio fra i destinatari nell'informativa.
+      - "Se il destinatario è fuori dal SEE: indicare la base del trasferimento."
+      - >
+        Preferire un flusso federato (OIDC o SAML) all'invio di credenziali a un
+        terzo: così la password non lascia mai il provider di identità.
+
+PM-IAM-05:
+  title: La pagina con il campo password può essere inglobata in un frame
+  description: >
+    La pagina contiene un campo password e la risposta non imposta né
+    `X-Frame-Options` né la direttiva CSP `frame-ancestors`. Un altro sito può
+    caricarla in un frame e sovrapporvi la propria interfaccia: è così che un
+    modulo di credenziali viene sottoposto a clickjacking.
+  remediation:
+    summary: Rifiutare l'inglobamento in frame su ogni pagina che raccoglie credenziali.
+    steps:
+      - "Aggiungere `Content-Security-Policy: frame-ancestors 'self'` (oppure `'none'`)."
+      - "Mantenere accanto `X-Frame-Options: SAMEORIGIN` per i browser più datati."
+      - Impostarlo a livello di server o CDN, così da coprire ogni pagina e non solo quella di login.
+
+PM-DPIA-01:
+  title: La superficie osservabile soddisfa criteri che di norma richiedono una valutazione d'impatto
+  description: >
+    L'EDPB elenca nove criteri per un trattamento che presenti probabilmente un
+    rischio elevato; due o più soddisfatti significano di norma che è dovuta una
+    valutazione ex art. 35. Sulla superficie che questa scansione può vedere,
+    risultano soddisfatti i criteri elencati nell'evidenza. Questo è uno
+    **screening, non una determinazione**: quattro dei nove criteri — scala,
+    interessati vulnerabili, categorie particolari di dati ed effetti giuridici —
+    non sono osservabili dall'esterno e nell'evidenza sono indicati come senza
+    risposta. Una conclusione in un senso o nell'altro richiede che a quelli
+    risponda chi conosce il trattamento.
+  remediation:
+    summary: Completare lo screening con ciò che solo il titolare può vedere, poi decidere.
+    steps:
+      - >
+        Rispondere ai criteri indicati come non valutabili: quante persone sono
+        interessate, se fra loro vi siano soggetti vulnerabili, se siano trattate
+        categorie particolari di dati e se il trattamento produca effetti
+        giuridici o similmente significativi.
+      - >
+        Se una volta completato i criteri soddisfatti restano due o più, svolgere
+        la valutazione ex art. 35.7: descrizione del trattamento, necessità e
+        proporzionalità, rischi per gli interessati e misure per affrontarli.
+      - >
+        Prima di tutto ridurre la superficie. Ogni terza parte rimossa è un
+        rischio che non c'è più bisogno di valutare, e la sezione trasferimenti
+        di questo report elenca alternative per parecchie di esse.
+      - Verbalizzare l'esito, inclusa l'eventuale decisione motivata che la valutazione non era dovuta.

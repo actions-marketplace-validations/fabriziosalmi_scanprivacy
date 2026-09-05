@@ -1,0 +1,23 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# A screening, never a determination: it counts the criteria that are visible
+# from outside and names the ones that are not.
+id: PM-DPIA-01
+severity: medium
+confidence: probable
+subject: site
+tags:
+- dpia
+- governance
+references:
+- gdpr:35
+- gdpr:35.7
+- edpb:wp248
+condition:
+  dpia_criteria_min: 2
+remediation:
+  source: rule
+  effort: high

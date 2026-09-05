@@ -1,0 +1,530 @@
+# Rule texts — English, source language.
+#
+# Placeholders come from the subject the rule fired on:
+#   vendor   {vendor} {product} {category} {jurisdiction} {hosts} {transfer} {data_types}
+#   cookie   {name} {domain} {class} {lifetime}
+#   storage  {key} {kind} {class}
+#   form     {action} {action_host}
+#   site     {site} {host}
+#
+# `remediation` appears only for rules whose logic says `source: rule`; the
+# others take their fix from the vendor knowledge base.
+
+PM-TRF-01:
+  title_generic: "Personal data transferred outside the EEA on first load"
+  title: Personal data transferred to {vendor} ({transfer}) on first load
+  description: >
+    When the page opens, with no action from the user, the browser contacts
+    {hosts} ({product}, {vendor}). The request discloses {data_types} to a party
+    established in {jurisdiction}: this is processing of personal data and, at the
+    same time, a transfer outside the European Economic Area that happens before
+    and independently of any choice by the visitor.
+
+PM-TRF-02:
+  title_generic: "Technical provider outside the EEA"
+  title: "Technical provider outside the EEA: {product} ({vendor})"
+  description: >
+    The service relies on {product} ({vendor}, {jurisdiction}), a provider needed
+    to deliver the page: it requires no consent, but it remains a recipient of
+    personal data outside the European Economic Area. This finding is
+    informational and exists to keep the record of processing and the privacy
+    notice aligned; it becomes a problem only if the provider is not declared or
+    if the Art. 28 agreement is missing.
+
+PM-DIS-01:
+  title_generic: "Third party active on the site but not named in the privacy notice"
+  title: "{product} is active on the site but is not named in the privacy notice"
+  description: >
+    The site contacts {hosts} ({product}, {vendor}) when the page loads, yet none
+    of the published legal documents names this party, nor a category of
+    recipients that recognisably includes it. This is the gap between observed
+    behaviour and stated disclosure: someone reading the notice cannot know that
+    their data reaches {vendor}.
+  remediation:
+    summary: >
+      Bring notice and behaviour back together: either remove {product}, or
+      declare it with its name, its purpose and — where applicable — the transfer.
+    steps:
+      - >
+        Decide whether {product} is necessary: if it is not, removing it is the
+        cheapest and most permanent fix.
+      - "If it stays: confirm that a processing agreement under Art. 28 GDPR is in place with {vendor}."
+      - >
+        Add {vendor} to the list of recipients or processors in the privacy
+        notice, stating the purpose and the categories of data involved.
+      - >
+        If the processing involves a transfer ({transfer}), state the basis for
+        that transfer and how to obtain a copy of it.
+
+PM-CNS-01:
+  title_generic: "Service requiring consent loaded before any consent"
+  title: "{product} is loaded before any consent"
+  description: >
+    {product} ({vendor}) accesses the user's terminal — writing identifiers to it
+    or reading them from it — and is loaded as soon as the page opens. For tools
+    of this kind consent must be collected **before** installation: here the
+    processing has already happened by the time the user sees the page, so any
+    banner arrives too late regardless of what it says.
+
+PM-CNS-02:
+  title: Services requiring consent, with no mechanism to collect it
+  description: >
+    Third-party services that, by the way they operate, require the user's prior
+    consent are active on the site, but the page offers no mechanism to collect it
+    — no banner, no consent platform, no consent API detected. The processing
+    therefore takes place with no legal basis available to it.
+  remediation:
+    summary: >
+      First choice: remove the services that require consent, and the banner
+      becomes unnecessary. Second choice: introduce a consent mechanism that
+      genuinely blocks the scripts until a choice is made.
+    steps:
+      - >
+        Establish which services are actually necessary: on most informational
+        sites all of them can go, and the site stays banner-free.
+      - >
+        For whatever remains, adopt a consent platform configured for prior
+        blocking — no script may run before the choice.
+      - >
+        Refusing must be as easy as accepting, and the choice must be revocable
+        at any time.
+      - >
+        Verify the result with a clean visit: before the choice, no request to
+        those services may leave the browser.
+
+PM-CNS-03:
+  title: A consent mechanism is present, but tracking starts before the choice
+  description: >
+    The page exposes a consent mechanism, yet on first visit — without the user
+    accepting anything — cookies or storage keys attributable to tracking are
+    already on the terminal. Prior blocking is not active: the platform records a
+    choice that does not in fact govern what the site does. This is the most
+    exposed situation of all, because it proves the obligation is known and not
+    met.
+  remediation:
+    summary: Turn on prior blocking in the consent platform and verify it with a clean visit.
+    steps:
+      - In the consent platform's configuration, enable automatic blocking of scripts before consent.
+      - >
+        Mark third-party scripts as blockable (`type=text/plain` plus the
+        platform's category attribute, or its equivalent).
+      - >
+        Remove any tag placed outside the platform's control — direct inclusions
+        in the theme, or a tag manager loaded in the head.
+      - >
+        Re-check in a clean window: no tracking cookie and no request to those
+        providers before the choice.
+
+PM-COK-01:
+  title_generic: "Tracking cookie set on first visit"
+  title: Tracking cookie «{name}» set on first visit
+  description: >
+    The cookie «{name}» (domain {domain}, {lifetime}) is attributable to tracking
+    and is present on the terminal on the very first visit, with no interaction
+    from the user. Prior consent is mandatory for this category and was not
+    collected before installation.
+  remediation:
+    summary: Do not install «{name}» before consent; remove the tool that sets it if it is not needed.
+    steps:
+      - "Identify the script that sets «{name}» — usually the provider the name points to."
+      - Remove it, or make its loading conditional on consent.
+      - Verify in a clean window that the cookie no longer appears before the choice.
+
+PM-COK-02:
+  title_generic: "Cookie set on first visit, nature not determinable from outside"
+  title: Cookie «{name}» set on first visit, nature not determinable from outside
+  description: >
+    Opening the page sets the cookie «{name}» (domain {domain}, {lifetime}), whose
+    name does not allow an outside observer to tell whether it is strictly
+    necessary or a tracking cookie. Even when it is technical, its presence
+    triggers the duty to inform: name, purpose, lifetime and ownership have to be
+    stated.
+  remediation:
+    summary: Classify the cookie and document it in the cookie section of the notice.
+    steps:
+      - "Establish which component sets «{name}» and which purpose it serves."
+      - "If it is technical: state it in the notice with purpose and lifetime; no banner is needed."
+      - "If it is not: make it conditional on prior consent."
+
+PM-COK-03:
+  title_generic: "Cookie without the Secure attribute"
+  title: Cookie «{name}» has no Secure attribute
+  description: >
+    The cookie «{name}» (domain {domain}) is set without the `Secure` attribute
+    and may therefore be transmitted over an unencrypted connection. This is an
+    elementary technical measure, required by Art. 32 in proportion to the risk.
+  remediation:
+    summary: Add the Secure and SameSite attributes to the Set-Cookie directive.
+    steps:
+      - "Set `Secure` on every cookie on the site: no cost, no functional effect over HTTPS."
+      - "Set `SameSite=Lax` as the default, `Strict` where cross-site navigation is not needed."
+      - Set `HttpOnly` on cookies that JavaScript has no reason to read.
+
+PM-COK-04:
+  title_generic: "Cookie with SameSite=None"
+  title: "Cookie «{name}» has SameSite=None: it travels in cross-site contexts"
+  description: >
+    The cookie «{name}» (domain {domain}) declares `SameSite=None` and is
+    therefore sent even when the request originates from another site. This is the
+    configuration that makes recognising a user across sites possible; if the
+    cookie does not need that behaviour, the attribute should be tightened.
+  remediation:
+    summary: Tighten SameSite wherever cross-site behaviour is not needed.
+    steps:
+      - >
+        Check whether «{name}» really needs to travel cross-site — typically only
+        embedded widgets and payment flows do.
+      - "If it does not: move to `SameSite=Lax`, or `Strict` for session cookies."
+      - >
+        If the cookie belongs to a third party the choice is not yours: the lever
+        is to remove or defer the component that sets it.
+
+PM-STO-01:
+  title_generic: "Tracking identifier written to terminal storage on first visit"
+  title: Tracking identifier written to {kind} («{key}») on first visit
+  description: >
+    On first visit the key «{key}» is written to {kind} and is attributable to
+    tracking. Art. 5(3) ePrivacy covers any storage of, or access to, information
+    on the terminal: using `localStorage` instead of cookies does not remove the
+    need for prior consent.
+  remediation:
+    summary: Remove the tool that writes «{key}», or make it conditional on consent.
+    steps:
+      - "Identify the script that writes «{key}» to {kind}."
+      - >
+        If the function can be achieved without per-user state (a deterministic
+        server-side choice, for instance), prefer that: it removes the consent
+        trigger entirely.
+      - Otherwise make the write conditional on consent and document it in the notice.
+
+PM-STO-02:
+  title_generic: "Write to terminal storage on first visit, nature not determinable"
+  title: Write to {kind} («{key}») on first visit, nature not determinable
+  description: >
+    On first visit the site writes the key «{key}» to {kind}. It cannot be
+    determined from outside whether the write is strictly necessary for the
+    service the user asked for. If it is, no consent is needed but it still has to
+    be documented; if it is not, prior consent is required.
+  remediation:
+    summary: Classify the key and document it in the cookie and storage section of the notice.
+    steps:
+      - "Establish which component writes «{key}» and whether the function was requested by the user."
+      - "Document the key alongside the cookies: name, purpose, lifetime."
+
+PM-DOC-01:
+  title: No privacy notice reachable from the public page
+  description: >
+    No readable privacy notice can be reached from the public page: either no
+    recognisable link exists, or the linked document is not accessible.
+    Information must be given at the time data is collected and remain easily
+    accessible; here the obligation is not met in any form verifiable from
+    outside.
+  remediation:
+    summary: Publish a notice under Art. 13 and link it from the footer of every page.
+    steps:
+      - >
+        Draft the notice with every element of Art. 13: controller, contact
+        details, purposes, legal basis, recipients, transfers, retention, rights,
+        right to lodge a complaint with the supervisory authority.
+      - Publish it at a stable URL (for example /privacy) and link it from every page's footer.
+      - State the date of last update and keep it aligned whenever the services used change.
+
+PM-DOC-02:
+  title: Notice published but missing mandatory elements of Art. 13
+  description: >
+    The published notice is reachable and readable, but some of the elements
+    Art. 13 requires are not expressed in its text. This check is textual and
+    should be confirmed by reading the document: an element written in an unusual
+    form can escape automatic recognition.
+  remediation:
+    summary: Add the elements found to be absent to the notice.
+    steps:
+      - Take the list of missing elements reported in the evidence.
+      - Add an explicit paragraph for each, under a recognisable heading.
+      - >
+        Pay particular attention to legal basis, retention period and the right to
+        complain to the supervisory authority: these are the most frequently
+        omitted.
+
+PM-DOC-03:
+  title: Cookies or storage set on first visit without a complete cookie section
+  description: >
+    The site writes to the user's terminal on first visit, but the published
+    documentation contains no complete cookie section: the lifetime of individual
+    cookies and/or the instructions to disable them and withdraw the choice are
+    missing.
+  remediation:
+    summary: Publish a cookie policy with an itemised list and instructions for withdrawal.
+    steps:
+      - >
+        List every cookie and every storage key: name, purpose, lifetime,
+        ownership (first or third party).
+      - State how to disable them in the browser and how to withdraw consent already given.
+      - Link the section from the banner, where one exists, and from the footer.
+
+PM-SEC-01:
+  title: Strict-Transport-Security not set
+  description: >
+    The page response carries no `Strict-Transport-Security` header: the browser
+    is not instructed to use HTTPS exclusively for subsequent visits, leaving it
+    exposed to a downgrade of the connection.
+  remediation:
+    summary: Set HSTS at the server or CDN.
+    steps:
+      - "Add `Strict-Transport-Security: max-age=31536000; includeSubDomains`."
+      - Confirm every subdomain really is served over HTTPS before enabling includeSubDomains.
+      - Consider preload only once the configuration is stable.
+
+PM-SEC-02:
+  title: Referrer-Policy absent or permissive
+  description: >
+    The site does not impose a restrictive referrer policy. Without one, every
+    request to a third party carries the full URL of the originating page: data
+    that can reveal what the user was reading, disclosed to that third party
+    without need.
+  remediation:
+    summary: Set a restrictive Referrer-Policy.
+    steps:
+      - "Add `Referrer-Policy: strict-origin-when-cross-origin` (or `no-referrer` where no referrer is needed)."
+      - Set it at the server or CDN so it covers every response, not only the HTML.
+
+PM-SEC-03:
+  title: No Content-Security-Policy
+  description: >
+    No Content-Security-Policy is declared. Beyond the security angle, CSP is what
+    makes the promise in the privacy notice *verifiable*: without explicit
+    `connect-src` and `script-src`, any included script — even one introduced by
+    mistake or by a supplier — can open a channel to an undeclared third party.
+  remediation:
+    summary: Adopt a CSP that lists the permitted destinations explicitly.
+    steps:
+      - "Start in observation only with `Content-Security-Policy-Report-Only` and collect the violations."
+      - "Consolidate `default-src 'self'` plus the destinations that are genuinely needed."
+      - >
+        Move to enforcement; the policy then becomes the technical control that
+        prevents undeclared transfers.
+
+PM-FRM-01:
+  title_generic: "Public form submitting data to a third-party domain"
+  title: Public form submitting data to a third-party domain ({action_host})
+  description: >
+    The page contains a form whose `action` points to {action_host}, a domain
+    other than the site's own. Data entered by the user is therefore transmitted
+    directly to a third party, which has to be declared in the notice and bound by
+    an agreement under Art. 28. No submission was made during the observation: the
+    finding concerns the destination the form declares.
+  remediation:
+    summary: >
+      Declare the recipient and confirm its contractual role, or collect the data
+      on your own domain.
+    steps:
+      - Establish which service receives the data and in what capacity (processor or independent controller).
+      - Sign the processing agreement if none exists; list the service among the recipients in the notice.
+      - "If the recipient is outside the EEA: state the basis for the transfer next to the form."
+      - >
+        Consider collecting on your own domain with a server-to-server forward: it
+        reduces the user's exposure.
+
+PM-AI-01:
+  title: Conversational or AI component with no notice to the user
+  description: >
+    The page contains a component attributable to a conversational or AI system,
+    but neither the page nor the privacy notice tells the user they are
+    interacting with an artificial intelligence system. Art. 50 of the AI Act
+    requires the interaction to be made known, clearly and recognisably, at the
+    latest on first contact. This finding should be confirmed: the detection is
+    based on textual markers.
+  remediation:
+    summary: State explicitly that the system is artificial, and what data it processes.
+    steps:
+      - Add a visible notice inside the component ("you are talking to an automated assistant").
+      - State in the notice which model provider is used, what data is processed and how long conversations are kept.
+      - >
+        If the answers can affect decisions about the user, provide for human
+        intervention and document it.
+
+PM-COST-01:
+  title: Commercial TLS certificate where equivalent free alternatives exist
+  description: >
+    The service uses a TLS certificate issued by a commercial certificate
+    authority, while free alternatives of equal security and interoperability are
+    available (Let's Encrypt, ZeroSSL, the authorities already included in the
+    hosting and CDN contracts in place). This is not a privacy finding: it is
+    avoidable spending at equal technical result, reported because it emerges from
+    the same observation.
+  remediation:
+    summary: Move to a free certificate authority with automatic ACME renewal.
+    steps:
+      - Enable ACME on the reverse proxy or CDN in use (Caddy, Traefik, Certbot, Cloudflare).
+      - Confirm automatic renewal works before the current certificate expires.
+
+PM-REJ-01:
+  title_generic: "Service requiring consent still loaded after the refusal"
+  title: "{product} is still loaded after the visitor refused"
+  description: >
+    The consent mechanism was refused through the path its own vendor documents,
+    the page was loaded again, and {product} ({vendor}) was contacted anyway from
+    {hosts}. The refusal was recorded and ignored: the mechanism produces a
+    record of a choice that does not govern what the site does. This is the most
+    exposed situation there is, because the obligation is demonstrably known —
+    the site built a way to decline — and the decline has no effect.
+
+PM-REJ-02:
+  title_generic: "Tracking cookie still set after the refusal"
+  title: "Tracking cookie «{name}» is still set after the visitor refused"
+  description: >
+    After a documented refusal and a fresh page load, the cookie «{name}»
+    (domain {domain}) is on the terminal again. Consent was denied and the
+    identifier was written all the same.
+  remediation:
+    summary: Make the refusal actually block what sets «{name}».
+    steps:
+      - "Reproduce it: refuse, reload, and read the cookie jar — the evidence section gives the exact steps."
+      - >
+        Find why the refusal does not reach that script: a tag included outside
+        the consent platform's control, a tag manager loaded in the head, or a
+        category wrongly marked as strictly necessary.
+      - Move the script under the platform's prior blocking, and re-check with a clean refusal.
+      - >
+        Until it is fixed, the safest position is to remove the tool: a consent
+        record that does not bind is worse than no consent record.
+
+PM-REJ-03:
+  title_generic: "Tracking identifier in terminal storage survives the refusal"
+  title: "Tracking identifier in {kind} («{key}») survives the refusal"
+  description: >
+    After a documented refusal and a fresh page load, the key «{key}» is written
+    to {kind} again. Art. 5(3) ePrivacy covers any storage on the terminal:
+    moving the identifier out of a cookie does not move it out of the rule.
+  remediation:
+    summary: Bring the write under the consent decision, or remove what performs it.
+    steps:
+      - "Identify the script that writes «{key}» after the refusal."
+      - Place it under the consent platform's prior blocking.
+      - >
+        If the function needs no per-user state, prefer a stateless
+        implementation: it removes the consent question entirely.
+
+PM-REJ-04:
+  title: Consent mechanism present, with no documented way to refuse through it
+  description: >
+    A consent mechanism was detected, but this engine has no documented refusal
+    path for it and therefore did not interact with the page. This is stated
+    rather than hidden: the check was not performed, and no conclusion about the
+    site's behaviour after refusal can be drawn from this report. Guessing which
+    control to click on somebody else's site is not an option the method allows.
+  remediation:
+    summary: Verify the refusal by hand, or tell us which platform this is.
+    steps:
+      - >
+        Refuse manually in a clean window, reload, and check the cookie jar and
+        the network tab: the same comparison this pass performs automatically.
+      - >
+        If the platform publishes a refusal API, it can be added to the engine's
+        catalogue and the check becomes automatic for everyone using it.
+
+PM-IAM-01:
+  title_generic: "Session cookie readable by JavaScript"
+  title: "Session cookie «{name}» is readable by JavaScript"
+  description: >
+    The cookie «{name}» (domain {domain}) carries a session identifier and is set
+    without `HttpOnly`, so any script running on the page can read it — including
+    every third-party script the site loads. A stolen session identifier is a
+    logged-in user, without a password ever being involved.
+  remediation:
+    summary: Set HttpOnly on the session cookie.
+    steps:
+      - "Add `HttpOnly` to the Set-Cookie directive for «{name}»; no application code needs it."
+      - "Add `Secure` and `SameSite=Lax` at the same time — they are one change in the same place."
+      - >
+        Count the third-party scripts on the page while you are there: each one
+        can read what JavaScript can read.
+
+PM-IAM-02:
+  title_generic: "Session cookie without the Secure attribute"
+  title: "Session cookie «{name}» has no Secure attribute"
+  description: >
+    The cookie «{name}» (domain {domain}) carries a session identifier and may be
+    transmitted over an unencrypted connection. One request over plain HTTP is
+    enough to disclose it.
+  remediation:
+    summary: Set Secure on the session cookie.
+    steps:
+      - "Add `Secure` to the Set-Cookie directive for «{name}»."
+      - Confirm the whole origin is served over HTTPS, including redirects, so nothing breaks.
+
+PM-IAM-03:
+  title: Password field on a page not served over HTTPS
+  description: >
+    The page at {action} contains a password field and was delivered over plain
+    HTTP. Anything typed into it travels in clear text, and the page itself can
+    be modified in transit — including the form's destination.
+  remediation:
+    summary: Serve the page over HTTPS and force it.
+    steps:
+      - Serve the whole origin over HTTPS and redirect HTTP permanently.
+      - "Add `Strict-Transport-Security` so a browser never tries plain HTTP again."
+      - Check that no absolute http:// URL remains in the page or the form action.
+
+PM-IAM-04:
+  title_generic: "Credentials submitted to a third-party domain"
+  title: Credentials submitted to a third-party domain ({action_host})
+  description: >
+    A form containing a password field posts to {action_host}, a domain other
+    than the site's own. Credentials are therefore handed to a third party, which
+    has to be bound by an agreement under Art. 28 and named in the notice. No
+    submission was made during the observation: the finding concerns the
+    destination the form declares.
+  remediation:
+    summary: Establish who receives the credentials, and on what basis.
+    steps:
+      - Confirm which service receives them and in what capacity (processor or independent controller).
+      - Sign the processing agreement if none exists, and list the service among the recipients in the notice.
+      - "If the recipient is outside the EEA: state the basis for the transfer."
+      - >
+        Prefer a federated flow (OIDC or SAML) over posting credentials to a
+        third party: the password then never leaves the identity provider.
+
+PM-IAM-05:
+  title: Page with a password field can be framed by another site
+  description: >
+    The page carries a password field and the response sets neither
+    `X-Frame-Options` nor a CSP `frame-ancestors` directive. Another site can
+    load it in a frame and overlay its own interface, which is how a credential
+    form is clickjacked.
+  remediation:
+    summary: Refuse framing on any page that takes credentials.
+    steps:
+      - "Add `Content-Security-Policy: frame-ancestors 'self'` (or `'none'`)."
+      - "Keep `X-Frame-Options: SAMEORIGIN` alongside it for older browsers."
+      - Set it at the server or CDN so every page is covered, not only the login page.
+
+PM-DPIA-01:
+  title: The observable surface meets criteria that usually call for an impact assessment
+  description: >
+    The EDPB lists nine criteria for a processing likely to result in a high
+    risk; two or more met usually means an assessment under Art. 35 is due. On
+    the surface this scan can see, the criteria listed in the evidence are met.
+    This is a **screening, not a determination**: four of the nine criteria —
+    scale, vulnerable data subjects, special categories and legal effects — are
+    not observable from outside and are named in the evidence as unanswered. A
+    conclusion in either direction needs those answered by whoever knows the
+    processing.
+  remediation:
+    summary: Complete the screening with what only the controller can see, then decide.
+    steps:
+      - >
+        Answer the criteria marked as not assessable: how many people are
+        affected, whether any are vulnerable, whether special categories are
+        involved, and whether the processing produces legal or similarly
+        significant effects.
+      - >
+        If two or more criteria hold once completed, carry out the assessment
+        under Art. 35(7): description of the processing, necessity and
+        proportionality, risks to data subjects, and the measures addressing
+        them.
+      - >
+        Reduce the surface first. Every third party removed is a risk that no
+        longer needs assessing, and the transfer section of this report lists
+        equivalents for several of them.
+      - Record the outcome, including a reasoned decision that no assessment was needed.

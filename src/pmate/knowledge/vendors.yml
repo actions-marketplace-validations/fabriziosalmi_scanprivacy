@@ -1,0 +1,1339 @@
+# Vendor knowledge base — FACTS ONLY.
+#
+# What a vendor is, where it processes, whether it touches the terminal. No
+# prose: remediation is a `pattern` resolved through the locale catalogues, data
+# categories are `DataType` keys, the transfer basis is a key. Aliases used to
+# find a vendor in a site's own privacy notice are per-language and live in
+# i18n/locales/<lang>/vendors.yml — a notice written in German names Google
+# Fonts differently from one written in Italian.
+#
+# Adding a vendor is a data change. It never requires touching code, and after
+# this migration it never requires touching a rule either.
+#
+# Fields
+#   id              stable slug, used as the graph node id (vendor:<id>)
+#   vendor/product  proper nouns, never translated
+#   category        VendorCategory
+#   jurisdiction    ISO country of the controlling entity
+#   transfer        TransferScope — eea | adequacy | non_eea
+#   transfer_basis  key: dpf | scc | dpf_scc | adequacy
+#   storage_access  reads or writes terminal storage (the Art. 5(3) trigger)
+#   consent_class   ConsentClass — required | technical | uncertain
+#   data_types      DataType keys: what leaves the browser at minimum
+#   remediation     pattern + optional alternatives and vendor-specific steps
+defaults:
+  unknown_third_party:
+    vendor_key: unknown_third_party
+    category: infra
+    jurisdiction: unknown
+    transfer: non_eea
+    storage_access: false
+    consent_class: uncertain
+    data_types:
+    - ip
+    - user_agent
+    - referer
+    - page_viewed
+    remediation:
+      pattern: identify_unknown
+vendors:
+- id: google-fonts
+  vendor: Google Ireland Ltd / Google LLC
+  product: Google Fonts
+  category: fonts
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  transfer_basis: dpf
+  hosts:
+  - fonts.googleapis.com
+  - fonts.gstatic.com
+  remediation:
+    pattern: self_host_asset
+    alternatives:
+    - fontsource
+    - system_fonts
+    extra_steps:
+    - remove_font_link
+- id: google-analytics
+  vendor: Google Ireland Ltd / Google LLC
+  product: Google Analytics (GA4)
+  category: analytics
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - client_id
+  - browsing_history
+  transfer_basis: dpf
+  hosts:
+  - www.google-analytics.com
+  - google-analytics.com
+  - ssl.google-analytics.com
+  - analytics.google.com
+  - region1.google-analytics.com
+  - region2.google-analytics.com
+  host_suffixes:
+  - .analytics.google.com
+  remediation:
+    pattern: replace_with_eu_alternative
+    alternatives:
+    - matomo_self_hosted
+    - umami_self_hosted
+    - plausible_eu
+    - cloudflare_web_analytics
+    - web_analytics_italia
+    extra_steps:
+    - remove_gtag
+- id: google-tag-manager
+  vendor: Google Ireland Ltd / Google LLC
+  product: Google Tag Manager
+  category: tag_manager
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - page_viewed
+  transfer_basis: dpf
+  hosts:
+  - www.googletagmanager.com
+  - googletagmanager.com
+  remediation:
+    pattern: remove_or_consent_gate
+    extra_steps:
+    - audit_container
+    - consent_mode_not_enough
+- id: google-recaptcha
+  vendor: Google Ireland Ltd / Google LLC
+  product: reCAPTCHA
+  category: captcha
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: uncertain
+  data_types:
+  - ip
+  - mouse_movements
+  - fingerprinting
+  transfer_basis: dpf
+  hosts:
+  - www.recaptcha.net
+  - recaptcha.net
+  host_suffixes:
+  - /recaptcha
+  remediation:
+    pattern: replace_with_eu_alternative
+    alternatives:
+    - turnstile
+    - altcha
+    - honeypot_rate_limit
+    extra_steps:
+    - assess_spam_volume
+- id: google-maps
+  vendor: Google Ireland Ltd / Google LLC
+  product: Google Maps
+  category: maps
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - requested_location
+  hosts:
+  - maps.googleapis.com
+  - maps.gstatic.com
+  - maps.google.com
+  remediation:
+    pattern: click_to_load
+    alternatives:
+    - leaflet_osm
+    - maptiler_eu
+    - external_map_link
+- id: youtube
+  vendor: Google Ireland Ltd / Google LLC
+  product: YouTube embed
+  category: media
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - ad_identifiers
+  - videos_watched
+  hosts:
+  - www.youtube.com
+  - youtube.com
+  - youtu.be
+  - i.ytimg.com
+  - www.youtube-nocookie.com
+  - youtube-nocookie.com
+  - jnn-pa.googleapis.com
+  host_suffixes:
+  - .ggpht.com
+  - .ytimg.com
+  # Video delivery. Not a separate recipient: the hostnames are per-session
+  # (rr1---sn-8vq54voxpu-bv5e.googlevideo.com), so listing them individually is
+  # impossible and reporting them as an unknown third party is misleading —
+  # a visitor reaches them only because the YouTube player was loaded.
+  - .googlevideo.com
+  remediation:
+    pattern: click_to_load
+    alternatives:
+    - lite_youtube_embed
+    - peertube
+    - self_hosted_video
+    extra_steps:
+    - nocookie_is_not_enough
+- id: google-ads
+  vendor: Google Ireland Ltd / Google LLC
+  product: Google Ads / DoubleClick
+  category: ads
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ad_identifiers
+  - browsing_history
+  - inferred_interests
+  hosts:
+  - www.googleadservices.com
+  - googleads.g.doubleclick.net
+  - pagead2.googlesyndication.com
+  - securepubads.g.doubleclick.net
+  - stats.g.doubleclick.net
+  - adservice.google.com
+  remediation:
+    pattern: remove_or_consent_gate
+    extra_steps:
+    - no_cookie_wall
+- id: google-generic
+  vendor: Google Ireland Ltd / Google LLC
+  product: Google services (generic endpoint)
+  category: infra
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: uncertain
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - www.google.com
+  - www.google.it
+  - www.gstatic.com
+  - apis.google.com
+  - ajax.googleapis.com
+  - jnn-pa.googleapis.com
+  - play.google.com
+  host_suffixes:
+  - .googleapis.com
+  remediation:
+    pattern: identify_unknown
+    extra_steps:
+    - check_request_path
+- id: meta-pixel
+  vendor: Meta Platforms Ireland Ltd
+  product: Meta (Facebook) Pixel
+  category: ads
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - visitor_id
+  - browsing_history
+  - ip
+  transfer_basis: dpf
+  hosts:
+  - connect.facebook.net
+  - www.facebook.com
+  - facebook.com
+  remediation:
+    pattern: remove_or_consent_gate
+    extra_steps:
+    - record_in_ropa
+- id: instagram
+  vendor: Meta Platforms Ireland Ltd
+  product: Instagram embed
+  category: social
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - visitor_id
+  hosts:
+  - www.instagram.com
+  - instagram.com
+  - scontent.cdninstagram.com
+  remediation:
+    pattern: click_to_load
+- id: x-twitter
+  vendor: Twitter International Unlimited Company / X Corp.
+  product: X (Twitter) widget
+  category: social
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - visitor_id
+  hosts:
+  - platform.twitter.com
+  - syndication.twitter.com
+  - cdn.syndication.twimg.com
+  - pbs.twimg.com
+  remediation:
+    pattern: click_to_load
+- id: linkedin-insight
+  vendor: LinkedIn Ireland Unlimited Company
+  product: LinkedIn Insight Tag
+  category: ads
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - visitor_id
+  - page_viewed
+  hosts:
+  - snap.licdn.com
+  - px.ads.linkedin.com
+  - www.linkedin.com
+  remediation:
+    pattern: remove_or_consent_gate
+- id: shields-io
+  vendor: Shields.io
+  product: Shields.io badge
+  category: cdn
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: uncertain
+  # No cookie and no script: an SVG. What leaves is the visitor's IP address,
+  # User-Agent and referring page, on every view, for an image that is almost
+  # always decorative. That makes it a transfer question rather than a
+  # terminal-access one, which is why the class is `uncertain` and not
+  # `required`.
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - img.shields.io
+  - shields.io
+  remediation:
+    pattern: self_host_asset
+    alternatives:
+    - cached_badge_svg
+    extra_steps:
+    - badges_are_fetched_per_view
+- id: twitch
+  vendor: Twitch Interactive, Inc.
+  product: Twitch embed
+  category: media
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - device_identifiers
+  - videos_watched
+  hosts:
+  - player.twitch.tv
+  - embed.twitch.tv
+  - www.twitch.tv
+  - twitch.tv
+  host_suffixes:
+  - .ttvnw.net
+  - .jtvnw.net
+  remediation:
+    pattern: click_to_load
+    alternatives:
+    - link_out_to_channel
+    extra_steps: []
+- id: linkedin-cdn
+  vendor: LinkedIn Ireland Unlimited Company
+  product: LinkedIn (static assets)
+  category: social
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - media.licdn.com
+  - static.licdn.com
+  host_suffixes:
+  - .licdn.com
+  remediation:
+    pattern: self_host_asset
+    extra_steps:
+    - asset_from_widget
+- id: tiktok-pixel
+  vendor: TikTok Technology Limited
+  product: TikTok Pixel
+  category: ads
+  jurisdiction: CN/SG
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ad_identifiers
+  - browsing_history
+  hosts:
+  - analytics.tiktok.com
+  - business-api.tiktok.com
+  remediation:
+    pattern: remove_or_consent_gate
+    extra_steps:
+    - verify_transfer_chain
+- id: microsoft-clarity
+  vendor: Microsoft Ireland Operations Ltd / Microsoft Corp.
+  product: Microsoft Clarity
+  category: analytics
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - session_recording
+  - mouse_movements
+  - ip
+  hosts:
+  - www.clarity.ms
+  - clarity.ms
+  - scripts.clarity.ms
+  - j.clarity.ms
+  - eu-cdn.clarity.ms
+  - c.clarity.ms
+  host_suffixes:
+  - .clarity.ms
+  remediation:
+    pattern: session_replay
+    alternatives:
+    - matomo_heatmaps
+    - moderated_usability_testing
+- id: hotjar
+  vendor: Hotjar Ltd (Malta) / Contentsquare
+  product: Hotjar
+  category: analytics
+  jurisdiction: MT
+  transfer: eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - session_recording
+  - ip
+  hosts:
+  - static.hotjar.com
+  - script.hotjar.com
+  - vars.hotjar.com
+  - in.hotjar.com
+  - www.hotjar.com
+  host_suffixes:
+  - .hotjar.com
+  - .hotjar.io
+  remediation:
+    pattern: session_replay
+    extra_steps:
+    - enable_masking
+- id: matomo-cloud
+  vendor: InnoCraft Ltd
+  product: Matomo Cloud
+  category: analytics
+  jurisdiction: DE
+  transfer: eea
+  storage_access: true
+  consent_class: uncertain
+  data_types:
+  - visitor_id
+  - page_viewed
+  host_suffixes:
+  - .matomo.cloud
+  - .innocraft.cloud
+  remediation:
+    pattern: declare_processor
+    extra_steps:
+    - matomo_consent_exempt_config
+- id: plausible
+  vendor: Plausible Insights OÜ
+  product: Plausible Analytics
+  category: analytics
+  jurisdiction: EE
+  transfer: eea
+  storage_access: false
+  consent_class: technical
+  data_types:
+  - aggregated_metrics
+  hosts:
+  - plausible.io
+  host_suffixes:
+  - .plausible.io
+  remediation:
+    pattern: declare_processor
+- id: umami
+  vendor: Umami Software / self-hosted
+  product: Umami
+  category: analytics
+  jurisdiction: unknown
+  transfer: non_eea
+  storage_access: false
+  consent_class: uncertain
+  data_types:
+  - aggregated_metrics
+  host_suffixes:
+  - .umami.is
+  - umami.is
+  remediation:
+    pattern: declare_processor
+    extra_steps:
+    - prefer_self_hosted
+- id: cloudflare-analytics
+  vendor: Cloudflare, Inc.
+  product: Cloudflare Web Analytics / RUM
+  category: analytics
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: uncertain
+  data_types:
+  - ip
+  - aggregated_metrics
+  transfer_basis: dpf
+  hosts:
+  - static.cloudflareinsights.com
+  - cloudflareinsights.com
+  remediation:
+    pattern: declare_processor
+- id: adobe-analytics
+  vendor: Adobe Systems Software Ireland Ltd
+  product: Adobe Analytics / Experience Cloud
+  category: analytics
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - visitor_id
+  - browsing_history
+  hosts:
+  - assets.adobedtm.com
+  - sstats.adobe.com
+  - dpm.demdex.net
+  host_suffixes:
+  - .demdex.net
+  - .omtrdc.net
+  remediation:
+    pattern: remove_or_consent_gate
+    extra_steps:
+    - map_subprocessors
+- id: yandex-metrica
+  vendor: Yandex Oy / Yandex LLC
+  product: Yandex Metrica
+  category: analytics
+  jurisdiction: RU
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - session_recording
+  - ip
+  hosts:
+  - mc.yandex.ru
+  - mc.yandex.com
+  remediation:
+    pattern: remove_or_consent_gate
+    extra_steps:
+    - no_adequacy_decision
+- id: jsdelivr
+  vendor: jsDelivr (Volentio JSD Ltd)
+  product: jsDelivr CDN
+  category: cdn
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - cdn.jsdelivr.net
+  remediation:
+    pattern: self_host_asset
+- id: cdnjs
+  vendor: Cloudflare, Inc.
+  product: cdnjs
+  category: cdn
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - cdnjs.cloudflare.com
+  remediation:
+    pattern: self_host_asset
+- id: unpkg
+  vendor: unpkg / Cloudflare
+  product: unpkg CDN
+  category: cdn
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - unpkg.com
+  remediation:
+    pattern: self_host_asset
+- id: jquery-cdn
+  vendor: jQuery Foundation / StackPath
+  product: code.jquery.com
+  category: cdn
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - code.jquery.com
+  remediation:
+    pattern: self_host_asset
+- id: bootstrap-cdn
+  vendor: StackPath / MaxCDN
+  product: BootstrapCDN
+  category: cdn
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - stackpath.bootstrapcdn.com
+  - maxcdn.bootstrapcdn.com
+  - netdna.bootstrapcdn.com
+  remediation:
+    pattern: self_host_asset
+- id: fontawesome
+  vendor: Fonticons, Inc.
+  product: Font Awesome CDN
+  category: fonts
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - referer
+  hosts:
+  - use.fontawesome.com
+  - kit.fontawesome.com
+  - ka-f.fontawesome.com
+  host_suffixes:
+  - .fontawesome.com
+  remediation:
+    pattern: self_host_asset
+    alternatives:
+    - inline_svg_icons
+- id: gravatar
+  vendor: Automattic, Inc.
+  product: Gravatar
+  category: infra
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: required
+  data_types:
+  - email_hash
+  - ip
+  hosts:
+  - secure.gravatar.com
+  - gravatar.com
+  - 0.gravatar.com
+  - 1.gravatar.com
+  - 2.gravatar.com
+  remediation:
+    pattern: remove_or_consent_gate
+    alternatives:
+    - local_avatars
+    extra_steps:
+    - wordpress_disable_avatars
+- id: wordpress-stats
+  vendor: Automattic, Inc.
+  product: Jetpack / WordPress.com Stats
+  category: analytics
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - page_viewed
+  hosts:
+  - stats.wp.com
+  - pixel.wp.com
+  - s0.wp.com
+  - s1.wp.com
+  - s2.wp.com
+  - c0.wp.com
+  host_suffixes:
+  - .wp.com
+  remediation:
+    pattern: remove_or_consent_gate
+    extra_steps:
+    - jetpack_disable_stats
+- id: youtube-nocookie-note
+  vendor: Google Ireland Ltd
+  product: youtube-nocookie
+  category: media
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  remediation:
+    pattern: click_to_load
+- id: vimeo
+  vendor: Vimeo.com, Inc.
+  product: Vimeo player
+  category: media
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - visitor_id
+  hosts:
+  - player.vimeo.com
+  - vimeo.com
+  - i.vimeocdn.com
+  - f.vimeocdn.com
+  host_suffixes:
+  - .vimeocdn.com
+  remediation:
+    pattern: click_to_load
+    extra_steps:
+    - vimeo_dnt
+- id: stripe
+  vendor: Stripe Payments Europe Ltd
+  product: Stripe
+  category: payments
+  jurisdiction: IE/US
+  transfer: non_eea
+  storage_access: true
+  consent_class: uncertain
+  data_types:
+  - ip
+  - antifraud_signals
+  - device_identifiers
+  hosts:
+  - js.stripe.com
+  - m.stripe.network
+  - api.stripe.com
+  - checkout.stripe.com
+  host_suffixes:
+  - .stripe.com
+  - .stripe.network
+  remediation:
+    pattern: scope_to_page
+    extra_steps:
+    - declare_antifraud
+- id: paypal
+  vendor: PayPal (Europe) S.à r.l. et Cie, S.C.A.
+  product: PayPal
+  category: payments
+  jurisdiction: LU/US
+  transfer: non_eea
+  storage_access: true
+  consent_class: uncertain
+  data_types:
+  - ip
+  - antifraud_signals
+  hosts:
+  - www.paypal.com
+  - www.paypalobjects.com
+  - c.paypal.com
+  host_suffixes:
+  - .paypal.com
+  - .paypalobjects.com
+  remediation:
+    pattern: scope_to_page
+- id: mailchimp
+  vendor: Intuit / The Rocket Science Group LLC
+  product: Mailchimp
+  category: email
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - email
+  - ip
+  - open_rate
+  hosts:
+  - chimpstatic.com
+  - downloads.mailchimp.com
+  - list-manage.com
+  host_suffixes:
+  - .list-manage.com
+  - .chimpstatic.com
+  remediation:
+    pattern: remove_or_consent_gate
+    alternatives:
+    - brevo
+    - mailerlite
+    - listmonk
+- id: hubspot
+  vendor: HubSpot Ireland Ltd
+  product: HubSpot
+  category: analytics
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - visitor_id
+  - email
+  - browsing_history
+  hosts:
+  - js.hs-scripts.com
+  - js.hs-analytics.net
+  - js.hubspot.com
+  - track.hubspot.com
+  - forms.hsforms.com
+  host_suffixes:
+  - .hs-scripts.com
+  - .hs-analytics.net
+  - .hsforms.com
+  - .hubspot.com
+  remediation:
+    pattern: remove_or_consent_gate
+    extra_steps:
+    - separate_form_from_tracking
+- id: intercom
+  vendor: Intercom R&D Unlimited Company
+  product: Intercom
+  category: chat
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - visitor_id
+  - conversations
+  - ip
+  hosts:
+  - widget.intercom.io
+  - js.intercomcdn.com
+  - api-iam.intercom.io
+  host_suffixes:
+  - .intercom.io
+  - .intercomcdn.com
+  remediation:
+    pattern: click_to_load
+- id: tawkto
+  vendor: tawk.to Inc.
+  product: tawk.to
+  category: chat
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - conversations
+  hosts:
+  - embed.tawk.to
+  - va.tawk.to
+  host_suffixes:
+  - .tawk.to
+  remediation:
+    pattern: click_to_load
+- id: calendly
+  vendor: Calendly LLC
+  product: Calendly
+  category: forms
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - email
+  - form_answers
+  - ip
+  hosts:
+  - assets.calendly.com
+  - calendly.com
+  remediation:
+    pattern: click_to_load
+    alternatives:
+    - cal_com_self_hosted
+- id: typeform
+  vendor: TYPEFORM SL
+  product: Typeform
+  category: forms
+  jurisdiction: ES
+  transfer: eea
+  storage_access: true
+  consent_class: uncertain
+  data_types:
+  - form_answers
+  - ip
+  hosts:
+  - embed.typeform.com
+  - form.typeform.com
+  host_suffixes:
+  - .typeform.com
+  remediation:
+    pattern: declare_processor
+    extra_steps:
+    - verify_dpa
+- id: disqus
+  vendor: Disqus, Inc.
+  product: Disqus
+  category: social
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - visitor_id
+  - comments
+  - ad_identifiers
+  hosts:
+  - disqus.com
+  - referrer.disqus.com
+  host_suffixes:
+  - .disqus.com
+  - .disquscdn.com
+  remediation:
+    pattern: replace_with_eu_alternative
+    alternatives:
+    - isso
+    - commento
+    - giscus
+- id: sharethis
+  vendor: ShareThis, Inc. / AddToAny
+  product: Third-party share buttons
+  category: social
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ad_identifiers
+  - page_viewed
+  hosts:
+  - platform-api.sharethis.com
+  - static.addtoany.com
+  - s7.addthis.com
+  host_suffixes:
+  - .sharethis.com
+  - .addthis.com
+  - .addtoany.com
+  remediation:
+    pattern: self_host_asset
+    alternatives:
+    - static_share_links
+- id: iubenda
+  vendor: iubenda srl
+  product: iubenda / Cookie Solution
+  category: consent
+  jurisdiction: IT
+  transfer: eea
+  storage_access: true
+  consent_class: technical
+  data_types:
+  - consent_proof
+  - ip
+  hosts:
+  - cdn.iubenda.com
+  - cs.iubenda.com
+  - www.iubenda.com
+  - idb.iubenda.com
+  host_suffixes:
+  - .iubenda.com
+  remediation:
+    pattern: verify_prior_blocking
+- id: cookiebot
+  vendor: Usercentrics A/S (Cookiebot)
+  product: Cookiebot
+  category: consent
+  jurisdiction: DK
+  transfer: eea
+  storage_access: true
+  consent_class: technical
+  data_types:
+  - consent_proof
+  - ip
+  hosts:
+  - consent.cookiebot.com
+  - consentcdn.cookiebot.com
+  - imgsct.cookiebot.com
+  host_suffixes:
+  - .cookiebot.com
+  - .usercentrics.eu
+  remediation:
+    pattern: verify_prior_blocking
+- id: onetrust
+  vendor: OneTrust LLC
+  product: OneTrust
+  category: consent
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: technical
+  data_types:
+  - consent_proof
+  - ip
+  - approximate_location
+  hosts:
+  - cdn.cookielaw.org
+  - geolocation.onetrust.com
+  - privacyportal.onetrust.com
+  host_suffixes:
+  - .cookielaw.org
+  - .onetrust.com
+  remediation:
+    pattern: verify_prior_blocking
+    extra_steps:
+    - cmp_is_also_a_transfer
+- id: cookieyes
+  vendor: CookieYes Ltd
+  product: CookieYes
+  category: consent
+  jurisdiction: GB
+  transfer: non_eea
+  storage_access: true
+  consent_class: technical
+  data_types:
+  - consent_proof
+  hosts:
+  - cdn-cookieyes.com
+  - directory.cookieyes.com
+  host_suffixes:
+  - .cookieyes.com
+  remediation:
+    pattern: verify_prior_blocking
+- id: cloudflare-cdn
+  vendor: Cloudflare, Inc.
+  product: Cloudflare CDN / WAF
+  category: infra
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: technical
+  data_types:
+  - ip
+  - request_metadata
+  transfer_basis: dpf_scc
+  hosts:
+  - cdn.cloudflare.com
+  - challenges.cloudflare.com
+  host_suffixes:
+  - .cloudflare.com
+  - .cloudflarestream.com
+  remediation:
+    pattern: declare_processor
+- id: github-pages
+  vendor: GitHub, Inc. (Microsoft)
+  product: GitHub Pages
+  category: infra
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: technical
+  # GitHub Pages serves a fixed set of response headers and offers no way to add
+  # one — no config file, no dashboard, no header rules. Verified against
+  # hstspreload.org on 2026-07-29: `github.io` and `fabriziosalmi.github.io` are
+  # both `unknown`, so the HSTS finding is *true* there and simultaneously
+  # impossible to close on the platform. The report has to say both things.
+  response_headers_fixed: true
+  data_types:
+  - ip
+  - request_metadata
+  transfer_basis: dpf
+  hosts:
+  - github.io
+  - raw.githubusercontent.com
+  - avatars.githubusercontent.com
+  - api.github.com
+  host_suffixes:
+  - .github.io
+  - .githubusercontent.com
+  remediation:
+    pattern: declare_processor
+# ------------------------------------------------------- identity providers
+# An identity provider receives who the user is, not merely that a visitor
+# arrived. The transfer and disclosure rules already reach them once they are
+# here — no new rule needed, only the facts.
+- id: google-identity
+  vendor: Google Ireland Ltd / Google LLC
+  product: Sign in with Google
+  category: identity
+  jurisdiction: US
+  transfer: non_eea
+  transfer_basis: dpf
+  storage_access: true
+  consent_class: uncertain
+  data_types: [account_identifier, identity_attributes, authentication_events, ip]
+  hosts: [accounts.google.com, oauth2.googleapis.com]
+  remediation:
+    pattern: declare_processor
+    extra_steps: [idp_receives_identity]
+- id: microsoft-entra
+  vendor: Microsoft Ireland Operations Ltd / Microsoft Corp.
+  product: Microsoft Entra ID
+  category: identity
+  jurisdiction: US
+  transfer: non_eea
+  transfer_basis: dpf_scc
+  storage_access: true
+  consent_class: uncertain
+  data_types: [account_identifier, identity_attributes, authentication_events, ip]
+  hosts: [login.microsoftonline.com, login.live.com, login.windows.net]
+  host_suffixes: ['.b2clogin.com']
+  remediation:
+    pattern: declare_processor
+    extra_steps: [idp_receives_identity]
+- id: okta
+  vendor: Okta, Inc.
+  product: Okta
+  category: identity
+  jurisdiction: US
+  transfer: non_eea
+  transfer_basis: scc
+  storage_access: true
+  consent_class: uncertain
+  data_types: [account_identifier, identity_attributes, authentication_events, ip]
+  host_suffixes: ['.okta.com', '.oktapreview.com', '.okta-emea.com']
+  remediation:
+    pattern: declare_processor
+    extra_steps: [idp_receives_identity, prefer_eu_region]
+- id: auth0
+  vendor: Okta, Inc. (Auth0)
+  product: Auth0
+  category: identity
+  jurisdiction: US
+  transfer: non_eea
+  transfer_basis: scc
+  storage_access: true
+  consent_class: uncertain
+  data_types: [account_identifier, identity_attributes, authentication_events, ip]
+  host_suffixes: ['.auth0.com']
+  remediation:
+    pattern: declare_processor
+    extra_steps: [idp_receives_identity, prefer_eu_region]
+- id: apple-identity
+  vendor: Apple Distribution International Ltd
+  product: Sign in with Apple
+  category: identity
+  jurisdiction: IE/US
+  transfer: non_eea
+  storage_access: true
+  consent_class: uncertain
+  data_types: [account_identifier, identity_attributes, authentication_events]
+  hosts: [appleid.apple.com, appleid.cdn-apple.com]
+  remediation:
+    pattern: declare_processor
+    extra_steps: [idp_receives_identity]
+- id: spid
+  vendor: Identity providers accredited by AgID
+  product: SPID
+  category: identity
+  jurisdiction: IT
+  transfer: eea
+  storage_access: true
+  consent_class: technical
+  data_types: [account_identifier, identity_attributes, authentication_events]
+  hosts: [login.spid.gov.it]
+  remediation:
+    pattern: declare_processor
+    extra_steps: [idp_receives_identity]
+- id: keycloak
+  vendor: self-hosted (Keycloak)
+  product: Keycloak
+  category: identity
+  jurisdiction: self
+  transfer: eea
+  storage_access: true
+  consent_class: technical
+  data_types: [account_identifier, identity_attributes, authentication_events]
+  host_suffixes: ['.keycloak.org']
+  remediation:
+    pattern: declare_processor
+- id: vercel
+  vendor: Vercel Inc.
+  product: Vercel (hosting/edge)
+  category: infra
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: technical
+  data_types:
+  - ip
+  - request_metadata
+  transfer_basis: dpf_scc
+  hosts:
+  - vercel.com
+  - vercel.app
+  host_suffixes:
+  - .vercel.app
+  - .vercel-insights.com
+  remediation:
+    pattern: declare_processor
+- id: netlify
+  vendor: Netlify, Inc.
+  product: Netlify (hosting/edge)
+  category: infra
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: technical
+  data_types:
+  - ip
+  - request_metadata
+  transfer_basis: dpf_scc
+  hosts:
+  - netlify.app
+  - netlify.com
+  host_suffixes:
+  - .netlify.app
+  remediation:
+    pattern: declare_processor
+- id: aws-cloudfront
+  vendor: Amazon Web Services EMEA SARL / Amazon.com Inc.
+  product: AWS CloudFront / S3
+  category: infra
+  jurisdiction: LU/US
+  transfer: non_eea
+  storage_access: false
+  consent_class: technical
+  data_types:
+  - ip
+  - request_metadata
+  transfer_basis: dpf_scc
+  hosts:
+  - cloudfront.net
+  - s3.amazonaws.com
+  host_suffixes:
+  - .cloudfront.net
+  - .amazonaws.com
+  remediation:
+    pattern: declare_processor
+    extra_steps:
+    - prefer_eu_region
+    - verify_dpa
+- id: fastly
+  vendor: Fastly, Inc.
+  product: Fastly CDN
+  category: infra
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: technical
+  data_types:
+  - ip
+  - request_metadata
+  transfer_basis: scc
+  hosts:
+  - fastly.net
+  host_suffixes:
+  - .fastly.net
+  - .fastlylb.net
+  remediation:
+    pattern: declare_processor
+- id: fly-io
+  vendor: Fly.io, Inc.
+  product: Fly.io
+  category: infra
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: false
+  consent_class: technical
+  data_types:
+  - ip
+  - request_metadata
+  hosts:
+  - fly.dev
+  host_suffixes:
+  - .fly.dev
+  remediation:
+    pattern: declare_processor
+    extra_steps:
+    - prefer_eu_region
+- id: sociablekit
+  vendor: SociableKit LLC
+  product: SociableKit (embedded social feeds)
+  category: social
+  jurisdiction: US
+  transfer: non_eea
+  storage_access: true
+  consent_class: required
+  data_types:
+  - ip
+  - user_agent
+  - page_viewed
+  hosts:
+  - sociablekit.com
+  - widgets.sociablekit.com
+  - app.sociablekit.com
+  - views.sociablekit.com
+  - data-image.sociablekit.com
+  host_suffixes:
+  - .sociablekit.com
+  remediation:
+    pattern: click_to_load
+- id: webanalytics-italia
+  vendor: Dipartimento per la trasformazione digitale
+  product: Web Analytics Italia
+  category: analytics
+  jurisdiction: IT
+  transfer: eea
+  storage_access: true
+  consent_class: technical
+  data_types:
+  - visitor_id
+  - page_viewed
+  hosts:
+  - ingestion.webanalytics.italia.it
+  - webanalytics.italia.it
+  remediation:
+    pattern: declare_processor

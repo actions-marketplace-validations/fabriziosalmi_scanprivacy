@@ -1,0 +1,22 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# A reviewer of this file is checking one thing only: does the condition
+# describe the fact the rule claims to have found?
+id: PM-SEC-01
+severity: medium
+confidence: certain
+subject: site
+tags:
+- security
+- headers
+references:
+- gdpr:32
+- it:agid:comms-protection
+condition:
+  header_missing: strict-transport-security
+remediation:
+  source: rule
+  effort: low

@@ -1,0 +1,197 @@
+name: privacymate
+description: >
+  Passive privacy conformance scan (GDPR / ePrivacy / AI Act) with SARIF output
+  for code scanning, findings anchored to the source line that causes them.
+author: Fabrizio Salmi
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  url:
+    description: Public URL to observe (http/https).
+    required: true
+  lang:
+    description: Language of the human-readable output (en, it).
+    required: false
+    default: en
+  fail-on:
+    description: >
+      When to fail the job: critical | high | medium | low | info |
+      any-finding | not-conformant | never. Start at `critical` to adopt the
+      gate without blocking a backlog you have not triaged yet.
+    required: false
+    default: not-conformant
+  source-root:
+    description: >
+      Repository root used to anchor findings to the file and line that cause
+      them. Set to an empty string to disable anchoring.
+    required: false
+    default: .
+  anchor-file:
+    description: File the SARIF results point at when no source line matches.
+    required: false
+    default: README.md
+  sarif-file:
+    description: Where to write the SARIF report.
+    required: false
+    default: privacymate.sarif
+  json-file:
+    description: Where to write the full result, evidence and digests included.
+    required: false
+    default: privacymate.json
+  badge-file:
+    description: Where to write the SVG badge. Empty to skip.
+    required: false
+    default: ""
+  pdf-file:
+    description: >
+      Where to write the PDF report. Empty to skip. Requires the pango system
+      libraries, which this action installs on demand.
+    required: false
+    default: ""
+  attest:
+    description: >
+      Where to write a signed in-toto statement binding every artefact this run
+      produced. Empty to skip.
+    required: false
+    default: ""
+  sign:
+    description: >
+      unsigned | cosign-keyless | cosign-key. Keyless needs the id-token: write
+      permission and anchors the signature in the public transparency log, which
+      is what lets a stranger verify it without holding a key.
+    required: false
+    default: cosign-keyless
+  cosign-key:
+    description: Private key path, for sign=cosign-key.
+    required: false
+    default: ""
+  upload-sarif:
+    description: "Upload the SARIF to code scanning. Needs the security-events: write permission."
+    required: false
+    default: "true"
+  python-version:
+    description: Python version used to run the engine.
+    required: false
+    default: "3.12"
+
+outputs:
+  grade:
+    description: A, B, C, D, F or INCONCLUSIVE.
+    value: ${{ steps.scan.outputs.grade }}
+  conformant:
+    description: 'true or false — no critical and no high finding.'
+    value: ${{ steps.scan.outputs.conformant }}
+  findings:
+    description: Total number of findings.
+    value: ${{ steps.scan.outputs.findings }}
+  anchored:
+    description: How many findings were anchored to a source line.
+    value: ${{ steps.scan.outputs.anchored }}
+  evidence-digest:
+    description: SHA-256 of the observation, as published in the report.
+    value: ${{ steps.scan.outputs.evidence_digest }}
+  sarif:
+    description: Path to the SARIF file.
+    value: ${{ inputs.sarif-file }}
+  attestation:
+    description: Path to the in-toto statement, empty when attestation was skipped.
+    value: ${{ inputs.attest }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install privacymate
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        # Installed from the action's own checkout: no package index needed,
+        # and the engine version is pinned to the action version you referenced.
+        python -m pip install "${{ github.action_path }}"
+
+    - name: Install browser
+      shell: bash
+      run: python -m playwright install --with-deps chromium
+
+    - name: Install cosign
+      if: inputs.attest != '' && inputs.sign != 'unsigned'
+      uses: sigstore/cosign-installer@f713795cb21599bc4e5c4b58cbad1da852d7eeb9  # v3
+
+    - name: Install PDF libraries
+      if: inputs.pdf-file != ''
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y --no-install-recommends \
+          libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libfribidi0 libcairo2
+
+    - name: Scan
+      id: scan
+      shell: bash
+      run: |
+        set +e
+        args=(scan "${{ inputs.url }}" --quiet
+              --json "${{ inputs.json-file }}"
+              --sarif "${{ inputs.sarif-file }}"
+              --anchor-file "${{ inputs.anchor-file }}"
+              --fail-on "${{ inputs.fail-on }}")
+        [ -n "${{ inputs.source-root }}" ] && args+=(--source-root "${{ inputs.source-root }}")
+        [ -n "${{ inputs.badge-file }}" ]  && args+=(--badge "${{ inputs.badge-file }}")
+        [ -n "${{ inputs.pdf-file }}" ]    && args+=(--pdf "${{ inputs.pdf-file }}")
+        if [ -n "${{ inputs.attest }}" ]; then
+          args+=(--attest "${{ inputs.attest }}" --sign "${{ inputs.sign }}")
+          [ -n "${{ inputs.cosign-key }}" ] && args+=(--key "${{ inputs.cosign-key }}")
+        fi
+        pmate --lang "${{ inputs.lang }}" "${args[@]}"
+        gate=$?
+        set -e
+
+        python - "$GITHUB_OUTPUT" "$GITHUB_STEP_SUMMARY" <<'PY'
+        import json, os, sys
+
+        out_path, summary_path = sys.argv[1], sys.argv[2]
+        result = json.load(open(os.environ["PM_JSON"], encoding="utf-8"))
+        sarif = json.load(open(os.environ["PM_SARIF"], encoding="utf-8"))
+        verdict = result.get("verdict") or {}
+        counts = verdict.get("counts") or {}
+        anchored = sarif["runs"][0]["properties"].get("sourceAnchored", 0)
+
+        with open(out_path, "a", encoding="utf-8") as fh:
+            fh.write(f"grade={verdict.get('grade')}\n")
+            fh.write(f"conformant={str(bool(verdict.get('conformant'))).lower()}\n")
+            fh.write(f"findings={len(result.get('findings', []))}\n")
+            fh.write(f"anchored={anchored}\n")
+            fh.write(f"evidence_digest={(result.get('record', {}).get('evidence_digest') or {}).get('sha256', '')}\n")
+
+        rows = "".join(
+            f"| {name} | {counts.get(name, 0)} |\n"
+            for name in ("critical", "high", "medium", "low", "info")
+        )
+        quick = sum(1 for f in result.get("findings", []) if f.get("quick_win"))
+        with open(summary_path, "a", encoding="utf-8") as fh:
+            fh.write(f"## privacymate — {result.get('final_url')}\n\n")
+            fh.write(f"**{verdict.get('grade')}** · {len(result.get('findings', []))} findings · ")
+            fh.write(f"{quick} low-effort fixes on serious findings · {anchored} anchored to source\n\n")
+            fh.write("| severity | findings |\n|---|---:|\n" + rows + "\n")
+            fh.write(f"Evidence digest `{(result.get('record', {}).get('evidence_digest') or {}).get('sha256', '')[:16]}…`\n")
+        PY
+
+        exit $gate
+      env:
+        PM_JSON: ${{ inputs.json-file }}
+        PM_SARIF: ${{ inputs.sarif-file }}
+
+    - name: Upload SARIF
+      # `always()` on purpose: a failing gate is exactly when the findings must
+      # reach the Security tab, so the job that failed can be acted upon.
+      if: always() && inputs.upload-sarif == 'true'
+      uses: github/codeql-action/upload-sarif@47be0dbd5113ab1b79fe2dd3f68bdf7e426cdc87  # v3
+      with:
+        sarif_file: ${{ inputs.sarif-file }}
+        category: privacymate

@@ -1,0 +1,22 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# A reviewer of this file is checking one thing only: does the condition
+# describe the fact the rule claims to have found?
+id: PM-COST-01
+severity: info
+confidence: certain
+subject: site
+tags:
+- cost
+- tls
+references:
+- it:const:97
+- it:law-241:1
+condition:
+  tls_classification: commercial
+remediation:
+  source: rule
+  effort: low

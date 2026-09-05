@@ -1,0 +1,22 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# A reviewer of this file is checking one thing only: does the condition
+# describe the fact the rule claims to have found?
+id: PM-DOC-02
+severity: medium
+confidence: probable
+subject: site
+tags:
+- notice
+references:
+- gdpr:13
+- gdpr:12
+condition:
+  privacy_document_present: true
+  art13_missing_any: true
+remediation:
+  source: rule
+  effort: low

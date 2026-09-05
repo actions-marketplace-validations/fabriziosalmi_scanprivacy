@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="{{ t.locale }}">
+<head>
+  <meta charset="utf-8">
+  <title>{{ t.t('fleet.title') }}</title>
+  <meta name="author" content="privacymate">
+  <meta name="description" content="{{ t.t('fleet.title') }}">
+  <link rel="stylesheet" href="base.css">
+</head>
+<body>
+<div class="footer-string">{{ t.t('fleet.footer') }}</div>
+
+<section class="copertina">
+  <h1>{{ t.t('fleet.title') }}</h1>
+  <p class="sottotitolo">{{ generated_at }} UTC</p>
+
+  <div class="sommario">
+    <p>{{ headline }}</p>
+    {% if summary.quick_wins %}
+    <p>{{ t.t('fleet.quick_wins', n=summary.quick_wins) }}</p>
+    {% endif %}
+  </div>
+
+  <div class="due-colonne">
+    <div>
+      <table>
+        <thead><tr><th>{{ t.t('fleet.labels.grade') }}</th><th class="num">{{ t.t('fleet.labels.sites') }}</th></tr></thead>
+        <tbody>
+        {% for grade, count in summary.grades.items() %}
+          <tr><td class="sev-{{ 'critical' if grade == 'F' else 'high' if grade == 'D' else 'medium' if grade == 'C' else 'low' }}">{{ grade }}</td><td class="num">{{ count }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <table>
+        <thead><tr><th>{{ t.t('report.labels.severity') }}</th><th class="num">{{ t.t('report.labels.findings_count') }}</th></tr></thead>
+        <tbody>
+        {% for severity, count in severity_rows %}
+          <tr><td class="sev-{{ severity }}">{{ t.label(severity, 'Severity') }}</td><td class="num">{{ count }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="legenda">{{ t.t('fleet.legend.grades') }}</p>
+
+  {% if summary.by_owner %}
+  <table>
+    <thead><tr><th>{{ t.t('report.labels.owner') }}</th><th class="num">{{ t.t('report.labels.findings_count') }}</th></tr></thead>
+    <tbody>
+    {% for owner, count in owner_rows %}
+      <tr><td>{{ t.label(owner, 'Owner') }}</td><td class="num">{{ count }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+
+{# ------------------------------------------------------------- repeated #}
+<h2>{{ t.t('fleet.headings.repeated') }}</h2>
+<p class="piccolo">{{ t.t('fleet.legend.repeated') }}</p>
+<table>
+  <thead>
+    <tr>
+      <th>{{ t.t('report.labels.finding') }}</th>
+      <th>{{ t.t('report.labels.severity') }}</th>
+      <th class="num">{{ t.t('fleet.labels.sites') }}</th>
+      <th class="num">{{ t.t('report.labels.findings_count') }}</th>
+      <th>{{ t.t('fleet.labels.examples') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for entry in rules %}
+    <tr>
+      <td>{{ entry.title }}<br><span class="piccolo mono">{{ entry.rule_id }}</span></td>
+      <td class="sev sev-{{ entry.severity }}">{{ t.label(entry.severity, 'Severity') }}</td>
+      <td class="num">{{ entry.sites }}</td>
+      <td class="num">{{ entry.findings }}</td>
+      <td class="piccolo">{{ entry.examples[:3]|join(", ") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{# -------------------------------------------------------------- vendors #}
+<h2>{{ t.t('fleet.headings.vendors') }}</h2>
+<p class="piccolo">{{ t.t('fleet.legend.vendors') }}</p>
+<table>
+  <thead>
+    <tr>
+      <th>{{ t.t('report.labels.service') }}</th>
+      <th class="num">{{ t.t('fleet.labels.sites') }}</th>
+      <th class="num">{{ t.t('fleet.labels.undeclared_on') }}</th>
+      <th>{{ t.t('report.labels.transfer') }}</th>
+      <th>{{ t.t('fleet.labels.examples') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for entry in summary.by_vendor %}
+    <tr>
+      <td>{{ entry.product }}</td>
+      <td class="num">{{ entry.sites }}</td>
+      <td class="num {{ 'no' if entry.undeclared_on else '' }}">{{ entry.undeclared_on }}</td>
+      <td>{{ t.label(entry.transfer, 'TransferScope') }}</td>
+      <td class="piccolo">{{ entry.examples[:3]|join(", ") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{# -------------------------------------------------------------- targets #}
+<h2 class="pagina-nuova">{{ t.t('fleet.headings.targets') }}</h2>
+<table class="indice">
+  <thead>
+    <tr>
+      <th>{{ t.t('fleet.labels.site') }}</th>
+      <th>{{ t.t('fleet.labels.grade') }}</th>
+      <th class="num">{{ t.t('report.labels.findings_count') }}</th>
+      <th class="num">{{ t.label('critical', 'Severity') }}</th>
+      <th class="num">{{ t.label('high', 'Severity') }}</th>
+      <th class="num">{{ t.t('report.labels.third_parties') }}</th>
+      <th class="num">{{ t.t('fleet.labels.pages') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for target in targets %}
+    <tr>
+      <td class="mono">{{ target.domain }}</td>
+      <td class="sev-{{ 'critical' if target.grade == 'F' else 'high' if target.grade == 'D' else 'medium' if target.grade == 'C' else 'low' }}">{{ target.grade }}{% if target.status != 'ok' %} <span class="piccolo">({{ t.label(target.status, 'ScanStatus') }})</span>{% endif %}</td>
+      <td class="num">{{ target.findings }}</td>
+      <td class="num">{{ target.critical or "" }}</td>
+      <td class="num">{{ target.high or "" }}</td>
+      <td class="num">{{ target.third_parties }}</td>
+      <td class="num">{{ target.pages }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if summary.clean_sites %}
+<h3>{{ t.t('fleet.headings.clean') }}</h3>
+<p class="piccolo mono">{{ summary.clean_sites|sort|join(", ") }}</p>
+{% endif %}
+
+{# --------------------------------------------------------------- method #}
+<h2>{{ t.t('report.headings.method') }}</h2>
+<table>
+  <tbody>
+  {% for label, value in posture_rows %}
+    <tr>
+      <th style="width:30%">{{ label }}</th>
+      <td>{{ value }}</td>
+    </tr>
+  {% endfor %}
+    <tr><th>{{ t.t('fleet.labels.courtesy') }}</th><td>{{ t.t('fleet.posture.courtesy') }}</td></tr>
+  </tbody>
+</table>
+
+<div class="nota">
+  <p><strong>{{ t.t('report.limits.title') }}</strong> {{ t.t('report.limits.body') }}</p>
+  <p>{{ t.t('fleet.limits.aggregate') }}</p>
+  <p>{{ t.t('report.limits.disclaimer') }}</p>
+</div>
+
+</body>
+</html>

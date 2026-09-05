@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="{{ t.locale }}">
+<head>
+  <meta charset="utf-8">
+  <title>{{ t.t('consent_pass.document_title' if scan.mode == 'refusal_pass' else 'report.document_title', domain=scan.domain) }}</title>
+  <meta name="author" content="privacymate">
+  <meta name="description" content="{{ t.t('consent_pass.description' if scan.mode == 'refusal_pass' else 'report.description', domain=scan.domain) }}">
+  <meta name="dcterms.created" content="{{ scan.started_at }}">
+  <link rel="stylesheet" href="base.css">
+</head>
+<body>
+<div class="footer-string">{{ t.t('consent_pass.footer' if scan.mode == 'refusal_pass' else 'report.footer') }}</div>
+
+{# ------------------------------------------------------------ cover page #}
+<section class="copertina">
+  <h1>{{ t.t('consent_pass.title' if scan.mode == 'refusal_pass' else 'report.title', domain=scan.domain) }}</h1>
+  <p class="sottotitolo">
+    {% if scan.mode == 'refusal_pass' %}
+    {{ t.t('consent_pass.posture.method_refusal') }} · {{ scan.started_at[:19]|replace("T", " ") }} UTC<br>
+    {% else %}
+    {{ t.t('report.subtitle_observed', timestamp=scan.started_at[:19]|replace("T", " ")) }}<br>
+    {% endif %}
+    {{ t.t('report.subtitle_url') }}: <a class="mono" href="{{ scan.final_url }}">{{ scan.final_url }}</a><br>
+    {{ t.t('report.subtitle_scan') }}: <span class="mono">{{ scan.scan_id }}</span>
+  </p>
+
+  <div class="esito {{ scan.grade }}">
+    <span class="grado">{{ scan.grade }}</span>
+    &nbsp;{{ t.t('report.verdict_conformant') if scan.conformant else t.t('report.verdict_not_conformant') }}
+    <div class="piccolo" style="margin-top:4pt">{{ scan.verdict_note }}</div>
+  </div>
+
+  <div class="sommario">
+    {% for sentence in scan.summary %}<p>{{ sentence|safe }}</p>{% endfor %}
+  </div>
+
+  {% if scan.mode == 'refusal_pass' and scan.refusal %}
+  <table>
+    <tbody>
+      <tr><th style="width:34%">{{ t.t('consent_pass.labels.outcome') }}</th><td>{{ scan.refusal.outcome_display }}</td></tr>
+      {% if scan.refusal.platform_name %}
+      <tr><th>{{ t.t('consent_pass.labels.platform') }}</th><td>{{ scan.refusal.platform_name }}</td></tr>
+      <tr><th>{{ t.t('consent_pass.labels.method') }}</th><td>{{ scan.refusal.method }}</td></tr>
+      <tr><th>{{ t.t('consent_pass.labels.action') }}</th><td class="mono">{{ scan.refusal.action }}</td></tr>
+      <tr><th>{{ t.t('consent_pass.labels.documentation') }}</th><td><a class="mono" href="{{ scan.refusal.documentation }}">{{ scan.refusal.documentation }}</a></td></tr>
+      {% endif %}
+      {% if scan.refusal.detected_markers %}
+      <tr><th>{{ t.t('consent_pass.labels.markers') }}</th><td>{{ scan.refusal.detected_markers|join(", ") }}</td></tr>
+      {% endif %}
+      {% if scan.refusal.detail %}
+      <tr><th>—</th><td class="piccolo">{{ scan.refusal.detail }}</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <div class="due-colonne">
+    <div>
+      <table>
+        <thead><tr><th>{{ t.t('report.labels.severity') }}</th><th class="num">{{ t.t('report.labels.findings_count') }}</th></tr></thead>
+        <tbody>
+        {% for label, count in scan.counts_by_severity %}
+          <tr><td>{{ label }}</td><td class="num">{{ count }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <table>
+        <thead><tr><th>{{ t.t('report.labels.priority') }}</th><th class="num">{{ t.t('report.labels.findings_count') }}</th></tr></thead>
+        <tbody>
+        {% for label, count in scan.counts_by_priority %}
+          <tr><td>{{ label }}</td><td class="num">{{ count }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="legenda">{{ t.t('report.legend.severity_priority')|safe }}</p>
+
+  {% if scan.quick_wins %}
+  <div class="nota">
+    {{ t.t('report.legend.quick_wins', n=scan.quick_wins|length,
+           ids=scan.quick_wins[:6]|map(attribute='id')|join(', '))|safe }}
+  </div>
+  {% endif %}
+
+  <table>
+    <tbody>
+      <tr><th style="width:34%">{{ t.t('report.labels.page_title') }}</th><td>{{ scan.site.title or "—" }}</td></tr>
+      <tr><th>{{ t.t('report.labels.platform') }}</th><td>{{ scan.site.platform or t.t('report.labels.not_detected') }}</td></tr>
+      {% if scan.mode == 'refusal_pass' %}
+      <tr><th>{{ t.t('consent_pass.labels.third_parties_after') }}</th><td>{{ scan.site.third_parties }}</td></tr>
+      <tr><th>{{ t.t('consent_pass.labels.cookies_after') }}</th><td>{{ scan.site.cookies }}</td></tr>
+      <tr><th>{{ t.t('consent_pass.labels.storage_after') }}</th><td>{{ scan.site.storage }}</td></tr>
+      {% else %}
+      <tr><th>{{ t.t('report.labels.third_parties') }}</th><td>{{ scan.site.third_parties }}</td></tr>
+      <tr><th>{{ t.t('report.labels.cookies_first_visit') }}</th><td>{{ scan.site.cookies }}</td></tr>
+      <tr><th>{{ t.t('report.labels.storage_keys') }}</th><td>{{ scan.site.storage }}</td></tr>
+      {% endif %}
+      <tr><th>{{ t.t('report.labels.consent_mechanism') }}</th><td>{{ scan.site.cmp|join(", ") if scan.site.cmp else t.t('report.labels.none_detected') }}</td></tr>
+      <tr><th>{{ t.t('report.labels.documents_read') }}</th><td>{{ scan.site.documents_read|join(", ") if scan.site.documents_read else t.t('report.labels.none') }}</td></tr>
+      <tr><th>{{ t.t('report.labels.evidence_digest') }}</th><td class="impronta">{{ record.evidence_digest.sha256 }}</td></tr>
+      <tr><th>{{ t.t('report.labels.ruleset_digest') }}</th><td class="impronta">{{ record.digests.ruleset }}</td></tr>
+    </tbody>
+  </table>
+</section>
+
+{# ---------------------------------------------------------- work by owner #}
+{% if scan.by_owner %}
+<h2>{{ t.t('report.headings.responsibility') }}</h2>
+<p class="piccolo">{{ t.t('report.legend.owner') }}</p>
+<table>
+  <thead>
+    <tr>
+      <th>{{ t.t('report.labels.owner') }}</th>
+      <th class="num">{{ t.t('report.labels.findings_count') }}</th>
+      <th class="num">{{ t.t('report.labels.of_which_serious') }}</th>
+      <th class="num">{{ t.t('report.labels.quick_wins') }}</th>
+      <th>{{ t.t('report.labels.areas') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for bucket in scan.by_owner %}
+    <tr>
+      <td>{{ bucket.owner }}</td>
+      <td class="num">{{ bucket.total }}</td>
+      <td class="num">{{ bucket.serious }}</td>
+      <td class="num">{{ bucket.quick }}</td>
+      <td class="piccolo">{{ bucket.domains }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{# ------------------------------------------------------- index of findings #}
+{% if scan.findings %}
+<h2>{{ t.t('report.headings.index') }}</h2>
+<table class="indice">
+  <thead>
+    <tr>
+      <th class="num">#</th>
+      <th>{{ t.t('report.labels.severity') }}</th>
+      <th>{{ t.t('report.labels.priority') }}</th>
+      <th>{{ t.t('report.labels.owner') }}</th>
+      <th>{{ t.t('report.labels.finding') }}</th>
+      <th>{{ t.t('report.labels.identifier') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for f in scan.findings %}
+    <tr>
+      <td class="num">{{ loop.index }}</td>
+      <td class="sev sev-{{ f.severity_value }}">{{ f.severity }}</td>
+      <td>{{ f.priority }}</td>
+      <td>{{ f.owner }}</td>
+      <td>{{ f.title }}</td>
+      <td class="mono">{{ f.id }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{# ---------------------------------------------------------------- findings #}
+<h2 class="pagina-nuova">{{ t.t('report.headings.findings') }}</h2>
+{% if not scan.findings %}
+<p>{{ t.t('report.headings.no_findings') }}</p>
+{% endif %}
+{% for f in scan.findings %}
+<div class="rilievo">
+  <h3>{{ loop.index }}. {{ f.title }}</h3>
+  <div class="etichette">
+    <span class="tag {{ f.severity_value }}">{{ f.severity }}</span>
+    <span class="tag">{{ f.priority }}</span>
+    {% if f.quick_win %}<span class="tag quickwin">{{ t.t('report.labels.quick_wins') }}</span>{% endif %}
+    <span class="tag owner">{{ t.t('report.labels.owner') }}: {{ f.owner }}</span>
+    {% for o in f.secondary_owners %}<span class="tag">{{ t.t('report.labels.secondary_owner') }}: {{ o }}</span>{% endfor %}
+    <span class="tag">{{ t.t('report.labels.confidence') }}: {{ f.confidence }}</span>
+    <span class="tag mono">{{ f.id }}</span>
+  </div>
+
+  <p>{{ f.description|md }}</p>
+
+  {% if f.references %}
+  <div class="riferimenti"><strong>{{ t.t('report.labels.legal_references') }}:</strong> {{ f.references|join("; ") }}</div>
+  {% endif %}
+  {% if f.controls %}
+  <div class="riferimenti"><strong>{{ t.t('report.labels.control_mapping') }}:</strong>
+    {% for name, items in f.controls %}{{ name }}: {{ items|join(", ") }}{{ " · " if not loop.last }}{% endfor %}
+  </div>
+  {% endif %}
+
+  {% if f.evidence %}
+  <div class="blocco">
+    <div class="titolo">{{ t.t('report.labels.evidence') }}</div>
+    <dl class="evidenza">
+      {% for label, value in f.evidence %}
+        <dt>{{ label }}</dt>
+        <dd>
+          {% if value is string or value is number or value is boolean %}<span class="mono">{{ value }}</span>
+          {% elif value is mapping %}<span class="mono">{{ value }}</span>
+          {% else %}{% for item in value[:8] %}<span class="mono">{{ item }}</span>{{ "<br>"|safe if not loop.last }}{% endfor %}
+            {% if value|length > 8 %}<span class="piccolo"> {{ t.t('report.legend.more_items', n=value|length - 8) }}</span>{% endif %}
+          {% endif %}
+        </dd>
+      {% endfor %}
+    </dl>
+  </div>
+  {% endif %}
+
+  {% if f.verification %}
+  <div class="blocco verifica">
+    <div class="titolo">{{ t.t('report.labels.verification') }}</div>
+    <ol>{% for step in f.verification %}<li>{{ step|md }}</li>{% endfor %}</ol>
+  </div>
+  {% endif %}
+
+  {% if f.remediation %}
+  <div class="blocco correzione">
+    <div class="titolo">{{ t.t('report.labels.remediation', effort=f.remediation.effort) }}</div>
+    <p style="margin-bottom:4pt">{{ f.remediation.summary|md }}</p>
+    <ol>{% for step in f.remediation.steps %}<li>{{ step|md }}</li>{% endfor %}</ol>
+    {% if f.remediation.alternatives %}
+    <p class="piccolo" style="margin-top:4pt">{{ t.t('report.labels.alternatives') }}: {{ f.remediation.alternatives|join(", ") }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+{# --------------------------------------------------------------- recipients #}
+<h2 class="pagina-nuova">{{ t.t('report.headings.inventory') }}</h2>
+<p class="piccolo">{{ t.t('report.legend.inventory') }}</p>
+<table>
+  <thead>
+    <tr>
+      <th>{{ t.t('report.labels.service') }}</th>
+      <th>{{ t.t('report.labels.entity') }}</th>
+      <th>{{ t.t('report.labels.jurisdiction') }}</th>
+      <th>{{ t.t('report.labels.transfer') }}</th>
+      <th>{{ t.t('report.labels.consent') }}</th>
+      <th>{{ t.t('report.labels.declared') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for row in scan.inventory %}
+    <tr>
+      <td>{{ row.product }}<br><span class="piccolo mono">{{ row.hosts|join(", ") if row.hosts else row.detected_display }}</span></td>
+      <td>{{ row.vendor_display }}</td>
+      <td>{{ row.jurisdiction }}</td>
+      <td>{{ row.transfer_display }}{% if row.basis_display %}<br><span class="piccolo">{{ row.basis_display }}</span>{% endif %}</td>
+      <td>{{ row.consent_display }}</td>
+      <td class="{{ 'si' if row.declared else 'no' }}">{{ t.t('report.labels.yes') if row.declared else t.t('report.labels.no') }}</td>
+    </tr>
+  {% endfor %}
+  {% if not scan.inventory %}<tr><td colspan="6">{{ t.t('report.legend.no_third_parties') }}</td></tr>{% endif %}
+  </tbody>
+</table>
+
+{# ----------------------------------------------------------- screening #}
+{% if screening.criteria %}
+<h2 class="pagina-nuova">{{ t.t('dpia.heading') }}</h2>
+<p class="piccolo">{{ t.t('dpia.legend') }}</p>
+<table>
+  <thead>
+    <tr>
+      <th style="width:42%">{{ t.t('dpia.labels.criterion') }}</th>
+      <th style="width:22%">{{ t.t('dpia.labels.state') }}</th>
+      <th>{{ t.t('dpia.labels.evidence') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for criterion in screening.criteria %}
+    <tr>
+      <td>{{ t.t('dpia.criteria.' ~ criterion.key) }}</td>
+      <td>
+        {% if criterion.met %}<span class="no">{{ t.t('dpia.met') }}</span>
+        {% elif not criterion.observable %}<span class="piccolo">{{ t.t('dpia.not_assessable') }}</span>
+        {% else %}—{% endif %}
+      </td>
+      <td class="piccolo">{{ criterion.evidence|join(", ") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="piccolo">{{ t.t('dpia.threshold') }}</p>
+{% endif %}
+
+{% if transfers %}
+<h2>{{ t.t('dpia.transfers_heading') }}</h2>
+<p class="piccolo">{{ t.t('dpia.transfers_legend') }}</p>
+<div class="blocco">
+  <div class="titolo">{{ t.t('dpia.labels.questions') }}</div>
+  <ol>{% for question in transfer_questions %}<li>{{ question }}</li>{% endfor %}</ol>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>{{ t.t('dpia.labels.recipient') }}</th>
+      <th>{{ t.t('dpia.labels.country') }}</th>
+      <th>{{ t.t('dpia.labels.basis') }}</th>
+      <th>{{ t.t('dpia.labels.data') }}</th>
+      <th>{{ t.t('dpia.labels.declared') }}</th>
+      <th>{{ t.t('dpia.labels.alternatives') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for entry in transfers %}
+    <tr>
+      <td>{{ entry.product }}{% if entry.vendor %}<br><span class="piccolo">{{ entry.vendor }}</span>{% endif %}</td>
+      <td>{{ entry.jurisdiction }}</td>
+      <td class="piccolo">{{ entry.basis_display or "—" }}</td>
+      <td class="piccolo">{{ entry.data_display|join(", ") }}</td>
+      <td class="{{ 'si' if entry.declared else 'no' }}">{{ t.t('report.labels.yes') if entry.declared else t.t('report.labels.no') }}</td>
+      <td class="piccolo">{{ entry.alternative_display|join(", ") or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{# ------------------------------------------------------------ full evidence #}
+<h2 class="pagina-nuova">{{ t.t('report.headings.evidence') }}</h2>
+
+{% if pages|length > 1 %}
+<h3>{{ t.t('report.headings.pages') }}</h3>
+<p class="piccolo">{{ t.t('report.legend.pages') }}</p>
+<table>
+  <thead>
+    <tr>
+      <th class="num">#</th>
+      <th>{{ t.t('report.labels.url') }}</th>
+      <th>{{ t.t('report.labels.page_kind') }}</th>
+      <th class="num">{{ t.t('report.labels.status') }}</th>
+      <th class="num">{{ t.t('report.labels.requests_count') }}</th>
+      <th class="num">{{ t.t('report.labels.cookies_set') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for page in pages %}
+    <tr>
+      <td class="num">{{ loop.index }}</td>
+      <td class="mono">{{ page.url }}<br><span class="piccolo">{{ page.why }}</span></td>
+      <td>{{ page.kind }}</td>
+      <td class="num">{{ page.status or "—" }}</td>
+      <td class="num">{{ page.requests }}</td>
+      <td class="num">{{ page.cookies }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<h3>{{ t.t('report.headings.requests') }}</h3>
+<p class="piccolo">
+  {{ t.t('report.legend.requests') }}
+  {% if pages|length > 1 %}{{ t.t('report.legend.requests_entry_only', url=scan.final_url) }}{% endif %}
+</p>
+<table class="richieste">
+  <thead>
+    <tr>
+      <th class="num">{{ t.t('report.labels.time_ms') }}</th>
+      <th>{{ t.t('report.labels.host') }}</th>
+      <th>{{ t.t('report.labels.type') }}</th>
+      <th class="num">{{ t.t('report.labels.status') }}</th>
+      <th>{{ t.t('report.labels.path') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for q in requests %}
+    <tr>
+      <td class="num">{{ q.t_ms if q.t_ms is not none else "—" }}</td>
+      <td class="mono">{{ q.host }}</td>
+      <td>{{ q.resource_type }}</td>
+      <td class="num">{{ q.status or "—" }}</td>
+      <td class="mono">{{ q.path if q.path|length <= 90 else q.path[:90] ~ "…" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% if requests_total > requests|length %}
+<p class="piccolo">{{ t.t('report.legend.truncated_requests', shown=requests|length, total=requests_total) }}</p>
+{% endif %}
+
+<h3>{{ t.t('report.headings.cookies') }}</h3>
+<table>
+  <thead>
+    <tr>
+      <th>{{ t.t('report.labels.name') }}</th>
+      <th>{{ t.t('report.labels.domain') }}</th>
+      <th>{{ t.t('report.labels.class') }}</th>
+      <th>{{ t.t('report.labels.secure') }}</th>
+      <th>{{ t.t('report.labels.http_only') }}</th>
+      <th>{{ t.t('report.labels.same_site') }}</th>
+      <th>{{ t.t('report.labels.lifetime') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for c in cookies %}
+    <tr>
+      <td class="mono">{{ c.name }}</td><td class="mono">{{ c.domain }}</td><td>{{ c.class_display }}</td>
+      <td>{{ t.t('report.labels.yes') if c.secure else "—" }}</td>
+      <td>{{ t.t('report.labels.yes') if c.http_only else "—" }}</td>
+      <td>{{ c.same_site or "—" }}</td><td>{{ c.lifetime }}</td>
+    </tr>
+  {% endfor %}
+  {% if not cookies %}<tr><td colspan="7">{{ t.t('report.legend.no_cookies') }}</td></tr>{% endif %}
+  </tbody>
+</table>
+
+<h3>{{ t.t('report.headings.storage') }}</h3>
+<table>
+  <thead>
+    <tr>
+      <th>{{ t.t('report.labels.type') }}</th>
+      <th>{{ t.t('report.labels.key') }}</th>
+      <th>{{ t.t('report.labels.class') }}</th>
+      <th class="num">{{ t.t('report.labels.size') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for s in storage %}
+    <tr><td>{{ s.kind }}</td><td class="mono">{{ s.key }}</td><td>{{ s.class_display }}</td><td class="num">{{ s.size }}</td></tr>
+  {% endfor %}
+  {% if not storage %}<tr><td colspan="4">{{ t.t('report.legend.no_storage') }}</td></tr>{% endif %}
+  </tbody>
+</table>
+
+<h3>{{ t.t('report.headings.headers') }}</h3>
+<p class="piccolo">{{ t.t('report.legend.headers') }}</p>
+<table>
+  <tbody>
+  {% for k, v in headers.items() %}
+    <tr><th style="width:26%">{{ k }}</th><td class="mono">{{ v }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if tls and tls.ok %}
+<h3>{{ t.t('report.headings.tls') }}</h3>
+<table>
+  <tbody>
+    <tr><th style="width:26%">{{ t.t('report.labels.issuer') }}</th><td>{{ tls.issuer_org or "—" }}{% if tls.issuer_cn %} — {{ tls.issuer_cn }}{% endif %}</td></tr>
+    <tr><th>{{ t.t('report.labels.classification') }}</th><td>{{ tls.classification }}</td></tr>
+    <tr><th>{{ t.t('report.labels.valid_from') }}</th><td>{{ tls.not_before or "—" }}</td></tr>
+    <tr><th>{{ t.t('report.labels.valid_until') }}</th><td>{{ tls.not_after or "—" }}{% if tls.days_to_expiry is not none %} ({{ t.t('report.labels.days', n=tls.days_to_expiry) }}){% endif %}</td></tr>
+    <tr><th>{{ t.t('report.labels.protocol') }}</th><td>{{ tls.protocol }}</td></tr>
+    <tr><th>{{ t.t('report.labels.fingerprint') }}</th><td class="impronta">{{ tls.sha256 }}</td></tr>
+  </tbody>
+</table>
+{% endif %}
+
+<h3>{{ t.t('report.headings.documents') }}</h3>
+{% if not documents %}
+<p class="piccolo">{{ t.t('report.legend.no_documents_read') }}</p>
+{% endif %}
+{% for d in documents %}
+<table>
+  <tbody>
+    <tr><th style="width:26%">{{ t.t('report.labels.type') }}</th><td>{{ d.kind_display }}</td></tr>
+    <tr><th>{{ t.t('report.labels.url') }}</th><td><a class="mono" href="{{ d.url }}">{{ d.url }}</a></td></tr>
+    <tr><th>{{ t.t('report.labels.discovery') }}</th><td>{{ d.discovery }}</td></tr>
+    <tr><th>{{ t.t('report.labels.extracted_text') }}</th><td>{{ t.t('report.labels.characters', n=d.text_len) }} · SHA-256 <span class="impronta">{{ d.text_sha256 }}</span></td></tr>
+    <tr><th>{{ t.t('report.labels.elements_present') }}</th><td>{{ d.elements_present|join(", ") or t.t('report.labels.none') }}</td></tr>
+    <tr><th>{{ t.t('report.labels.elements_missing') }}</th><td>{{ d.elements_missing|join(", ") or t.t('report.labels.none') }}</td></tr>
+    <tr><th>{{ t.t('report.labels.vendors_named') }}</th><td>{{ d.declared_vendors|join(", ") or t.t('report.labels.none') }}</td></tr>
+    {% if d.negated_vendors %}
+    <tr><th>{{ t.t('report.labels.vendors_negated') }}</th><td>{{ d.negated_vendors|join(", ") }}<br><span class="piccolo">{{ t.t('report.legend.negated_vendors') }}</span></td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% if d.snippets %}
+<p class="piccolo" style="margin-top:-4pt">{{ t.t('report.headings.snippets') }}:</p>
+<table>
+  <tbody>
+  {% for label, snippet in d.snippets %}
+    <tr><th style="width:26%">{{ label }}</th><td class="piccolo">{{ snippet }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endfor %}
+
+{% if documents_attempted %}
+<h3>{{ t.t('report.headings.documents_attempted') }}</h3>
+<p class="piccolo">{{ t.t('report.legend.documents_attempted') }}</p>
+<table>
+  <thead>
+    <tr>
+      <th>{{ t.t('report.labels.type') }}</th>
+      <th>{{ t.t('report.labels.url') }}</th>
+      <th>{{ t.t('report.labels.discovery') }}</th>
+      <th>{{ t.t('report.labels.outcome') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for d in documents_attempted %}
+    <tr>
+      <td>{{ d.kind_display }}</td>
+      <td class="mono">{{ d.url }}</td>
+      <td class="piccolo">{{ d.discovery }}</td>
+      <td class="piccolo">{{ d.error_text or t.t('report.legend.unusable_document', kind=d.kind_display) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{# --------------------------------------------------------- reproducibility #}
+<h2 class="pagina-nuova">{{ t.t('report.headings.reproducibility') }}</h2>
+<p>{{ t.t('report.legend.reproducibility') }}</p>
+
+<table>
+  <tbody>
+    {% for k, v in record.engine.items() %}
+    <tr><th style="width:30%">{{ t.t('record.engine.' ~ k) }}</th><td>{{ v }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr><th style="width:30%">{{ t.t('report.labels.ruleset_digest') }}</th><td class="impronta">{{ record.digests.ruleset }}</td></tr>
+    <tr><th>{{ t.t('report.labels.knowledge_digest') }}</th><td class="impronta">{{ record.digests.knowledge }}</td></tr>
+    <tr><th>{{ t.t('report.labels.evidence_digest') }}</th><td class="impronta">{{ record.evidence_digest.sha256 }}</td></tr>
+    <tr><th>{{ t.t('report.labels.computed_on') }}</th><td class="piccolo">{{ t.t(record.evidence_digest.computed_on_key) }}</td></tr>
+  </tbody>
+</table>
+
+<h3>{{ t.t('report.headings.parameters') }}</h3>
+<table>
+  <tbody>
+    {% for k, v in record.parameters.items() %}
+    <tr><th style="width:38%">{{ t.t('record.parameters.' ~ k) }}</th><td class="mono">{{ v }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3>{{ t.t('report.headings.rerun') }}</h3>
+<div class="blocco">
+  <ol>{% for step in rerun %}<li class="mono">{{ step }}</li>{% endfor %}</ol>
+</div>
+
+<h3>{{ t.t('report.headings.rule_digests') }}</h3>
+<p class="piccolo">{{ t.t('report.legend.rule_digests') }}</p>
+<table>
+  <thead><tr><th style="width:46%">{{ t.t('report.labels.file') }}</th><th>{{ t.t('report.labels.digest') }}</th></tr></thead>
+  <tbody>
+  {% for name, digest in record.digests.rules.items() %}
+    <tr><td class="mono">{{ name }}</td><td class="impronta">{{ digest }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{# ---------------------------------------------------------------- method #}
+<h2>{{ t.t('report.headings.method') }}</h2>
+<table>
+  <tbody>
+  {% for label, value in posture_rows %}
+    <tr>
+      <th style="width:30%">{{ label }}</th>
+      <td>{{ value }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="nota">
+  <p><strong>{{ t.t('report.limits.title') }}</strong> {{ t.t('report.limits.body') }}</p>
+  <p>{{ t.t('report.limits.disclaimer') }}</p>
+</div>
+
+</body>
+</html>

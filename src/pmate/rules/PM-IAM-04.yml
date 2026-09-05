@@ -1,0 +1,27 @@
+# Rule logic. No prose lives here: titles, descriptions and remediation text
+# are in i18n/locales/<lang>/rules.yml, legal references are keys resolved
+# through i18n/locales/<lang>/references.yml, and ownership and control
+# mappings are in knowledge/frameworks.yml.
+#
+# Identity surface. Everything below is observed without submitting anything,
+# without authenticating and without probing for administrative paths: only
+# what the page itself exposes to a visitor who opens it.
+id: PM-IAM-04
+severity: high
+confidence: certain
+subject: form
+tags:
+- identity
+- credentials
+- third-parties
+references:
+- gdpr:28
+- gdpr:32
+- gdpr:44
+- nis2:21.2.d
+condition:
+  form_has_password: true
+  form_action_third_party: true
+remediation:
+  source: rule
+  effort: medium

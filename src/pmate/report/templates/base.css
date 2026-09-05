@@ -1,0 +1,189 @@
+/* Stampa: A4, registro sobrio. Il documento deve poter essere allegato a una
+   comunicazione formale senza sembrare l'output di uno scanner. */
+
+@page {
+  size: A4;
+  margin: 20mm 16mm 18mm 16mm;
+  @top-center {
+    content: string(doctitle);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 7.5pt;
+    color: #7a7a7a;
+  }
+  /* The footer text is a sentence, so it is set from the template with the
+     translated string — CSS cannot reach the locale catalogue. */
+  @bottom-left {
+    content: string(footer);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 7pt;
+    color: #9a9a9a;
+  }
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 7.5pt;
+    color: #7a7a7a;
+  }
+}
+
+@page :first {
+  @top-center { content: none; }
+}
+
+html { font-size: 10pt; }
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #1c1c1c;
+  line-height: 1.45;
+  hyphens: auto;
+}
+
+code, .mono {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 8.2pt;
+  background: #f4f4f6;
+  padding: 0.5pt 2pt;
+  border-radius: 2pt;
+  /* anywhere, not break-all: long URLs wrap, ordinary tokens stay whole */
+  overflow-wrap: anywhere;
+  hyphens: none;
+}
+
+a { color: #14406b; text-decoration: none; border-bottom: 0.4pt solid #b9c9da; }
+a.mono { border-bottom: none; }
+
+h1 { font-size: 20pt; margin: 0 0 4pt; string-set: doctitle content(); }
+h2 {
+  font-size: 13pt;
+  margin: 22pt 0 8pt;
+  padding-bottom: 3pt;
+  border-bottom: 0.6pt solid #d8d8dc;
+  break-after: avoid;
+}
+h3 { font-size: 10.5pt; margin: 14pt 0 4pt; break-after: avoid; }
+p { margin: 0 0 6pt; text-align: justify; }
+
+.copertina { margin-bottom: 18pt; }
+.sottotitolo { color: #666; font-size: 10pt; margin-bottom: 14pt; }
+
+.esito {
+  display: block;
+  padding: 10pt 12pt;
+  border-left: 3pt solid #444;
+  background: #f7f7f9;
+  margin: 12pt 0 4pt;
+}
+.esito .grado { font-size: 22pt; font-weight: 700; letter-spacing: -0.5pt; }
+.esito.F .grado, .esito.D .grado { color: #a3001b; }
+.esito.C .grado { color: #9a6100; }
+.esito.A .grado, .esito.B .grado { color: #17632c; }
+.esito.INCONCLUSIVE .grado { color: #555; }
+
+table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 8.4pt; }
+/* No hyphenation inside tables: narrow columns were producing "neces-sario"
+   and "DICHIARA-TO", which reads as a typo in a document meant to be formal. */
+th, td {
+  text-align: left;
+  padding: 3.5pt 5pt;
+  border-bottom: 0.4pt solid #e2e2e6;
+  vertical-align: top;
+  hyphens: none;
+  overflow-wrap: break-word;
+}
+th { background: #f2f2f5; font-weight: 600; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.3pt; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+/* A row must never be split across pages: the label stays with its value. */
+tr { break-inside: avoid; }
+thead { display: table-header-group; }
+
+/* The finding itself may break across pages — otherwise every finding shorter
+   than a page leaves a half-empty page behind, and a 30-finding report becomes
+   60 pages of white. The inner blocks stay whole. */
+.rilievo { break-inside: auto; margin: 0 0 14pt; padding-bottom: 8pt; border-bottom: 0.4pt dotted #d0d0d4; }
+.rilievo .blocco, .rilievo .etichette, .rilievo .riferimenti { break-inside: avoid; }
+.rilievo h3 { break-after: avoid; }
+.rilievo .intestazione { display: block; margin-bottom: 4pt; }
+.rilievo h3 { margin: 0; }
+
+.etichette { margin: 3pt 0 6pt; font-size: 7.6pt; }
+.tag {
+  display: inline-block;
+  padding: 1pt 5pt;
+  margin: 0 3pt 2pt 0;
+  border-radius: 8pt;
+  background: #ececf0;
+  color: #333;
+}
+.tag.critical { background: #7d0014; color: #fff; }
+.tag.high { background: #b03a00; color: #fff; }
+.tag.medium { background: #8a6d00; color: #fff; }
+.tag.low { background: #1f4f7a; color: #fff; }
+.tag.info { background: #55565c; color: #fff; }
+.tag.quickwin { background: #17632c; color: #fff; }
+.tag.owner { background: #dfe6ef; color: #1a3550; }
+
+.blocco { margin: 5pt 0; padding: 6pt 8pt; background: #fafafb; border: 0.4pt solid #e6e6ea; }
+.blocco .titolo { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.4pt; color: #666; margin-bottom: 3pt; }
+.blocco ol, .blocco ul { margin: 0; padding-left: 14pt; }
+.blocco li { margin-bottom: 2pt; }
+.blocco.verifica { background: #f4f8f4; border-color: #dbe7db; }
+.blocco.correzione { background: #f4f6fa; border-color: #dde3ec; }
+
+.riferimenti { font-size: 8pt; color: #444; margin: 3pt 0; }
+.riferimenti strong { color: #222; }
+
+.evidenza { font-size: 8pt; }
+.evidenza dt { font-weight: 600; margin-top: 3pt; }
+.evidenza dd { margin: 0 0 0 10pt; }
+
+.nota { font-size: 8pt; color: #555; background: #fbfbfc; border-left: 2pt solid #ddd; padding: 6pt 8pt; margin: 8pt 0; }
+.impronta { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 7.4pt; word-break: break-all; color: #333; }
+
+.pagina-nuova { break-before: page; }
+.piccolo { font-size: 7.8pt; color: #555; }
+
+/* --- sintesi direzionale -------------------------------------------------- */
+.sommario {
+  background: #f7f7f9;
+  border: 0.4pt solid #e2e2e6;
+  padding: 9pt 11pt;
+  margin: 12pt 0;
+}
+.sommario p { margin-bottom: 4pt; }
+.sommario p:last-child { margin-bottom: 0; }
+
+.due-colonne { display: flex; gap: 10pt; }
+.due-colonne > * { flex: 1; }
+
+.legenda { font-size: 7.4pt; color: #666; margin: -4pt 0 10pt; }
+
+/* indice dei rilievi: deve stare in una pagina anche con 30 righe */
+table.indice { font-size: 7.6pt; }
+table.indice td, table.indice th { padding: 2.2pt 4pt; }
+table.indice td.sev { white-space: nowrap; }
+.sev-critical { color: #7d0014; font-weight: 700; }
+.sev-high { color: #b03a00; font-weight: 700; }
+.sev-medium { color: #8a6d00; }
+.sev-low { color: #1f4f7a; }
+.sev-info { color: #55565c; }
+.no { color: #7d0014; font-weight: 700; }
+.si { color: #17632c; }
+
+/* Carries the translated footer into the page margin without printing it in
+   the body flow. */
+.footer-string {
+  string-set: footer content();
+  position: absolute;
+  visibility: hidden;
+  height: 0;
+}
+
+/* The requests table has one wide column (path) and several narrow ones. Left
+   to itself the layout squeezes the host until it breaks mid-domain, which
+   reads as corrupted evidence. */
+table.richieste { table-layout: fixed; }
+table.richieste th:nth-child(1), table.richieste td:nth-child(1) { width: 8%; }
+table.richieste th:nth-child(2), table.richieste td:nth-child(2) { width: 26%; }
+table.richieste th:nth-child(3), table.richieste td:nth-child(3) { width: 13%; }
+table.richieste th:nth-child(4), table.richieste td:nth-child(4) { width: 8%; }
