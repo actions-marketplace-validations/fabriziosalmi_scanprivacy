@@ -57,8 +57,20 @@ jobs:
         # `pytest.importorskip` and the run is green for the wrong reason.
         run: python -m playwright install --with-deps chromium
 
+      - name: Install cosign
+        # Same reason as the browser. `pmate attest --sign cosign-key` and
+        # `verify-attestation` are the mechanism behind the claim that a report
+        # can be shown to be the one that was published, and the round-trip test
+        # for them is gated on cosign being present. Without this it skipped
+        # here and ran only on the author's laptop — which is not a place a
+        # regression gets caught.
+        uses: sigstore/cosign-installer@f713795cb21599bc4e5c4b58cbad1da852d7eeb9 # v3
+
       - name: Test
-        run: python -m pytest -q
+        # `-rs` lists every skip and its reason. A skipped test is not a failure,
+        # but a run that hides which tests did not execute is a green tick over
+        # an unknown quantity — and finding out took reading two logs.
+        run: python -m pytest -q -rs
 
   package:
     # The licence is declared in the PEP 639 form, which needs setuptools>=77.
