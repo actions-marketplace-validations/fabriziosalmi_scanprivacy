@@ -15,7 +15,7 @@ from pathlib import Path
 PACKAGE_DIR = Path(__file__).resolve().parent
 ROOT = PACKAGE_DIR.parents[1]
 
-# Rules and knowledge ship inside the package: a `pip install privacymate` that
+# Rules and knowledge ship inside the package: a `pip install scanprivacy` that
 # cannot find its own rules is not an installation, it is a source checkout.
 RULES_DIR = PACKAGE_DIR / "rules"
 KNOWLEDGE_DIR = PACKAGE_DIR / "knowledge"
@@ -31,7 +31,7 @@ SCANS_DIR = DATA_DIR / "scans"
 # ours, and points this at it.
 LICENCE = "AGPL-3.0-only"
 SOURCE_URL_DEFAULT = "https://github.com/fabriziosalmi/scanprivacy"
-SOURCE_URL = os.environ.get("PMATE_SOURCE_URL", "").strip() or SOURCE_URL_DEFAULT
+SOURCE_URL = os.environ.get("SCANPRIVACY_SOURCE_URL", "").strip() or SOURCE_URL_DEFAULT
 
 # This address travels in the User-Agent of every request the engine makes, to
 # every site it observes. Two requirements pull against each other.
@@ -46,15 +46,15 @@ SOURCE_URL = os.environ.get("PMATE_SOURCE_URL", "").strip() or SOURCE_URL_DEFAUL
 # for every deployment they never saw, and hands harvesters a working address.
 #
 # The first requirement wins while the repository is private and the mailbox is
-# not there. `PMATE_CONTACT` overrides it. **Before this repository is made
+# not there. `SCANPRIVACY_CONTACT` overrides it. **Before this repository is made
 # public, create `abuse@scanprivacy.org` and change this line.**
 # tests/test_user_agent.py holds the address here, the README and SECURITY.md to
 # the same value, so the three cannot drift apart — but nothing can tell you the
 # day the repository stops being private.
 UA_CONTACT_DEFAULT = "fabrizio.salmi@gmail.com"
-UA_CONTACT = os.environ.get("PMATE_CONTACT", "").strip() or UA_CONTACT_DEFAULT
+UA_CONTACT = os.environ.get("SCANPRIVACY_CONTACT", "").strip() or UA_CONTACT_DEFAULT
 UA = (
-    "privacymate/0.1 (+passive EU privacy conformance observation; "
+    "scanprivacy/0.1 (+passive EU privacy conformance observation; "
     f"independent research, good faith; contact: {UA_CONTACT})"
 )
 

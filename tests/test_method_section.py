@@ -17,8 +17,8 @@ from __future__ import annotations
 
 import pytest
 
-from pmate.i18n import Translator
-from pmate.report.render import posture_rows, scan_posture_rows
+from scanprivacy.i18n import Translator
+from scanprivacy.report.render import posture_rows, scan_posture_rows
 
 KEYS = (
     "report.posture.method",
@@ -31,7 +31,7 @@ KEYS = (
 )
 
 
-def _record(max_pages: int | None = 3, ua: str | None = "privacymate/0.1 (…)") -> dict:
+def _record(max_pages: int | None = 3, ua: str | None = "scanprivacy/0.1 (…)") -> dict:
     posture: dict = {"keys": list(KEYS), "per_host_rps": 1.0}
     if max_pages is not None:
         posture["max_pages"] = max_pages
@@ -88,13 +88,13 @@ def test_an_unrecorded_page_budget_is_omitted_rather_than_invented():
 def test_the_user_agent_row_carries_a_translated_label():
     rows = dict(scan_posture_rows(_record(), Translator.for_locale("it")))
     assert "User-Agent" in rows
-    assert rows["User-Agent"].startswith("privacymate/")
+    assert rows["User-Agent"].startswith("scanprivacy/")
 
 
 def test_the_fleet_report_uses_the_same_implementation():
     """It had its own copy of the bug. The estate PDF describes the same method
     and must describe it the same way."""
-    from pmate.report.fleet_pdf import FLEET_POSTURE_KEYS
+    from scanprivacy.report.fleet_pdf import FLEET_POSTURE_KEYS
 
     t = Translator.for_locale("it")
     rows = posture_rows(FLEET_POSTURE_KEYS, t, max_pages=3)

@@ -16,8 +16,8 @@ import importlib
 import pytest
 from fastapi.testclient import TestClient
 
-import pmate.api as api
-from pmate.auth import ENV_VAR, UnsafeBind, assert_bind_is_safe
+import scanprivacy.api as api
+from scanprivacy.auth import ENV_VAR, UnsafeBind, assert_bind_is_safe
 
 GOOD_KEY = "0123456789abcdef0123456789abcdef"
 
@@ -151,7 +151,7 @@ def test_healthz_carries_the_agpl_source_offer(monkeypatch):
     """Section 13. Whoever reaches this instance over a network is owed its
     source, and the only endpoint every such caller can already read is this
     one. An operator running a modified build owes their users *their* source."""
-    from pmate import config
+    from scanprivacy import config
 
     with TestClient(api.app) as client:
         body = client.get("/healthz").json()
@@ -159,13 +159,13 @@ def test_healthz_carries_the_agpl_source_offer(monkeypatch):
     assert body["source"] == config.SOURCE_URL_DEFAULT
     assert body["source"].startswith("https://")
 
-    monkeypatch.setenv("PMATE_SOURCE_URL", "https://git.example.org/fork")
+    monkeypatch.setenv("SCANPRIVACY_SOURCE_URL", "https://git.example.org/fork")
     importlib.reload(config)
     importlib.reload(api)
     try:
         with TestClient(api.app) as client:
             assert client.get("/healthz").json()["source"] == "https://git.example.org/fork"
     finally:
-        monkeypatch.delenv("PMATE_SOURCE_URL")
+        monkeypatch.delenv("SCANPRIVACY_SOURCE_URL")
         importlib.reload(config)
         importlib.reload(api)

@@ -12,11 +12,11 @@ as a property rather than fixed at one call site.
 
 from __future__ import annotations
 
-from pmate.core.models import ScanResult
-from pmate.core.enums import ScanStatus
-from pmate.i18n.translator import Translator
-from pmate.observe.browser import Observation
-from pmate.report.markdown import render
+from scanprivacy.core.models import ScanResult
+from scanprivacy.core.enums import ScanStatus
+from scanprivacy.i18n.translator import Translator
+from scanprivacy.observe.browser import Observation
+from scanprivacy.report.markdown import render
 
 
 def _observation() -> Observation:

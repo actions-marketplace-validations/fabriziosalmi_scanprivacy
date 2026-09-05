@@ -20,7 +20,7 @@ from ..knowledge.registry import is_first_party
 from .context import Context, CookieFact, StorageFact, VendorFact
 from .subjects import Subject
 
-logger = logging.getLogger("pmate.rules")
+logger = logging.getLogger("scanprivacy.rules")
 
 Predicate = Callable[[Context, Subject, Any], bool]
 

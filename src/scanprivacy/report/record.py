@@ -75,7 +75,7 @@ def catalogue_fingerprint(directory: Path = LOCALES_DIR) -> dict[str, Any]:
 
 def engine_identity(browser_version: str | None = None) -> dict[str, Any]:
     return {
-        "engine": f"privacymate {__version__}",
+        "engine": f"scanprivacy {__version__}",
         "python": sys.version.split()[0],
         "system": f"{platform.system()} {platform.release()} ({platform.machine()})",
         "playwright": _package("playwright"),
@@ -124,7 +124,7 @@ def build_record(
         },
         # The evidence digest covers the observation, which is the right subject
         # for it: findings are derived, and the ruleset digest above says which
-        # rules derived them. But a reader running `pmate verify` and seeing
+        # rules derived them. But a reader running `scanprivacy verify` and seeing
         # "evidence intact: yes" concludes the *document* is intact, and until
         # this existed that sentence was true of a file whose findings had been
         # edited. A guarantee that reads stronger than it is, is the failure
@@ -140,7 +140,7 @@ def build_record(
 
 
 def verify_record(scan_json: dict[str, Any]) -> dict[str, Any]:
-    """Recompute the digests of a published result — `pmate verify`."""
+    """Recompute the digests of a published result — `scanprivacy verify`."""
     record = scan_json.get("record") or {}
     declared = (record.get("evidence_digest") or {}).get("sha256")
     recomputed = canonical_digest(scan_json.get("observation", {}))

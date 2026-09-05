@@ -36,7 +36,7 @@ from .. import __version__
 from ..core.models import ScanResult
 
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
-PREDICATE_TYPE = "https://privacymate.org/attestation/scan/v1"
+PREDICATE_TYPE = "https://scanprivacy.org/attestation/scan/v1"
 
 SIGNATURE_NONE = "unsigned"
 SIGNATURE_KEYLESS = "cosign-keyless"
@@ -130,7 +130,7 @@ def build_statement(
                 "knowledge": digests.get("knowledge"),
                 "catalogues": digests.get("catalogues"),
             },
-            "engine": record.get("engine") or {"engine": f"privacymate {__version__}"},
+            "engine": record.get("engine") or {"engine": f"scanprivacy {__version__}"},
             "posture": record.get("posture") or {},
             "producedAt": produced_at or datetime.now(timezone.utc).isoformat(),
         },

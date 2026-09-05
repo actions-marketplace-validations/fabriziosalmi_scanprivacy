@@ -1,7 +1,7 @@
 """Page selection and multi-page accumulation.
 
 Determinism is the property under test here. If the same site yields a
-different set of pages on two runs, `pmate diff` reports churn that never
+different set of pages on two runs, `scanprivacy diff` reports churn that never
 happened and the evidence digests stop being comparable — the failure is silent
 and it poisons everything downstream.
 """
@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import random
 
-from pmate.analyze.context import build_context
-from pmate.observe.browser import CookieSet, Observation, Request, StorageEntry
-from pmate.observe.pages import normalise, select_pages
+from scanprivacy.analyze.context import build_context
+from scanprivacy.observe.browser import CookieSet, Observation, Request, StorageEntry
+from scanprivacy.observe.pages import normalise, select_pages
 
 SITE = "https://www.example.it"
 
@@ -210,8 +210,8 @@ def test_the_reason_a_page_was_chosen_is_a_key_not_a_phrase():
 
 
 def test_every_selection_reason_reads_in_both_languages():
-    from pmate.i18n import Translator
-    from pmate.report.pdf import _why
+    from scanprivacy.i18n import Translator
+    from scanprivacy.report.pdf import _why
 
     reasons = ["page_choice.entry", "page_choice.robots_skip"] + [
         c.why for c in select_pages(_entry([f"{SITE}/contatti", f"{SITE}/a/b/c/d"]), 4)
@@ -227,8 +227,8 @@ def test_every_selection_reason_reads_in_both_languages():
 def test_evidence_written_before_the_reason_was_a_key_still_reads():
     """A JSON produced by an earlier version carries an English phrase. Passing
     it through beats printing a missing-key marker over the reader's report."""
-    from pmate.i18n import Translator
-    from pmate.report.pdf import _why
+    from scanprivacy.i18n import Translator
+    from scanprivacy.report.pdf import _why
 
     assert _why({"why": "first contact page", "kind": "contact"}, Translator.for_locale("it")) == (
         "first contact page"

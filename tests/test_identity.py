@@ -12,11 +12,11 @@ What this mission is allowed to look at, and what it deliberately does not:
 
 from __future__ import annotations
 
-from pmate.analyze.context import build_context
-from pmate.analyze.engine import evaluate, load_rules
-from pmate.core.enums import ConsentClass, TransferScope, VendorCategory
-from pmate.knowledge.registry import vendor_for
-from pmate.observe.browser import CookieSet, FormInfo, Observation, Request
+from scanprivacy.analyze.context import build_context
+from scanprivacy.analyze.engine import evaluate, load_rules
+from scanprivacy.core.enums import ConsentClass, TransferScope, VendorCategory
+from scanprivacy.knowledge.registry import vendor_for
+from scanprivacy.observe.browser import CookieSet, FormInfo, Observation, Request
 
 
 def _page(url: str = "https://x.it/") -> Observation:
@@ -120,7 +120,7 @@ def test_an_ordinary_cookie_is_not_treated_as_a_session():
 
 
 def test_a_password_field_over_plain_http_is_critical():
-    from pmate.core.enums import Severity
+    from scanprivacy.core.enums import Severity
 
     page = _page("http://x.it/login")
     page.forms = [_login_form(action="http://x.it/login", scheme="http", page="http://x.it/login")]
@@ -179,7 +179,7 @@ def test_nothing_is_ever_submitted():
     the engine reads forms and never fills or submits them."""
     from pathlib import Path
 
-    browser = Path("src/pmate/observe/browser.py").read_text(encoding="utf-8")
+    browser = Path("src/scanprivacy/observe/browser.py").read_text(encoding="utf-8")
     for forbidden in (".fill(", ".type(", "form.submit", ".press(", "requestSubmit"):
         assert forbidden not in browser, forbidden
 

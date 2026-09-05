@@ -14,10 +14,10 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-from pmate.api import _SCANS, app
-from pmate.config import SCANS_DIR
-from pmate.core.models import ScanResult
-from pmate.core.enums import ScanStatus
+from scanprivacy.api import _SCANS, app
+from scanprivacy.config import SCANS_DIR
+from scanprivacy.core.models import ScanResult
+from scanprivacy.core.enums import ScanStatus
 
 
 @pytest.fixture
@@ -107,7 +107,7 @@ def test_a_malformed_url_is_a_client_error_not_a_scan(client):
 def test_a_failed_scan_does_not_hand_its_cause_to_the_client(client):
     """An exception's text carries filesystem paths and module layout. The
     client gets a reference; the cause goes to the log."""
-    api = __import__("pmate.api", fromlist=["_SCANS"])
+    api = __import__("scanprivacy.api", fromlist=["_SCANS"])
     api._SCANS["boom"] = {
         "status": "error",
         "url": "https://x.it/",

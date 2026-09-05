@@ -40,7 +40,7 @@ import yaml
 from ..config import DEFAULTS, KNOWLEDGE_DIR, UA, Settings
 from .browser import Observation, new_context, observe_in_context
 
-logger = logging.getLogger("pmate.consent")
+logger = logging.getLogger("scanprivacy.consent")
 
 CATALOGUE = KNOWLEDGE_DIR / "consent.yml"
 

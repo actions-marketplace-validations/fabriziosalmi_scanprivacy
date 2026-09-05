@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from pmate.i18n.translator import Translator
-from pmate.report.pdf import _documents
+from scanprivacy.i18n.translator import Translator
+from scanprivacy.report.pdf import _documents
 
 CASES = [
     ({"error_key": "documents.error.no_response", "error_params": {}}, "no response", "nessuna risposta"),
@@ -53,7 +53,7 @@ def test_an_english_report_contains_no_italian():
 def test_no_sentence_is_written_inline_in_the_observation_layer():
     """The guard against the same thing happening again. Prose belongs in a
     catalogue; a module that observes has no business composing it."""
-    source = Path("src/pmate/observe/docs.py").read_text(encoding="utf-8")
+    source = Path("src/scanprivacy/observe/docs.py").read_text(encoding="utf-8")
     # assignments to `.error` with a literal string, which is how the four got in
     offenders = re.findall(r"\.error\s*=\s*[\"'f][^\n]*", source)
     prose = [o for o in offenders if "type(" not in o and "__name__" not in o]
@@ -63,7 +63,7 @@ def test_no_sentence_is_written_inline_in_the_observation_layer():
 def test_the_diagnostic_field_still_carries_exception_text():
     """`error` was not removed, only demoted. An exception's own words are a
     diagnostic for whoever operates the engine, and are not shown as prose."""
-    from pmate.observe.docs import DocumentEvidence
+    from scanprivacy.observe.docs import DocumentEvidence
 
     ev = DocumentEvidence(kind="privacy", url="https://x.it/", status=None, ok=False)
     ev.error = "TimeoutError: navigation timeout"
@@ -103,7 +103,7 @@ def test_the_scorer_emits_keys_and_never_prose():
     """The guard: a reason added later as a sentence would reach the report in
     whatever language it was typed in, and only a reader of the other language
     would notice."""
-    source = Path("src/pmate/observe/discover.py").read_text(encoding="utf-8")
+    source = Path("src/scanprivacy/observe/discover.py").read_text(encoding="utf-8")
     appended = re.findall(r'why\.append\(\s*"([^"]+)"\s*\)', source)
     assert appended, "no reasons found — the test would pass vacuously"
     for reason in appended:

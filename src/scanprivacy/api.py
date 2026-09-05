@@ -46,7 +46,7 @@ from .report.markdown import render
 from .scanner import scan
 
 app = FastAPI(
-    title="privacymate",
+    title="scanprivacy",
     version="0.1.0",
     description="Passive privacy conformance observation: URL in, findings graph and remediation out.",
 )
@@ -57,11 +57,11 @@ app = FastAPI(
 # many as the caller cares to ask for, and the store below keeps every result —
 # observation included — for the lifetime of the process. Neither needed an
 # attacker: a well-meaning script with a list of domains would do it.
-MAX_CONCURRENT_SCANS = int(os.environ.get("PMATE_MAX_CONCURRENT_SCANS", "3"))
-MAX_SCANS_IN_FLIGHT = int(os.environ.get("PMATE_MAX_SCANS_IN_FLIGHT", "50"))
-SCAN_RETENTION = int(os.environ.get("PMATE_SCAN_RETENTION", "200"))
+MAX_CONCURRENT_SCANS = int(os.environ.get("SCANPRIVACY_MAX_CONCURRENT_SCANS", "3"))
+MAX_SCANS_IN_FLIGHT = int(os.environ.get("SCANPRIVACY_MAX_SCANS_IN_FLIGHT", "50"))
+SCAN_RETENTION = int(os.environ.get("SCANPRIVACY_SCAN_RETENTION", "200"))
 
-logger = logging.getLogger("pmate.api")
+logger = logging.getLogger("scanprivacy.api")
 
 _SCAN_SLOTS = asyncio.Semaphore(MAX_CONCURRENT_SCANS)
 
@@ -319,7 +319,7 @@ async def get_report_pdf(scan_id: str, lang: str = Query(DEFAULT_LOCALE)) -> Res
     return Response(
         content=path.read_bytes(),
         media_type="application/pdf",
-        headers={"content-disposition": f'inline; filename="privacymate-{domain}-{lang}.pdf"'},
+        headers={"content-disposition": f'inline; filename="scanprivacy-{domain}-{lang}.pdf"'},
     )
 
 

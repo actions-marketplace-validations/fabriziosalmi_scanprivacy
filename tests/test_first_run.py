@@ -13,7 +13,7 @@ import asyncio
 
 import pytest
 
-from pmate.observe.browser import BrowserUnavailable, launch_browser
+from scanprivacy.observe.browser import BrowserUnavailable, launch_browser
 
 
 class _Chromium:
@@ -96,7 +96,7 @@ def test_the_cli_reports_it_on_stderr_and_exits_3(capsys):
     so a distinct code keeps "no browser" from reading as "findings found"."""
     import argparse
 
-    from pmate.cli import _run
+    from scanprivacy.cli import _run
 
     def explode(args):
         raise BrowserUnavailable("the Chromium build this engine drives is not installed.")
@@ -104,7 +104,7 @@ def test_the_cli_reports_it_on_stderr_and_exits_3(capsys):
     assert _run(explode, argparse.Namespace()) == 3
     captured = capsys.readouterr()
     assert captured.out == "", "the message belongs on stderr"
-    assert "pmate:" in captured.err
+    assert "scanprivacy:" in captured.err
 
 
 def test_other_exceptions_keep_their_traceback():
@@ -112,7 +112,7 @@ def test_other_exceptions_keep_their_traceback():
     bug in this engine is worse than an ugly one."""
     import argparse
 
-    from pmate.cli import _run
+    from scanprivacy.cli import _run
 
     def explode(args):
         raise ValueError("a real bug")

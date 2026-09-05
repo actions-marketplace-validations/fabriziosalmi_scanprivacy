@@ -21,9 +21,9 @@ from pathlib import Path
 
 import pytest
 
-from pmate.cli import _gate, build_parser, main, write_artefacts
-from pmate.core.enums import Grade, ScanStatus, Severity
-from pmate.core.models import ScanResult, Verdict
+from scanprivacy.cli import _gate, build_parser, main, write_artefacts
+from scanprivacy.core.enums import Grade, ScanStatus, Severity
+from scanprivacy.core.models import ScanResult, Verdict
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def result() -> ScanResult:
 
 @pytest.fixture
 def stored(tmp_path, result) -> Path:
-    """A scan on disk, the way `pmate scan --json` leaves it."""
+    """A scan on disk, the way `scanprivacy scan --json` leaves it."""
     path = tmp_path / "evidence.json"
     path.write_text(
         json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str), encoding="utf-8"
@@ -78,7 +78,7 @@ def test_every_subcommand_is_reachable_and_bound_to_a_function():
 
 
 def test_a_command_is_required():
-    """`pmate` alone must not silently do nothing."""
+    """`scanprivacy` alone must not silently do nothing."""
     with pytest.raises(SystemExit) as exit_:
         build_parser().parse_args([])
     assert exit_.value.code == 2
@@ -297,7 +297,7 @@ def test_rules_lists_the_catalogue_in_either_language(lang, capsys):
 
 
 def test_a_missing_input_file_is_an_error_not_a_crash(tmp_path):
-    """`pmate verify nope.json` from a script is an ordinary mistake."""
+    """`scanprivacy verify nope.json` from a script is an ordinary mistake."""
     with pytest.raises((FileNotFoundError, SystemExit)):
         main(["verify", str(tmp_path / "nope.json")])
 

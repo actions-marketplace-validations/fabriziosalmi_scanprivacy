@@ -19,9 +19,9 @@ from pathlib import Path
 
 import pytest
 
-from pmate.analyze.fleet import summarise
-from pmate.batch import _slug, read_targets, run_batch
-from pmate.report.fleet_markdown import render_fleet
+from scanprivacy.analyze.fleet import summarise
+from scanprivacy.batch import _slug, read_targets, run_batch
+from scanprivacy.report.fleet_markdown import render_fleet
 
 
 def _result(
@@ -234,7 +234,7 @@ def test_the_fleet_pdf_is_produced_and_is_a_pdf(tmp_path):
     not cover it: the PDF path goes through a separate template and WeasyPrint,
     and has broken on its own before — a silent str.replace no-op once left an
     entire section out of the document and nobody noticed until it was read."""
-    from pmate.report.fleet_pdf import render_fleet_pdf
+    from scanprivacy.report.fleet_pdf import render_fleet_pdf
 
     results = [
         _result("https://a.example", grade="D", findings=[("PM-SEC-01", "medium")],

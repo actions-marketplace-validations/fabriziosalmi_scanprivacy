@@ -1,6 +1,6 @@
 """Whether two scans can be compared at all.
 
-`pmate diff` produces the most quotable number this engine makes: "we resolved
+`scanprivacy diff` produces the most quotable number this engine makes: "we resolved
 twelve findings". It reached that number by comparing finding ids and nothing
 else — so changing a rule moved every finding that rule used to produce into
 the *resolved* column, and the report said somebody had fixed something when
@@ -18,8 +18,8 @@ from __future__ import annotations
 
 import pytest
 
-from pmate.analyze.diff import diff
-from pmate.i18n import Translator
+from scanprivacy.analyze.diff import diff
+from scanprivacy.i18n import Translator
 
 RULESET_A = "a" * 64
 RULESET_B = "b" * 64
@@ -98,28 +98,35 @@ def test_the_warning_reads_in_both_languages(lang: str):
     assert "{changed}" not in t.t("diff.configuration_changed", changed="ruleset")
 
 
-def test_the_real_baseline_is_flagged_against_the_current_engine():
-    """The case that prompted this. The kept estate baseline was produced in
-    July; today's fixes changed rules and knowledge, so a diff against a fresh
-    scan would list re-attributed findings as resolved.
+def test_a_kept_baseline_carries_digests_the_comparison_can_read():
+    """Against real kept data, not a fixture.
 
-    Skipped where the baseline is not on disk — it is an operator's own data and
-    deliberately not tracked, so this cannot be a required check.
+    This started out pinned to `data/baseline/2026-07-29/`, which was deleted
+    once it had served its purpose — leaving a test that could never run again
+    and skipped forever with a reassuring message. It now takes whichever dated
+    baseline is on this machine.
+
+    What it asserts is the weaker thing that is always true: a kept snapshot
+    carries the digests, so a comparison against it reports `same` or `changed`
+    and never `unknown`. Whether the engine has moved since is a fact about the
+    day, not something a test can require. The `changed` path itself is covered
+    above, on fixtures.
+
+    Skipped where no baseline is on disk — it is an operator's own data and
+    deliberately untracked, so this cannot be a required check in CI.
     """
     import json
     from pathlib import Path
 
-    from pmate.report.record import build_record
+    from scanprivacy.config import DEFAULTS
+    from scanprivacy.report.record import build_record
 
-    baseline = Path("data/baseline/2026-07-29/audiolibri.org.json")
-    if not baseline.exists():
+    kept = sorted(Path("data/baseline").glob("*/*.json")) if Path("data/baseline").is_dir() else []
+    kept = [p for p in kept if p.name != "fleet.json"]
+    if not kept:
         pytest.skip("no kept baseline on this machine")
 
-    before = json.loads(baseline.read_text(encoding="utf-8"))
-    from pmate.config import DEFAULTS
-    from pmate.observe.browser import Observation
-
-    obs = Observation(url="https://x.it/", final_url="https://x.it/", load_ok=True, status=200)
+    before = json.loads(kept[0].read_text(encoding="utf-8"))
     after = {
         "started_at": "2026-09-05T10:00:00+00:00",
         "findings": [],
@@ -127,6 +134,8 @@ def test_the_real_baseline_is_flagged_against_the_current_engine():
             url="https://x.it/", observation={}, settings=DEFAULTS, user_agent="t", findings=[]
         ),
     }
-    assert diff(before, after)["configuration"]["status"] == "changed", (
-        "a July baseline compares as identical to today's engine"
+    status = diff(before, after)["configuration"]["status"]
+    assert status in ("same", "changed"), (
+        f"{kept[0]} does not carry configuration digests the comparison can read "
+        f"(status={status!r})"
     )

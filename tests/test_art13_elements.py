@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import pytest
 
-from pmate.observe.docs import ART13_ELEMENTS
+from scanprivacy.observe.docs import ART13_ELEMENTS
 
 PURPOSES = ART13_ELEMENTS["purposes"]
 RETENTION = ART13_ELEMENTS["retention"]
@@ -194,7 +194,7 @@ CLOUDFLARE_NOTICE = (
 def test_an_obfuscated_address_survives_text_extraction():
     """The fix belongs in the extraction, not the pattern: an element allowed to
     match markup could be satisfied by a `<meta>` tag no reader ever sees."""
-    from pmate.observe.docs import _to_text
+    from scanprivacy.observe.docs import _to_text
 
     assert CONTACT.search(_to_text(CLOUDFLARE_NOTICE))
 
@@ -203,7 +203,7 @@ def test_it_is_recognised_but_never_decoded():
     """The encoding exists to keep harvesters off the address. A privacy tool
     that unwrapped it to print it in a report would be doing the harvester's
     work — and it does not need the value to answer what the article asks."""
-    from pmate.observe.docs import _to_text
+    from scanprivacy.observe.docs import _to_text
 
     text = _to_text(CLOUDFLARE_NOTICE)
     assert "cf-protected-email" in text
@@ -213,7 +213,7 @@ def test_it_is_recognised_but_never_decoded():
 
 
 def test_a_notice_with_no_address_is_unaffected_by_the_marker():
-    from pmate.observe.docs import _to_text
+    from scanprivacy.observe.docs import _to_text
 
     plain = "<p>Titolare: Fabrizio Salmi, Genova. Contattaci col modulo.</p>"
     assert CONTACT.search(_to_text(plain)) is None

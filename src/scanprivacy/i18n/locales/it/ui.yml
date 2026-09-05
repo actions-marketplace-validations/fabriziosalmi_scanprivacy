@@ -121,7 +121,7 @@ report:
   subtitle_scan: "Riferimento scansione"
   verdict_conformant: conforme sui punti osservati
   verdict_not_conformant: non conforme sui punti osservati
-  footer: "privacymate · verifica passiva · non costituisce parere legale"
+  footer: "scanprivacy · verifica passiva · non costituisce parere legale"
 
   headings:
     pages: Pagine osservate
@@ -489,8 +489,8 @@ record:
     modifiche successive.
   rerun:
     - pip install -e . && python -m playwright install chromium
-    - "pmate scan {url} --json evidenza.json --md report.md --pdf report.pdf"
-    - "pmate verify evidenza.json   # ricalcola tutte le impronte di questa sezione"
+    - "scanprivacy scan {url} --json evidenza.json --md report.md --pdf report.pdf"
+    - "scanprivacy verify evidenza.json   # ricalcola tutte le impronte di questa sezione"
     - >
       Ogni singolo rilievo riporta inoltre i passi per verificarlo con un
       browser e curl, senza questo strumento.
@@ -544,7 +544,7 @@ remediation:
     La correzione dipende da quale terza parte ha generato il rilievo: ogni
     fornitore nella knowledge base indica il pattern che gli si applica.
   depends_on_vendor_step: >
-    Consultare il fornitore — `pmate remediation <vendor-id>` — o uno dei pattern
+    Consultare il fornitore — `scanprivacy remediation <vendor-id>` — o uno dei pattern
     che può indicare: {patterns}.
   unknown_third_party: Terza parte non identificata
   transfer_basis:
@@ -853,7 +853,7 @@ consent_pass:
       Dopo il rifiuto e un nuovo caricamento della pagina, {vendors} servizi che
       richiedono consenso sono stati contattati ugualmente e {tracking}
       identificatori di tracciamento erano ancora presenti sul dispositivo.
-  footer: "privacymate · passata di rifiuto · non costituisce parere legale"
+  footer: "scanprivacy · passata di rifiuto · non costituisce parere legale"
   labels:
     third_parties_after: Terze parti contattate dopo il rifiuto
     cookies_after: Cookie presenti dopo il rifiuto
@@ -887,7 +887,7 @@ consent_pass:
       tecnico del meccanismo; non è l'esercizio della volontà di un interessato
 
 fleet:
-  footer: "privacymate · verifica del parco siti · non costituisce parere legale"
+  footer: "scanprivacy · verifica del parco siti · non costituisce parere legale"
   quick_wins: "{n} rilievi nel parco siti sono interventi a impegno basso su rilievi gravi."
   posture:
     courtesy: >

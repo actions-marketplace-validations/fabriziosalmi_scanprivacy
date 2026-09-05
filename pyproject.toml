@@ -3,14 +3,14 @@ requires = ["setuptools>=77"]  # PEP 639: SPDX `license` string and `license-fil
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "privacymate"
+name = "scanprivacy"
 version = "0.1.0"
 description = "URL in, findings graph + remediation out. Passive, legit-only EU privacy conformance engine."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Fabrizio Salmi" }]
 # AGPL, not Apache, and the reason is section 13. This engine's natural
-# deployment is a network service: someone runs `pmate serve` behind a domain
+# deployment is a network service: someone runs `scanprivacy serve` behind a domain
 # and never ships a binary to anyone. Under a permissive licence that operator
 # owes the project nothing, which is the one case the AGPL was written for.
 # Running it privately, scanning your own estate, or wiring it into your CI
@@ -40,13 +40,13 @@ dependencies = [
 dev = ["pytest>=8,<9", "rich>=13,<15"]
 
 [project.scripts]
-pmate = "pmate.cli:main"
+scanprivacy = "scanprivacy.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-pmate = [
+scanprivacy = [
   "rules/*.yml",
   "rules/*.md",
   "knowledge/*.yml",

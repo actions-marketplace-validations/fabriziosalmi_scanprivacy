@@ -14,7 +14,7 @@ import socket
 
 import pytest
 
-from pmate.core.target import PORTS_NOT_OBSERVED, TargetRefused, check_public_target
+from scanprivacy.core.target import PORTS_NOT_OBSERVED, TargetRefused, check_public_target
 
 
 def _resolver(*addresses: str):
@@ -114,7 +114,7 @@ def test_a_peer_on_a_private_range_is_refused_after_the_fact():
     entirely — rebinding to 127.0.0.1 after a passing check is the standard way
     around a guard like this one. So the addresses the browser reports having
     reached are checked too."""
-    from pmate.core.target import check_observed_peers
+    from scanprivacy.core.target import check_observed_peers
 
     check_observed_peers(["93.184.216.34", "104.20.26.136"])  # public: fine
 
@@ -129,19 +129,19 @@ def test_an_unreported_address_is_not_treated_as_private():
     """The browser does not always report a peer — a served-from-cache response
     has none. Absent is not private, and guessing either way would be the same
     mistake this engine keeps having to fix."""
-    from pmate.core.target import check_observed_peers
+    from scanprivacy.core.target import check_observed_peers
 
     check_observed_peers([None, "", "93.184.216.34"])
 
 
 def test_a_value_that_is_not_an_address_is_ignored_rather_than_refused():
-    from pmate.core.target import check_observed_peers
+    from scanprivacy.core.target import check_observed_peers
 
     check_observed_peers(["not-an-address", "93.184.216.34"])
 
 
 def test_peers_are_collected_from_every_page_and_every_request():
-    from pmate.core.target import peers_of
+    from scanprivacy.core.target import peers_of
 
     pages = [
         {"requests": [{"peer_ip": "93.184.216.34"}, {"peer_ip": None}]},

@@ -22,9 +22,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
-from pmate.config import DEFAULTS
-from pmate.core.enums import Grade, ScanStatus
-from pmate.scanner import refusal_scan, scan
+from scanprivacy.config import DEFAULTS
+from scanprivacy.core.enums import Grade, ScanStatus
+from scanprivacy.scanner import refusal_scan, scan
 
 pytest.importorskip("playwright.async_api", reason="playwright is not installed")
 

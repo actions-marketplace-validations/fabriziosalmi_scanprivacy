@@ -9,7 +9,7 @@ dist/
 build/
 *.log
 
-# Credentials. `pmate scan --sign cosign-key --key <path>` takes a private key,
+# Credentials. `scanprivacy scan --sign cosign-key --key <path>` takes a private key,
 # and the obvious place to leave one is the directory you ran the command in.
 # A signing key in the history is not a mistake you can take back by deleting
 # the file, so the ignore has to be here before the first time it matters.
@@ -26,7 +26,7 @@ data/scans/
 reports/
 *.sarif
 *-badge.svg
-privacymate.json
+scanprivacy.json
 
 # An operator's own measurements. `data/baseline/<date>/` holds kept snapshots
 # and `data/fleet-targets.txt` the list of sites to scan — both are the estate

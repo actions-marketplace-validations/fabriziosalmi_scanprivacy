@@ -22,10 +22,10 @@ from __future__ import annotations
 import pytest
 import yaml
 
-from pmate.config import KNOWLEDGE_DIR
-from pmate.core.enums import Confidence
-from pmate.i18n import Translator
-from pmate.observe.consent import RefusalAttempt, load_catalogue
+from scanprivacy.config import KNOWLEDGE_DIR
+from scanprivacy.core.enums import Confidence
+from scanprivacy.i18n import Translator
+from scanprivacy.observe.consent import RefusalAttempt, load_catalogue
 
 CATALOGUE = KNOWLEDGE_DIR / "consent.yml"
 LEVELS = {"documented", "field_verified"}
@@ -47,7 +47,7 @@ def test_an_entry_that_forgets_to_say_understates_rather_than_overstates():
     raw = yaml.safe_load(CATALOGUE.read_text(encoding="utf-8"))
     entry = dict(raw["platforms"][0])
     entry.pop("verification", None)
-    from pmate.observe.consent import ConsentPlatform
+    from scanprivacy.observe.consent import ConsentPlatform
 
     made = ConsentPlatform(
         id=entry["id"],
@@ -89,7 +89,7 @@ def test_an_unproven_path_does_not():
 
 
 def test_refusal_findings_are_stated_as_indications_on_an_unproven_path():
-    from pmate.analyze.engine import _confidence, load_rules
+    from scanprivacy.analyze.engine import _confidence, load_rules
 
     class _Ctx:
         refusal = _attempt("documented")
@@ -101,7 +101,7 @@ def test_refusal_findings_are_stated_as_indications_on_an_unproven_path():
 
 
 def test_a_proven_path_keeps_the_rules_own_confidence():
-    from pmate.analyze.engine import _confidence, load_rules
+    from scanprivacy.analyze.engine import _confidence, load_rules
 
     class _Ctx:
         refusal = _attempt("field_verified")
@@ -113,7 +113,7 @@ def test_a_proven_path_keeps_the_rules_own_confidence():
 def test_the_passive_pass_is_untouched():
     """Nothing about a documented refusal path weakens what was directly
     observed on an ordinary scan."""
-    from pmate.analyze.engine import _confidence, load_rules
+    from scanprivacy.analyze.engine import _confidence, load_rules
 
     class _Ctx:
         refusal = _attempt("documented")

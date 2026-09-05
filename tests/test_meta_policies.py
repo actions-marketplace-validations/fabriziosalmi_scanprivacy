@@ -19,9 +19,9 @@ from pathlib import Path
 
 import pytest
 
-from pmate.analyze.context import build_context
-from pmate.analyze.engine import evaluate, load_rules
-from pmate.observe.browser import Observation, observe
+from scanprivacy.analyze.context import build_context
+from scanprivacy.analyze.engine import evaluate, load_rules
+from scanprivacy.observe.browser import Observation, observe
 
 PAGE = """<!doctype html><html><head>
 <meta HTTP-EQUIV="Content-Security-Policy" content="default-src 'self'">

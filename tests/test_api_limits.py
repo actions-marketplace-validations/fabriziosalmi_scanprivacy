@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-import pmate.api as api
+import scanprivacy.api as api
 
 
 @pytest.fixture(autouse=True)
@@ -110,8 +110,8 @@ def test_a_result_that_was_never_written_is_not_evicted(monkeypatch):
 def test_persist_reports_whether_it_succeeded(tmp_path, monkeypatch):
     """It used to swallow OSError and return nothing, which was defensible
     until eviction started relying on it."""
-    from pmate.core.enums import ScanStatus
-    from pmate.core.models import ScanResult
+    from scanprivacy.core.enums import ScanStatus
+    from scanprivacy.core.models import ScanResult
 
     result = ScanResult(scan_id="p1", url="https://x.it/", final_url="https://x.it/",
                         started_at="", finished_at="", status=ScanStatus.OK)

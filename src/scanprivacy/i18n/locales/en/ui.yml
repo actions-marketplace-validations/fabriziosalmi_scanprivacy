@@ -121,7 +121,7 @@ report:
   subtitle_scan: "Scan reference"
   verdict_conformant: conformant on the points observed
   verdict_not_conformant: not conformant on the points observed
-  footer: "privacymate · passive assessment · not legal advice"
+  footer: "scanprivacy · passive assessment · not legal advice"
 
   headings:
     pages: Pages observed
@@ -484,8 +484,8 @@ record:
     reveal later modification.
   rerun:
     - pip install -e . && python -m playwright install chromium
-    - "pmate scan {url} --json evidence.json --md report.md --pdf report.pdf"
-    - "pmate verify evidence.json   # recomputes every digest in this section"
+    - "scanprivacy scan {url} --json evidence.json --md report.md --pdf report.pdf"
+    - "scanprivacy verify evidence.json   # recomputes every digest in this section"
     - >
       Each individual finding also carries the steps to check it with a browser
       and curl, without this tool.
@@ -538,7 +538,7 @@ remediation:
     The fix depends on which third party triggered this finding: each vendor in
     the knowledge base names the pattern that applies to it.
   depends_on_vendor_step: >
-    Look up the vendor — `pmate remediation <vendor-id>` — or one of the patterns
+    Look up the vendor — `scanprivacy remediation <vendor-id>` — or one of the patterns
     it may name: {patterns}.
   unknown_third_party: Unidentified third party
   transfer_basis:
@@ -839,7 +839,7 @@ consent_pass:
       After the refusal and a fresh page load, {vendors} services requiring
       consent were still contacted and {tracking} tracking identifiers were still
       present on the device.
-  footer: "privacymate · refusal pass · not legal advice"
+  footer: "scanprivacy · refusal pass · not legal advice"
   labels:
     third_parties_after: Third parties contacted after the refusal
     cookies_after: Cookies present after the refusal
@@ -872,7 +872,7 @@ consent_pass:
       of the mechanism; it is not the exercise of a data subject's will
 
 fleet:
-  footer: "privacymate · fleet assessment · not legal advice"
+  footer: "scanprivacy · fleet assessment · not legal advice"
   quick_wins: "{n} findings across the estate are low-effort fixes on serious findings."
   posture:
     courtesy: >

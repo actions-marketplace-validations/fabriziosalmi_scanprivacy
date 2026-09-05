@@ -50,7 +50,7 @@ SKIP_DIRECTORIES = frozenset(
 # Belt and braces for the same problem: an output file moved somewhere else is
 # still recognisable, in any language, by the digest labels it carries.
 SELF_REFERENCE = re.compile(
-    r"privacymate.{0,400}?(evidence digest|evidenceDigest|impronta dell.evidenza|rulesetDigest)",
+    r"scanprivacy.{0,400}?(evidence digest|evidenceDigest|impronta dell.evidenza|rulesetDigest)",
     re.I | re.S,
 )
 

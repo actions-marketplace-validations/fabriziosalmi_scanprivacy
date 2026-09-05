@@ -11,7 +11,7 @@ absent, but only while the service is bound to loopback, where the only callers
 are already on the machine. Binding anywhere else without a key is refused at
 startup — a warning would be read once and then not read again.
 
-    PMATE_API_KEY=<secret>   required on every /v1 route
+    SCANPRIVACY_API_KEY=<secret>   required on every /v1 route
     unset                    permitted on 127.0.0.1 / ::1 only
 
 `/healthz` stays open in both cases. A liveness probe that needs a credential
@@ -29,7 +29,7 @@ from fastapi import Header, HTTPException
 
 __all__ = ["api_key_configured", "require_api_key", "assert_bind_is_safe", "UnsafeBind"]
 
-ENV_VAR = "PMATE_API_KEY"
+ENV_VAR = "SCANPRIVACY_API_KEY"
 MIN_KEY_LENGTH = 16
 
 

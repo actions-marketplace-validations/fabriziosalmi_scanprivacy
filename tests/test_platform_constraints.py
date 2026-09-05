@@ -16,12 +16,12 @@ GitHub Pages, so excusing those would excuse a real, fixable finding.
 
 from __future__ import annotations
 
-from pmate.analyze.context import build_context
-from pmate.analyze.engine import evaluate, load_rules
-from pmate.i18n import Translator
-from pmate.knowledge.registry import vendor_for
-from pmate.observe.browser import Observation
-from pmate.report.render import render_finding
+from scanprivacy.analyze.context import build_context
+from scanprivacy.analyze.engine import evaluate, load_rules
+from scanprivacy.i18n import Translator
+from scanprivacy.knowledge.registry import vendor_for
+from scanprivacy.observe.browser import Observation
+from scanprivacy.report.render import render_finding
 
 GITHUB_PAGES_HEADERS = {
     "content-type": "text/html",

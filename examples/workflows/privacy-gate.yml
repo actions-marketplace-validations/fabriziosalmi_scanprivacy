@@ -43,7 +43,7 @@ jobs:
       # Two forms that work today:
       #
       #   in this repository        uses: ./
-      #   vendored into yours       uses: ./third_party/privacymate
+      #   vendored into yours       uses: ./third_party/scanprivacy
       #
       # When it is published, replace the reference with `owner/repo@<sha>` and
       # remove this block. tests/test_workflows.py fails until then, so the note
@@ -55,21 +55,21 @@ jobs:
           fail-on: critical
           source-root: .
           badge-file: .github/badges/privacy.svg
-          pdf-file: privacymate-report.pdf
-          attest: privacymate.intoto.json
+          pdf-file: scanprivacy-report.pdf
+          attest: scanprivacy.intoto.json
           sign: cosign-keyless
 
       - name: Keep the evidence with the run
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
-          name: privacymate-${{ github.sha }}
+          name: scanprivacy-${{ github.sha }}
           path: |
-            privacymate.json
-            privacymate.sarif
-            privacymate-report.pdf
-            privacymate.intoto.json
-            privacymate.intoto.json.sigbundle
+            scanprivacy.json
+            scanprivacy.sarif
+            scanprivacy-report.pdf
+            scanprivacy.intoto.json
+            scanprivacy.intoto.json.sigbundle
           retention-days: 90
 
       - name: Say it in the pull request
@@ -86,12 +86,12 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: [
-                `**privacymate — ${grade}**`,
+                `**scanprivacy — ${grade}**`,
                 ``,
                 `${findings} findings, ${anchored} anchored to a source line.`,
                 `Details in the Security tab; full evidence in the run artifacts.`,
                 ``,
                 `<sub>evidence digest \`${digest.slice(0, 16)}…\` — reproduce with `,
-                `\`pmate verify privacymate.json\`</sub>`,
+                `\`scanprivacy verify scanprivacy.json\`</sub>`,
               ].join('\n')
             });

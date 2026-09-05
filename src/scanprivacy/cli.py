@@ -1,10 +1,10 @@
 """Command line: the same engine the API serves.
 
-    pmate scan https://example.org --pdf report.pdf --lang it
-    pmate serve --port 8099
-    pmate diff before.json after.json
-    pmate verify evidence.json
-    pmate rules
+    scanprivacy scan https://example.org --pdf report.pdf --lang it
+    scanprivacy serve --port 8099
+    scanprivacy diff before.json after.json
+    scanprivacy verify evidence.json
+    scanprivacy rules
 """
 
 from __future__ import annotations
@@ -232,15 +232,15 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     try:
         assert_bind_is_safe(args.host)
     except UnsafeBind as unsafe:
-        print(f"pmate serve: {unsafe}", file=sys.stderr)
+        print(f"scanprivacy serve: {unsafe}", file=sys.stderr)
         return 2
 
     print(
-        f"pmate serve: {args.host}:{args.port} · authentication: "
+        f"scanprivacy serve: {args.host}:{args.port} · authentication: "
         + ("api-key" if api_key_configured() else "none (loopback only)"),
         file=sys.stderr,
     )
-    uvicorn.run("pmate.api:app", host=args.host, port=args.port, reload=False)
+    uvicorn.run("scanprivacy.api:app", host=args.host, port=args.port, reload=False)
     return 0
 
 
@@ -389,7 +389,7 @@ def _cmd_remediation(args: argparse.Namespace) -> int:
     if args.key:
         entry = entry_for(args.key, args.lang)
         if entry is None:
-            print(f"pmate: no remediation known for {args.key!r}", file=sys.stderr)
+            print(f"scanprivacy: no remediation known for {args.key!r}", file=sys.stderr)
             return 1
         entries = [entry]
     else:
@@ -435,7 +435,7 @@ def _run(func, args: argparse.Namespace) -> int:
     try:
         return func(args)
     except BrowserUnavailable as unavailable:
-        print(f"pmate: {unavailable}", file=sys.stderr)
+        print(f"scanprivacy: {unavailable}", file=sys.stderr)
         return 3
 
 
@@ -449,7 +449,7 @@ def build_parser() -> argparse.ArgumentParser:
     readable at a glance.
     """
     parser = argparse.ArgumentParser(
-        prog="pmate", description="Passive EU privacy conformance observation."
+        prog="scanprivacy", description="Passive EU privacy conformance observation."
     )
     # Every report this tool writes names the engine version in its
     # reproducibility section, so the version has to be answerable from the
@@ -458,7 +458,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version=f"privacymate {__version__}",
+        version=f"scanprivacy {__version__}",
     )
     parser.add_argument(
         "--lang",
@@ -537,7 +537,7 @@ def build_parser() -> argparse.ArgumentParser:
     batch_cmd.add_argument(
         "--ua-fallback",
         action="store_true",
-        help="see `pmate scan --ua-fallback`; off by default",
+        help="see `scanprivacy scan --ua-fallback`; off by default",
     )
     batch_cmd.add_argument("--pdf", help="write the estate summary as a PDF")
     batch_cmd.set_defaults(func=_cmd_batch)
@@ -575,7 +575,7 @@ def build_parser() -> argparse.ArgumentParser:
     diff_cmd.set_defaults(func=_cmd_diff)
 
     verify_cmd = sub.add_parser("verify", help="recompute the digests of a published result")
-    verify_cmd.add_argument("json_path", help="a JSON file produced by `pmate scan --json`")
+    verify_cmd.add_argument("json_path", help="a JSON file produced by `scanprivacy scan --json`")
     verify_cmd.set_defaults(func=_cmd_verify)
 
     sarif_cmd = sub.add_parser("sarif", help="re-export a stored result as SARIF")

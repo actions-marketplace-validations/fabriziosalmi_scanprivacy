@@ -78,7 +78,7 @@ def test_the_convention_is_still_documented(tracked: list[str]):
 
 
 def test_no_credential_shaped_file_is_tracked(tracked: list[str]):
-    """`pmate attest --sign cosign-key` takes a private key, and the obvious
+    """`scanprivacy attest --sign cosign-key` takes a private key, and the obvious
     place to leave one is the directory the command ran in."""
     offenders = [
         p for p in tracked if p.endswith((".pem", ".key", ".p12", ".pfx")) or Path(p).name == ".env"

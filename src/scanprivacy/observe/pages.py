@@ -7,7 +7,7 @@ them exist as far as a single-page scan is concerned, and all of them are real.
 Two constraints shape the selection:
 
 - **Deterministic.** The same site must yield the same pages, or two scans stop
-  being comparable and `pmate diff` starts reporting churn that never happened.
+  being comparable and `scanprivacy diff` starts reporting churn that never happened.
   Every ordering here is total: kind, then depth, then URL.
 - **Representative, not exhaustive.** A handful of pages of *different kinds* —
   the entry, a contact page, a service page, a leaf article — surfaces far more

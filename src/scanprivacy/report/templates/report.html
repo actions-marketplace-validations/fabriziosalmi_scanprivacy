@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>{{ t.t('consent_pass.document_title' if scan.mode == 'refusal_pass' else 'report.document_title', domain=scan.domain) }}</title>
-  <meta name="author" content="privacymate">
+  <meta name="author" content="scanprivacy">
   <meta name="description" content="{{ t.t('consent_pass.description' if scan.mode == 'refusal_pass' else 'report.description', domain=scan.domain) }}">
   <meta name="dcterms.created" content="{{ scan.started_at }}">
   <link rel="stylesheet" href="base.css">

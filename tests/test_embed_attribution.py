@@ -30,9 +30,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
-from pmate.analyze.context import _embed_origin, build_context
-from pmate.analyze.engine import evaluate, load_rules
-from pmate.observe.browser import Observation, Request
+from scanprivacy.analyze.context import _embed_origin, build_context
+from scanprivacy.analyze.engine import evaluate, load_rules
+from scanprivacy.observe.browser import Observation, Request
 
 SITE = "audiolibri.org"
 
@@ -231,8 +231,8 @@ def test_chromium_reports_which_frame_issued_each_request():
     reported, not what the attribution rule concludes from it.
     """
     pytest.importorskip("playwright.async_api", reason="playwright is not installed")
-    from pmate.config import DEFAULTS
-    from pmate.observe.browser import observe
+    from scanprivacy.config import DEFAULTS
+    from scanprivacy.observe.browser import observe
 
     inner_server, inner_port = _serve({"/pixel.gif": (PIXEL, "image/gif")})
     inner = f"http://127.0.0.1:{inner_port}/pixel.gif"

@@ -58,7 +58,7 @@ _PRECISION = {"certain": "very-high", "probable": "medium"}
 def fingerprint(finding_id: str) -> str:
     """Stable across runs and across languages: the identity of a finding is its
     rule plus its subject, never its rendered text."""
-    return hashlib.sha256(f"privacymate/v1/{finding_id}".encode("utf-8")).hexdigest()[:32]
+    return hashlib.sha256(f"scanprivacy/v1/{finding_id}".encode("utf-8")).hexdigest()[:32]
 
 
 def _rule_name(rule_id: str, title: str) -> str:
@@ -188,7 +188,12 @@ def build_sarif(
                 "level": _LEVEL[finding.severity],
                 "message": {"text": _message(rendered, t, anchor)},
                 "locations": [_location(anchor, anchor_file, result.final_url)],
-                "partialFingerprints": {"privacymateFindingId/v1": fingerprint(finding.id)},
+                # Renamed with the project. Code scanning correlates alerts
+                # across runs by this key, so changing it recreates every alert
+                # — which is why it carries a version. Nothing has consumed it
+                # yet: the action is unpublished and the repository is private,
+                # so now is the only free moment to do this.
+                "partialFingerprints": {"scanprivacyFindingId/v1": fingerprint(finding.id)},
                 "properties": {
                     "findingId": finding.id,
                     "priority": finding.priority.value,
@@ -213,15 +218,15 @@ def build_sarif(
             {
                 "tool": {
                     "driver": {
-                        "name": "privacymate",
+                        "name": "scanprivacy",
                         "informationUri": INFORMATION_URI,
-                        "semanticVersion": (record.get("engine") or {}).get("engine", "privacymate").split()[-1],
+                        "semanticVersion": (record.get("engine") or {}).get("engine", "scanprivacy").split()[-1],
                         "rules": rules,
                     }
                 },
                 # groups runs of the same target so GitHub can close alerts that
                 # disappeared instead of piling up duplicates
-                "automationDetails": {"id": f"privacymate/{result.site.get('domain', result.url)}"},
+                "automationDetails": {"id": f"scanprivacy/{result.site.get('domain', result.url)}"},
                 "invocations": [
                     {
                         "executionSuccessful": result.status.value == "ok",

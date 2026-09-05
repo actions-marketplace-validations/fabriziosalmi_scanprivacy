@@ -18,10 +18,10 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-import pmate.api as api
-from pmate.analyze.engine import load_rules
-from pmate.knowledge.registry import all_vendors
-from pmate.knowledge.remediation import catalogue, entry_for, patterns
+import scanprivacy.api as api
+from scanprivacy.analyze.engine import load_rules
+from scanprivacy.knowledge.registry import all_vendors
+from scanprivacy.knowledge.remediation import catalogue, entry_for, patterns
 
 
 # ------------------------------------------------------------- completeness
@@ -117,7 +117,7 @@ def test_the_order_is_stable_so_two_calls_can_be_compared():
 
 @pytest.fixture
 def client(monkeypatch):
-    from pmate.auth import ENV_VAR
+    from scanprivacy.auth import ENV_VAR
 
     monkeypatch.delenv(ENV_VAR, raising=False)
     return TestClient(api.app)
@@ -146,7 +146,7 @@ def test_the_language_is_honoured_and_validated(client):
 
 
 def test_the_cli_answers_the_same_question(capsys):
-    from pmate.cli import main
+    from scanprivacy.cli import main
 
     assert main(["remediation", "google-fonts"]) == 0
     assert "Google Fonts" in capsys.readouterr().out
@@ -157,7 +157,7 @@ def test_the_cli_answers_the_same_question(capsys):
 
 
 def test_the_cli_reports_an_unknown_key_on_stderr_and_exits_1(capsys):
-    from pmate.cli import main
+    from scanprivacy.cli import main
 
     assert main(["remediation", "nope"]) == 1
     captured = capsys.readouterr()

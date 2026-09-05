@@ -15,17 +15,17 @@ from pathlib import Path
 import pytest
 import yaml
 
-from pmate.analyze.context import build_context
-from pmate.analyze.engine import evaluate, load_rules
-from pmate.analyze.graph import build_graph
-from pmate.analyze.verdict import grade
-from pmate.core.enums import Grade, ScanStatus, Severity
-from pmate.core.models import ScanResult, scan_from_dict
-from pmate.observe.browser import CookieSet, Observation, Request
-from pmate.report.anchor import SourceIndex
-from pmate.report.badge import render_badge
-from pmate.report.record import build_record
-from pmate.report.sarif import build_sarif, fingerprint
+from scanprivacy.analyze.context import build_context
+from scanprivacy.analyze.engine import evaluate, load_rules
+from scanprivacy.analyze.graph import build_graph
+from scanprivacy.analyze.verdict import grade
+from scanprivacy.core.enums import Grade, ScanStatus, Severity
+from scanprivacy.core.models import ScanResult, scan_from_dict
+from scanprivacy.observe.browser import CookieSet, Observation, Request
+from scanprivacy.report.anchor import SourceIndex
+from scanprivacy.report.badge import render_badge
+from scanprivacy.report.record import build_record
+from scanprivacy.report.sarif import build_sarif, fingerprint
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -82,7 +82,7 @@ def test_sarif_shape_is_valid_for_code_scanning():
     sarif = build_sarif(_result())
     assert sarif["version"] == "2.1.0"
     run = sarif["runs"][0]
-    assert run["tool"]["driver"]["name"] == "privacymate"
+    assert run["tool"]["driver"]["name"] == "scanprivacy"
     assert run["tool"]["driver"]["rules"]
     assert run["results"]
 
@@ -96,7 +96,7 @@ def test_sarif_shape_is_valid_for_code_scanning():
         assert result["message"]["text"]
         assert result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
         assert result["locations"][0]["physicalLocation"]["region"]["startLine"] >= 1
-        assert result["partialFingerprints"]["privacymateFindingId/v1"]
+        assert result["partialFingerprints"]["scanprivacyFindingId/v1"]
 
 
 def test_security_severity_and_level_agree():
@@ -119,7 +119,7 @@ def test_fingerprints_are_stable_and_unique():
     unrelated findings."""
     first, second = build_sarif(_result()), build_sarif(_result())
     prints = lambda sarif: [  # noqa: E731
-        r["partialFingerprints"]["privacymateFindingId/v1"] for r in sarif["runs"][0]["results"]
+        r["partialFingerprints"]["scanprivacyFindingId/v1"] for r in sarif["runs"][0]["results"]
     ]
     assert prints(first) == prints(second)
     assert len(set(prints(first))) == len(prints(first))
@@ -214,7 +214,7 @@ def test_the_engine_does_not_anchor_to_its_own_reports(tmp_path: Path):
     finding to our own output would be useless and quietly wrong."""
     (tmp_path / "reports").mkdir()
     (tmp_path / "reports" / "scan.md").write_text(
-        "# privacymate\n\nEvidence digest: abc\n\n- `fonts.googleapis.com`\n", encoding="utf-8"
+        "# scanprivacy\n\nEvidence digest: abc\n\n- `fonts.googleapis.com`\n", encoding="utf-8"
     )
     index = SourceIndex(tmp_path)
     assert index.find("fonts.googleapis.com") is None
@@ -268,7 +268,7 @@ def test_action_metadata_is_wellformed_and_matches_the_cli():
 
     # every gate the CLI accepts must be documented by the action, or a
     # workflow author picks a value that fails at runtime with an argparse error
-    import pmate.cli as cli
+    import scanprivacy.cli as cli
 
     described = inputs["fail-on"]["description"]
     for gate in (*cli._GATE_ORDER, "any-finding", "not-conformant", "never"):
@@ -285,7 +285,7 @@ def test_example_workflow_parses_and_requests_the_right_permission(path: str):
     # spelled out again here. The repository was renamed once already, and the
     # two drifting apart would mean the example points people at one repository
     # while `/healthz` names another.
-    from pmate.config import SOURCE_URL_DEFAULT
+    from scanprivacy.config import SOURCE_URL_DEFAULT
 
     slug = SOURCE_URL_DEFAULT.removeprefix("https://github.com/")
     assert any(slug in str(step.get("uses", "")) for step in steps), (
@@ -297,9 +297,9 @@ def test_example_workflow_parses_and_requests_the_right_permission(path: str):
 
 
 def _artifacts(tmp_path: Path) -> list[Path]:
-    scan = tmp_path / "privacymate.json"
+    scan = tmp_path / "scanprivacy.json"
     scan.write_text(json.dumps(_result().to_dict(), default=str), encoding="utf-8")
-    sarif = tmp_path / "privacymate.sarif"
+    sarif = tmp_path / "scanprivacy.sarif"
     sarif.write_text(json.dumps(build_sarif(_result())), encoding="utf-8")
     badge = tmp_path / "privacy.svg"
     badge.write_text(render_badge(_result()), encoding="utf-8")
@@ -307,7 +307,7 @@ def _artifacts(tmp_path: Path) -> list[Path]:
 
 
 def test_statement_binds_every_artefact_and_the_configuration_digests(tmp_path: Path):
-    from pmate.report.attestation import PREDICATE_TYPE, STATEMENT_TYPE, build_statement, file_digest
+    from scanprivacy.report.attestation import PREDICATE_TYPE, STATEMENT_TYPE, build_statement, file_digest
 
     artifacts = _artifacts(tmp_path)
     statement = build_statement(_result(), artifacts)
@@ -325,7 +325,7 @@ def test_statement_binds_every_artefact_and_the_configuration_digests(tmp_path: 
 
 def test_canonical_form_is_what_gets_signed():
     """Re-serialisation must not change a byte, or every signature breaks."""
-    from pmate.report.attestation import canonical_json
+    from scanprivacy.report.attestation import canonical_json
 
     payload = {"b": 1, "a": {"d": 2, "c": [3, 4]}}
     once = canonical_json(payload)
@@ -334,7 +334,7 @@ def test_canonical_form_is_what_gets_signed():
 
 
 def test_a_changed_artefact_is_detected(tmp_path: Path):
-    from pmate.report.attestation import verify_attestation, write_attestation
+    from scanprivacy.report.attestation import verify_attestation, write_attestation
 
     artifacts = _artifacts(tmp_path)
     statement_path = tmp_path / "attestation.json"
@@ -343,12 +343,12 @@ def test_a_changed_artefact_is_detected(tmp_path: Path):
     assert verify_attestation(statement_path).subjects_matching == 3
     artifacts[1].write_text(artifacts[1].read_text().replace("note", "none", 1), encoding="utf-8")
     checked = verify_attestation(statement_path)
-    assert checked.mismatched == ["privacymate.sarif"]
+    assert checked.mismatched == ["scanprivacy.sarif"]
     assert checked.ok is False
 
 
 def test_a_missing_artefact_is_detected(tmp_path: Path):
-    from pmate.report.attestation import verify_attestation, write_attestation
+    from scanprivacy.report.attestation import verify_attestation, write_attestation
 
     artifacts = _artifacts(tmp_path)
     statement_path = tmp_path / "attestation.json"
@@ -362,7 +362,7 @@ def test_a_missing_artefact_is_detected(tmp_path: Path):
 def test_an_unsigned_statement_never_passes(tmp_path: Path):
     """Fail-closed: a statement nobody signed proves only that someone wrote a
     file. Treating it as a pass would be worse than not attesting at all."""
-    from pmate.report.attestation import verify_attestation, write_attestation
+    from scanprivacy.report.attestation import verify_attestation, write_attestation
 
     statement_path = tmp_path / "attestation.json"
     _, signature = write_attestation(_result(), _artifacts(tmp_path), statement_path)
@@ -376,7 +376,7 @@ def test_an_unsigned_statement_never_passes(tmp_path: Path):
 def test_signing_without_cosign_raises_instead_of_writing_an_unsigned_file(tmp_path: Path, monkeypatch):
     """A caller who asked for a signature must find out now, not when a
     recipient checks it."""
-    import pmate.report.attestation as attestation
+    import scanprivacy.report.attestation as attestation
 
     monkeypatch.setattr(attestation.shutil, "which", lambda _: None)
     with pytest.raises(attestation.AttestationError):
@@ -391,7 +391,7 @@ def test_signing_without_cosign_raises_instead_of_writing_an_unsigned_file(tmp_p
 def test_sign_and_verify_roundtrip_with_a_real_key(tmp_path: Path, monkeypatch):
     import subprocess
 
-    from pmate.report.attestation import verify_attestation, write_attestation
+    from scanprivacy.report.attestation import verify_attestation, write_attestation
 
     monkeypatch.setenv("COSIGN_PASSWORD", "")
     generated = subprocess.run(

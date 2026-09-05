@@ -12,8 +12,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from pmate.core.enums import LOCALISED_ENUMS
-from pmate.i18n.translator import (
+from scanprivacy.core.enums import LOCALISED_ENUMS
+from scanprivacy.i18n.translator import (
     CATALOGUES,
     DEFAULT_LOCALE,
     LOCALES_DIR,
@@ -46,7 +46,7 @@ def _catalogue(locale: str, name: str):
 def test_every_yaml_in_the_repo_parses():
     """Three separate YAML syntax errors have already reached a running scan;
     unquoted colons in prose are the recurring cause."""
-    for path in sorted(REPO_ROOT.glob("src/pmate/**/*.yml")):
+    for path in sorted(REPO_ROOT.glob("src/scanprivacy/**/*.yml")):
         yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
@@ -112,14 +112,14 @@ def _synthetic_result():
     import asyncio
     from datetime import datetime, timezone
 
-    from pmate.analyze.context import build_context
-    from pmate.analyze.engine import evaluate, load_rules
-    from pmate.analyze.graph import build_graph
-    from pmate.analyze.verdict import grade
-    from pmate.core.enums import ScanStatus
-    from pmate.core.models import ScanResult
-    from pmate.observe.browser import CookieSet, Observation, Request, StorageEntry
-    from pmate.report.record import build_record
+    from scanprivacy.analyze.context import build_context
+    from scanprivacy.analyze.engine import evaluate, load_rules
+    from scanprivacy.analyze.graph import build_graph
+    from scanprivacy.analyze.verdict import grade
+    from scanprivacy.core.enums import ScanStatus
+    from scanprivacy.core.models import ScanResult
+    from scanprivacy.observe.browser import CookieSet, Observation, Request, StorageEntry
+    from scanprivacy.report.record import build_record
 
     obs = Observation(url="https://x.it", final_url="https://x.it/", load_ok=True, status=200)
     obs.response_headers = {"server": "cloudflare", "cf-ray": "abc", "content-type": "text/html"}
@@ -175,7 +175,7 @@ def _synthetic_result():
 
 @pytest.mark.parametrize("locale", available_locales())
 def test_no_missing_translation_marker_in_a_rendered_report(locale: str):
-    from pmate.report.markdown import render
+    from scanprivacy.report.markdown import render
 
     output = render(_synthetic_result(), locale)
     missing = sorted({m for m in output.split() if m.startswith("⟦")})
@@ -185,7 +185,7 @@ def test_no_missing_translation_marker_in_a_rendered_report(locale: str):
 
 @pytest.mark.parametrize("locale", available_locales())
 def test_no_missing_translation_marker_in_the_pdf_html(locale: str):
-    from pmate.report.pdf import render_html
+    from scanprivacy.report.pdf import render_html
 
     html = render_html(_synthetic_result(), locale)
     assert "⟦" not in html

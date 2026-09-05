@@ -26,10 +26,10 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
-from pmate import config
-from pmate.config import DEFAULTS, UA, UA_FALLBACK
-from pmate.core.enums import ScanStatus
-from pmate.scanner import scan
+from scanprivacy import config
+from scanprivacy.config import DEFAULTS, UA, UA_FALLBACK
+from scanprivacy.core.enums import ScanStatus
+from scanprivacy.scanner import scan
 
 pytest.importorskip("playwright.async_api", reason="playwright is not installed")
 
@@ -51,7 +51,7 @@ class _PickyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):  # noqa: N802 — http.server's interface
         ua = self.headers.get("User-Agent", "")
-        if "privacymate" in ua:
+        if "scanprivacy" in ua:
             self.close_connection = True
             return
         self.send_response(200)
@@ -73,25 +73,25 @@ def picky_site():
 
 
 def test_the_contact_address_is_the_operators_to_set(monkeypatch):
-    monkeypatch.setenv("PMATE_CONTACT", "privacy@example.org")
+    monkeypatch.setenv("SCANPRIVACY_CONTACT", "privacy@example.org")
     reloaded = importlib.reload(config)
     try:
         assert reloaded.UA_CONTACT == "privacy@example.org"
         assert "privacy@example.org" in reloaded.UA
     finally:
-        monkeypatch.delenv("PMATE_CONTACT")
+        monkeypatch.delenv("SCANPRIVACY_CONTACT")
         importlib.reload(config)
 
 
 def test_an_empty_contact_falls_back_rather_than_shipping_a_blank_one(monkeypatch):
     """A User-Agent reading `contact: )` is worse than the default: it claims
     accountability and offers nowhere to send it."""
-    monkeypatch.setenv("PMATE_CONTACT", "   ")
+    monkeypatch.setenv("SCANPRIVACY_CONTACT", "   ")
     reloaded = importlib.reload(config)
     try:
         assert reloaded.UA_CONTACT == reloaded.UA_CONTACT_DEFAULT
     finally:
-        monkeypatch.delenv("PMATE_CONTACT")
+        monkeypatch.delenv("SCANPRIVACY_CONTACT")
         importlib.reload(config)
 
 
@@ -137,7 +137,7 @@ def test_the_engine_and_the_documents_promise_the_same_address():
 
 def test_the_identified_user_agent_carries_the_contact_and_the_purpose():
     assert config.UA_CONTACT in UA
-    assert "privacymate" in UA
+    assert "scanprivacy" in UA
     assert "passive" in UA
 
 

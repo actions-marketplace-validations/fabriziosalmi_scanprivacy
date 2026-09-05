@@ -17,7 +17,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
-from pmate.observe.consent import (
+from scanprivacy.observe.consent import (
     NOT_ATTEMPTED_NO_CMP,
     NOT_ATTEMPTED_UNKNOWN,
     REFUSED,
@@ -173,9 +173,9 @@ def test_an_identifier_set_before_the_refusal_and_left_behind_is_still_reported(
     """After "no", a tracking identifier on the device is a problem whether it
     was written before the refusal or after it. A platform that stops writing
     but never clears has done half the job."""
-    from pmate.analyze.context import build_context
-    from pmate.analyze.engine import evaluate, load_rules
-    from pmate.observe.browser import CookieSet, Observation
+    from scanprivacy.analyze.context import build_context
+    from scanprivacy.analyze.engine import evaluate, load_rules
+    from scanprivacy.observe.browser import CookieSet, Observation
 
     after = Observation(url="https://x.it", final_url="https://x.it/", load_ok=True, status=200)
     after.cookies = [CookieSet("_ga", ".x.it", "/", True, False, "Lax", 1.0, False)]
@@ -236,7 +236,7 @@ def test_no_consent_mechanism_means_nothing_to_refuse():
 
 def test_refusal_rules_never_fire_in_a_passive_scan():
     """A passive report must not gain a word because this mode exists."""
-    from pmate.analyze.engine import load_rules
+    from scanprivacy.analyze.engine import load_rules
 
     passive = {rule.id for rule in load_rules()}
     refusal = {rule.id for rule in load_rules(pass_="refusal")}
@@ -248,9 +248,9 @@ def test_refusal_rules_never_fire_in_a_passive_scan():
 def test_a_refusal_finding_cannot_exist_without_a_refusal():
     """Fail-closed: claiming "still tracking after refusal" when no refusal took
     place would be a fabrication."""
-    from pmate.analyze.context import build_context
-    from pmate.analyze.engine import evaluate, load_rules
-    from pmate.observe.browser import CookieSet, Observation, Request
+    from scanprivacy.analyze.context import build_context
+    from scanprivacy.analyze.engine import evaluate, load_rules
+    from scanprivacy.observe.browser import CookieSet, Observation, Request
 
     page = Observation(url="https://x.it", final_url="https://x.it/", load_ok=True, status=200)
     page.requests = [
@@ -286,7 +286,7 @@ _HIDDEN = '<button class="cmp-reject" style="display:none" onclick="window.__cli
 
 
 def _dom_platform(selector: str = ".cmp-reject"):
-    from pmate.observe.consent import ConsentPlatform
+    from scanprivacy.observe.consent import ConsentPlatform
 
     return ConsentPlatform(
         id="fixture-dom", name="Fixture", detect="true", method="dom",
@@ -297,7 +297,7 @@ def _dom_platform(selector: str = ".cmp-reject"):
 async def _refuse_on(html: str, platform=None):
     from playwright.async_api import async_playwright
 
-    from pmate.observe.consent import refuse
+    from scanprivacy.observe.consent import refuse
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
@@ -322,7 +322,7 @@ def test_two_matching_controls_stop_the_attempt_without_clicking_either():
     """Ambiguity is a stop condition, not something to resolve by picking the
     first match. Which of two controls a vendor's selector matches is not
     knowable from outside, and the wrong one on a live site can do anything."""
-    from pmate.observe.consent import NOT_ATTEMPTED_AMBIGUOUS
+    from scanprivacy.observe.consent import NOT_ATTEMPTED_AMBIGUOUS
 
     html = DOM_PAGE.format(
         controls=_CONTROL.format(name="reject") + _CONTROL.format(name="reject-all")
@@ -336,7 +336,7 @@ def test_two_matching_controls_stop_the_attempt_without_clicking_either():
 def test_a_selector_matching_nothing_is_also_a_stop_not_a_search():
     """Zero matches means the catalogue entry no longer fits the site. The
     engine says so; it does not go looking for a button that resembles one."""
-    from pmate.observe.consent import NOT_ATTEMPTED_AMBIGUOUS
+    from scanprivacy.observe.consent import NOT_ATTEMPTED_AMBIGUOUS
 
     attempt, state = asyncio.run(
         _refuse_on(DOM_PAGE.format(controls=""), _dom_platform(".does-not-exist"))
@@ -369,7 +369,7 @@ def test_nothing_outside_the_documented_selector_is_ever_touched():
 
 
 def test_an_unsupported_method_is_reported_rather_than_improvised():
-    from pmate.observe.consent import ConsentPlatform, FAILED
+    from scanprivacy.observe.consent import ConsentPlatform, FAILED
 
     platform = ConsentPlatform(
         id="x", name="X", detect="true", method="telepathy",
@@ -415,9 +415,9 @@ def test_a_pass_that_refused_nothing_is_not_a_clean_verdict():
     import pytest as _pytest
 
     _pytest.importorskip("playwright.async_api", reason="playwright is not installed")
-    from pmate.config import DEFAULTS
-    from pmate.core.enums import Grade
-    from pmate.scanner import refusal_scan
+    from scanprivacy.config import DEFAULTS
+    from scanprivacy.core.enums import Grade
+    from scanprivacy.scanner import refusal_scan
 
     PLAIN = (
         b'<!doctype html><html lang="en"><head><meta charset="utf-8">'
@@ -458,8 +458,8 @@ def test_every_reason_a_refusal_did_not_happen_can_be_read():
     """The verdict note is built from the outcome constant, so a new outcome
     without a catalogue entry would print a missing-key marker on the verdict
     line of a report."""
-    from pmate.i18n import Translator
-    from pmate.observe import consent as consent_module
+    from scanprivacy.i18n import Translator
+    from scanprivacy.observe import consent as consent_module
 
     outcomes = [
         getattr(consent_module, name)

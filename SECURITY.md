@@ -23,10 +23,10 @@ it saw. Anything that breaks either half of that sentence is in scope:
   reports having actually reached. A way past either check turns an instance
   into an SSRF proxy against its own network — this is the most serious class of
   bug in the project.
-- **Bypassing `PMATE_API_KEY`**, or reaching a `/v1` route without one.
-- **Escaping the bind guard**, so that `pmate serve` listens on a non-loopback
+- **Bypassing `SCANPRIVACY_API_KEY`**, or reaching a `/v1` route without one.
+- **Escaping the bind guard**, so that `scanprivacy serve` listens on a non-loopback
   interface with no key configured.
-- **Forging evidence.** Anything that makes `pmate verify` accept a JSON file
+- **Forging evidence.** Anything that makes `scanprivacy verify` accept a JSON file
   whose digests do not describe the analysis it claims, or that makes two
   different observations produce the same configuration digest.
 - **Reporting a state that was never observed.** A finding emitted from a failed
@@ -39,9 +39,9 @@ it saw. Anything that breaks either half of that sentence is in scope:
 ## What does not count
 
 - **Disagreeing with a finding.** That is an issue, and a welcome one, but it is
-  not a vulnerability. `pmate remediation <rule-id>` explains what the rule
+  not a vulnerability. `scanprivacy remediation <rule-id>` explains what the rule
   claims to have observed.
-- **`pmate scan http://localhost:8000` working.** The command line deliberately
+- **`scanprivacy scan http://localhost:8000` working.** The command line deliberately
   has no public-address check: there the operator chose the target, and refusing
   to scan a site before it is deployed would break the ordinary use. The check
   exists on the API, where the caller may be someone else.
@@ -57,14 +57,14 @@ You can identify us in your logs by the User-Agent, which names the software and
 carries a contact address for the instance that sent the request:
 
 ```
-privacymate/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: ...)
+scanprivacy/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: ...)
 ```
 
 Two things are true and worth stating plainly.
 
 **You can stop it, and it will stay stopped.** The engine reads `robots.txt`
 before every URL it requests, documents included, and a disallow is honoured
-rather than noted. A rule for `privacymate` — or a blanket `User-Agent: *`
+rather than noted. A rule for `scanprivacy` — or a blanket `User-Agent: *`
 disallow — is enough; nothing needs to be negotiated with anybody.
 
 **You can ask.** Write to the contact address in the User-Agent you received.

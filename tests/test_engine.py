@@ -9,14 +9,14 @@ from __future__ import annotations
 
 import yaml
 
-from pmate.analyze.context import build_context, classify_key, infra_from_headers
-from pmate.analyze.diff import diff
-from pmate.analyze.engine import evaluate, load_rules
-from pmate.analyze.graph import build_graph
-from pmate.analyze.predicates import REGISTRY
-from pmate.analyze.verdict import grade
-from pmate.config import KNOWLEDGE_DIR, RULES_DIR
-from pmate.core.enums import (
+from scanprivacy.analyze.context import build_context, classify_key, infra_from_headers
+from scanprivacy.analyze.diff import diff
+from scanprivacy.analyze.engine import evaluate, load_rules
+from scanprivacy.analyze.graph import build_graph
+from scanprivacy.analyze.predicates import REGISTRY
+from scanprivacy.analyze.verdict import grade
+from scanprivacy.config import KNOWLEDGE_DIR, RULES_DIR
+from scanprivacy.core.enums import (
     ConsentClass,
     DataClass,
     Effort,
@@ -25,12 +25,12 @@ from pmate.core.enums import (
     SubjectKind,
     TransferScope,
 )
-from pmate.core.models import Finding, priority_for
-from pmate.i18n.translator import Translator
-from pmate.knowledge.registry import all_vendors, is_extra_eea, mapping_for, vendor_for
-from pmate.observe.browser import CookieSet, LegalLink, Observation, Request
-from pmate.observe.discover import looks_like, pick_documents, score_link
-from pmate.observe.docs import DocumentEvidence, _declared_vendors, _to_text
+from scanprivacy.core.models import Finding, priority_for
+from scanprivacy.i18n.translator import Translator
+from scanprivacy.knowledge.registry import all_vendors, is_extra_eea, mapping_for, vendor_for
+from scanprivacy.observe.browser import CookieSet, LegalLink, Observation, Request
+from scanprivacy.observe.discover import looks_like, pick_documents, score_link
+from scanprivacy.observe.docs import DocumentEvidence, _declared_vendors, _to_text
 
 
 # ------------------------------------------------------------ rule catalogue
@@ -44,7 +44,7 @@ def test_knowledge_files_parse():
 def test_rules_ship_inside_the_package():
     """A `pip install` that cannot find its own rules is not an installation."""
     assert RULES_DIR.is_dir() and RULES_DIR.name == "rules"
-    assert RULES_DIR.parent.name == "pmate"
+    assert RULES_DIR.parent.name == "scanprivacy"
     assert len(list(RULES_DIR.glob("PM-*.yml"))) >= 20
 
 
@@ -142,7 +142,7 @@ def test_a_vendor_named_only_to_deny_it_is_not_declared():
 
 def test_aliases_are_pooled_across_locales():
     """The language of a site's notice is unknown when the scan starts."""
-    from pmate.knowledge.registry import aliases_for
+    from scanprivacy.knowledge.registry import aliases_for
 
     pool = aliases_for("youtube")
     assert "embedded video" in pool and "video incorporati" in pool
@@ -254,7 +254,7 @@ def test_findings_are_language_neutral():
 
 
 def test_the_same_finding_renders_in_both_languages():
-    from pmate.report.render import render_finding
+    from scanprivacy.report.render import render_finding
 
     ctx = build_context(_observation_with_google_fonts(), [], None)
     finding = next(f for f in evaluate(ctx, load_rules(RULES_DIR)) if f.rule_id == "PM-TRF-01")
@@ -325,7 +325,7 @@ def test_priority_prefers_the_cheap_fix():
 
 
 def test_record_digests_detect_tampering():
-    from pmate.report.record import build_record, canonical_digest, verify_record
+    from scanprivacy.report.record import build_record, canonical_digest, verify_record
 
     observation = {"browser": {"requests": [{"host": "fonts.googleapis.com"}]}, "documents": []}
     record = build_record(url="https://x.it", observation=observation, user_agent="test")

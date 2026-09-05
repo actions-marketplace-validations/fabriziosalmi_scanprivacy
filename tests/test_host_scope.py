@@ -24,8 +24,8 @@ from __future__ import annotations
 
 import pytest
 
-from pmate.observe.browser import Observation
-from pmate.observe.pages import same_deployment, select_pages, sibling_hosts
+from scanprivacy.observe.browser import Observation
+from scanprivacy.observe.pages import same_deployment, select_pages, sibling_hosts
 
 SITE = "https://www.cyberapi.io"
 
@@ -105,8 +105,8 @@ def test_the_scanned_host_is_never_its_own_sibling():
 
 
 def test_the_reason_is_stated_in_both_languages():
-    from pmate.i18n import Translator
-    from pmate.report.pdf import _why
+    from scanprivacy.i18n import Translator
+    from scanprivacy.report.pdf import _why
 
     for lang in ("en", "it"):
         text = _why({"why": "page_choice.other_host", "kind": "other"}, Translator.for_locale(lang))
@@ -131,8 +131,8 @@ def test_a_skipped_sibling_reaches_the_page_plan(monkeypatch):
     from http.server import BaseHTTPRequestHandler, HTTPServer
 
     pytest.importorskip("playwright.async_api", reason="playwright is not installed")
-    from pmate import scanner
-    from pmate.config import DEFAULTS
+    from scanprivacy import scanner
+    from scanprivacy.config import DEFAULTS
 
     monkeypatch.setattr(scanner, "sibling_hosts", lambda *_a, **_k: ["threats.cyberapi.io"])
 

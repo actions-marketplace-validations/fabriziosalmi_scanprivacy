@@ -58,7 +58,7 @@ jobs:
         run: python -m playwright install --with-deps chromium
 
       - name: Install cosign
-        # Same reason as the browser. `pmate attest --sign cosign-key` and
+        # Same reason as the browser. `scanprivacy attest --sign cosign-key` and
         # `verify-attestation` are the mechanism behind the claim that a report
         # can be shown to be the one that was published, and the round-trip test
         # for them is gated on cosign being present. Without this it skipped

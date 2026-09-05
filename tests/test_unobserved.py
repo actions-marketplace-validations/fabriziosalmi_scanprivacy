@@ -12,11 +12,11 @@ reader has no way to tell which of the two they are holding.
 
 from __future__ import annotations
 
-from pmate.analyze.context import build_context
-from pmate.analyze.engine import evaluate, load_rules
-from pmate.analyze.verdict import grade
-from pmate.core.enums import Grade
-from pmate.observe.browser import Observation
+from scanprivacy.analyze.context import build_context
+from scanprivacy.analyze.engine import evaluate, load_rules
+from scanprivacy.analyze.verdict import grade
+from scanprivacy.core.enums import Grade
+from scanprivacy.observe.browser import Observation
 
 
 def _unreachable() -> Observation:
@@ -32,7 +32,7 @@ def _loaded() -> Observation:
 
 
 def test_an_unobserved_target_produces_no_findings_at_all():
-    """Before this guard: `pmate scan not-a-url` reported PM-DOC-01 (critical),
+    """Before this guard: `scanprivacy scan not-a-url` reported PM-DOC-01 (critical),
     PM-SEC-01, PM-SEC-02 and PM-SEC-03 with load_ok=False, status=None and zero
     response headers read."""
     findings = evaluate(build_context([_unreachable()]), load_rules())
@@ -82,9 +82,9 @@ def test_a_predicate_that_raises_does_not_fire_but_does_warn(caplog):
     clean. That is this project's recurring failure mode."""
     import logging
 
-    from pmate.analyze import predicates
-    from pmate.analyze.subjects import Subject
-    from pmate.core.enums import SubjectKind
+    from scanprivacy.analyze import predicates
+    from scanprivacy.analyze.subjects import Subject
+    from scanprivacy.core.enums import SubjectKind
 
     def explode(ctx, subject, arg):
         raise RuntimeError("knowledge base out of shape")
@@ -92,7 +92,7 @@ def test_a_predicate_that_raises_does_not_fire_but_does_warn(caplog):
     predicates.REGISTRY["_test_explodes"] = explode
     subject = Subject(kind=SubjectKind.SITE, slug="site", node_id="site")
     try:
-        with caplog.at_level(logging.WARNING, logger="pmate.rules"):
+        with caplog.at_level(logging.WARNING, logger="scanprivacy.rules"):
             fired = predicates.evaluate_condition(
                 build_context([_loaded()]), subject, {"_test_explodes": True}
             )
@@ -107,12 +107,12 @@ def test_an_unknown_predicate_warns_as_well(caplog):
     silently covers nothing."""
     import logging
 
-    from pmate.analyze import predicates
-    from pmate.analyze.subjects import Subject
-    from pmate.core.enums import SubjectKind
+    from scanprivacy.analyze import predicates
+    from scanprivacy.analyze.subjects import Subject
+    from scanprivacy.core.enums import SubjectKind
 
     subject = Subject(kind=SubjectKind.SITE, slug="site", node_id="site")
-    with caplog.at_level(logging.WARNING, logger="pmate.rules"):
+    with caplog.at_level(logging.WARNING, logger="scanprivacy.rules"):
         assert predicates.evaluate_condition(
             build_context([_loaded()]), subject, {"no_such_predicate": True}
         ) is False

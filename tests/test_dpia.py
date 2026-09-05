@@ -7,10 +7,10 @@ covered the question — which is worse than producing no screening at all.
 
 from __future__ import annotations
 
-from pmate.analyze.context import build_context
-from pmate.analyze.dpia import CRITERIA, screen, transfer_assessments
-from pmate.analyze.engine import evaluate, load_rules
-from pmate.observe.browser import CookieSet, Observation, Request
+from scanprivacy.analyze.context import build_context
+from scanprivacy.analyze.dpia import CRITERIA, screen, transfer_assessments
+from scanprivacy.analyze.engine import evaluate, load_rules
+from scanprivacy.observe.browser import CookieSet, Observation, Request
 
 
 def _page(url: str = "https://x.it/") -> Observation:
@@ -110,8 +110,8 @@ def test_the_finding_names_what_it_could_not_assess():
 
 
 def test_the_screening_renders_in_both_languages():
-    from pmate.i18n.translator import Translator
-    from pmate.report.render import render_finding
+    from scanprivacy.i18n.translator import Translator
+    from scanprivacy.report.render import render_finding
 
     page = _page()
     page.requests = [_request("static.hotjar.com"), _request("connect.facebook.net")]
@@ -152,7 +152,7 @@ def test_a_prompt_carries_the_equivalent_that_removes_the_transfer():
 def test_the_screening_survives_a_round_trip_through_json():
     import json
 
-    from pmate.core.models import scan_from_dict
+    from scanprivacy.core.models import scan_from_dict
 
     from tests.test_integrations import _result  # reuse the built result fixture
 

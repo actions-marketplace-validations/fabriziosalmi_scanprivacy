@@ -1,4 +1,4 @@
-name: privacymate
+name: scanprivacy
 description: >
   Passive privacy conformance scan (GDPR / ePrivacy / AI Act) with SARIF output
   for code scanning, findings anchored to the source line that causes them.
@@ -35,11 +35,11 @@ inputs:
   sarif-file:
     description: Where to write the SARIF report.
     required: false
-    default: privacymate.sarif
+    default: scanprivacy.sarif
   json-file:
     description: Where to write the full result, evidence and digests included.
     required: false
-    default: privacymate.json
+    default: scanprivacy.json
   badge-file:
     description: Where to write the SVG badge. Empty to skip.
     required: false
@@ -107,7 +107,7 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
-    - name: Install privacymate
+    - name: Install scanprivacy
       shell: bash
       run: |
         python -m pip install --upgrade pip
@@ -148,7 +148,7 @@ runs:
           args+=(--attest "${{ inputs.attest }}" --sign "${{ inputs.sign }}")
           [ -n "${{ inputs.cosign-key }}" ] && args+=(--key "${{ inputs.cosign-key }}")
         fi
-        pmate --lang "${{ inputs.lang }}" "${args[@]}"
+        scanprivacy --lang "${{ inputs.lang }}" "${args[@]}"
         gate=$?
         set -e
 
@@ -175,7 +175,7 @@ runs:
         )
         quick = sum(1 for f in result.get("findings", []) if f.get("quick_win"))
         with open(summary_path, "a", encoding="utf-8") as fh:
-            fh.write(f"## privacymate — {result.get('final_url')}\n\n")
+            fh.write(f"## scanprivacy — {result.get('final_url')}\n\n")
             fh.write(f"**{verdict.get('grade')}** · {len(result.get('findings', []))} findings · ")
             fh.write(f"{quick} low-effort fixes on serious findings · {anchored} anchored to source\n\n")
             fh.write("| severity | findings |\n|---|---:|\n" + rows + "\n")
@@ -194,4 +194,4 @@ runs:
       uses: github/codeql-action/upload-sarif@47be0dbd5113ab1b79fe2dd3f68bdf7e426cdc87  # v3
       with:
         sarif_file: ${{ inputs.sarif-file }}
-        category: privacymate
+        category: scanprivacy

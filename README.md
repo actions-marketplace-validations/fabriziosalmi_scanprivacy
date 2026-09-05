@@ -1,4 +1,4 @@
-# privacymate
+# scanprivacy
 
 **URL in, findings graph and remediation out.** A deterministic engine for
 passive privacy conformance observation (GDPR / ePrivacy / AI Act), usable from
@@ -10,15 +10,15 @@ python -m playwright install chromium   # the package brings the driver, not the
 ```
 
 The second line is not optional and is the one people miss. Without it the
-first scan fails; `pmate` will tell you so in one line rather than a traceback,
+first scan fails; `scanprivacy` will tell you so in one line rather than a traceback,
 but it is cheaper to read it here.
 
 ```bash
-pmate scan https://example.org --pages 5 --pdf report.pdf --json evidence.json
-pmate --lang it scan https://example.org --pdf rapporto.pdf   # same engine, Italian report
-pmate verify evidence.json      # recompute every digest: is this the evidence the report describes?
-pmate diff before.json after.json    # resolved / new / persisting, with the age of what is still open
-pmate serve --port 8099
+scanprivacy scan https://example.org --pages 5 --pdf report.pdf --json evidence.json
+scanprivacy --lang it scan https://example.org --pdf rapporto.pdf   # same engine, Italian report
+scanprivacy verify evidence.json      # recompute every digest: is this the evidence the report describes?
+scanprivacy diff before.json after.json    # resolved / new / persisting, with the age of what is still open
+scanprivacy serve --port 8099
 ```
 
 ```bash
@@ -37,26 +37,26 @@ not merely something a stranger can consume: requests it makes arrive at
 third-party sites **in your name**, and the site owner receiving them has no
 way to tell you did not send them.
 
-So `pmate serve` refuses to start on any bind other than loopback without a
+So `scanprivacy serve` refuses to start on any bind other than loopback without a
 key, and exits 3:
 
 ```bash
-export PMATE_API_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(32))')
-pmate serve --host 0.0.0.0 --port 8099
+export SCANPRIVACY_API_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(32))')
+scanprivacy serve --host 0.0.0.0 --port 8099
 
-curl -H "X-API-Key: $PMATE_API_KEY" localhost:8099/v1/rules     # or Authorization: Bearer
+curl -H "X-API-Key: $SCANPRIVACY_API_KEY" localhost:8099/v1/rules     # or Authorization: Bearer
 curl localhost:8099/healthz                                     # open: reports the posture, never the key
 ```
 
 `/healthz` is deliberately unauthenticated and carries the AGPL section 13
 source offer, because it is the one endpoint every network user can already
-reach. If you run a **modified** build as a service, point `PMATE_SOURCE_URL` at
+reach. If you run a **modified** build as a service, point `SCANPRIVACY_SOURCE_URL` at
 your own source: your users are owed yours, not ours.
 
-Three limits protect the host, all environment-tunable: `PMATE_MAX_CONCURRENT_SCANS`
-(default 3, each scan is a Chromium), `PMATE_MAX_SCANS_IN_FLIGHT` (50, beyond
+Three limits protect the host, all environment-tunable: `SCANPRIVACY_MAX_CONCURRENT_SCANS`
+(default 3, each scan is a Chromium), `SCANPRIVACY_MAX_SCANS_IN_FLIGHT` (50, beyond
 which submissions get `429` with `retry-after` rather than an id they can
-poll), and `PMATE_SCAN_RETENTION` (200 results kept in memory; older ones are
+poll), and `SCANPRIVACY_SCAN_RETENTION` (200 results kept in memory; older ones are
 read from disk, and an entry that failed to persist is never evicted).
 
 Targets are checked twice. Before the fetch, the hostname is resolved and every
@@ -90,7 +90,7 @@ This is the deterministic core extracted from three strands of work:
 **Rules are generic; facts live in data.** privacy-pa had one rule per tracker,
 so every new tracker meant a new rule. Here a rule says *"a third party with
 terminal access was contacted before consent"* and the facts about each vendor
-live in [`knowledge/vendors.yml`](src/pmate/knowledge/vendors.yml). Adding a
+live in [`knowledge/vendors.yml`](src/scanprivacy/knowledge/vendors.yml). Adding a
 vendor is a data change — never code, never a rule.
 
 **It reads the site's own documents.** The engine compares what a site
@@ -106,7 +106,7 @@ without observing the site twice.
 ## More than one page
 
 ```bash
-pmate scan https://example.org --pages 5
+scanprivacy scan https://example.org --pages 5
 ```
 
 One page is not a site. A tracker that only runs on the contact form, an embed
@@ -118,7 +118,7 @@ and with it two findings that had been invisible.
 Selection is **deterministic**: one page per kind (contact, form, services,
 about, article…), then a leaf page, then the main navigation, ordered by kind,
 depth and URL. The same site yields the same pages on every run, which is what
-keeps `pmate diff` honest — otherwise it would report churn that never happened.
+keeps `scanprivacy diff` honest — otherwise it would report churn that never happened.
 
 The engine follows links **from the entry page only**. A conformance check is
 not a crawl, and a crawl needs a conversation with the site owner that a scan
@@ -133,7 +133,7 @@ contact form" are different problems with different fixes.
 ## The refusal pass (opt-in, separate document)
 
 ```bash
-pmate consent-pass https://example.org --pdf refusal.pdf
+scanprivacy consent-pass https://example.org --pdf refusal.pdf
 ```
 
 Everything else in this engine observes a visitor who has not decided and never
@@ -149,7 +149,7 @@ any choice, "tracking is running" and "tracking is running because the refusal
 was ignored" look identical.
 
 **The engine never guesses.** It interacts only with consent platforms listed in
-[`knowledge/consent.yml`](src/pmate/knowledge/consent.yml), only through the
+[`knowledge/consent.yml`](src/scanprivacy/knowledge/consent.yml), only through the
 refusal path their own vendor documents, and only after the platform's own
 readiness check passes. One action — one documented call, or one click on the
 single control the vendor publishes. No searching for a button whose text
@@ -204,7 +204,7 @@ A report that cannot be re-derived is an opinion. Every scan carries:
 - **an evidence digest**: SHA-256 of the canonical JSON of the observation. It
   ties the report to the attached evidence. It is *not* stable across runs —
   sites change — which is exactly what makes it possible to prove that they did.
-  `pmate verify` recomputes all of them.
+  `scanprivacy verify` recomputes all of them.
 - **full evidence in the PDF**: every request with its time in milliseconds from
   the start of navigation, cookies with their attributes, storage, headers, the
   certificate with its fingerprint, and every document read with the SHA-256 of
@@ -222,7 +222,7 @@ it (dpo / cto / sysops / security / legal / procurement), a **priority** P1–P5
 first), a **quick win** marker, its technical **domain**, and a **control
 mapping** to GDPR, ePrivacy, the AI Act, NIS2, ISO/IEC 27001:2022, ISO/IEC
 27701, SOC 2 and AgID measures
-([frameworks.yml](src/pmate/knowledge/frameworks.yml)). The mappings orient the
+([frameworks.yml](src/scanprivacy/knowledge/frameworks.yml)). The mappings orient the
 work; they do not attest conformity to those schemes.
 
 ## Languages
@@ -269,7 +269,7 @@ A full example, with artefacts and a pull-request comment, is in
 
 ### SARIF, and why it is worth more than a report
 
-`pmate scan --sarif out.sarif` emits SARIF 2.1.0, so findings land in GitHub's
+`scanprivacy scan --sarif out.sarif` emits SARIF 2.1.0, so findings land in GitHub's
 Security tab — the queue developers already work from — instead of a PDF someone
 has to remember to open. Three properties do the actual work:
 
@@ -296,10 +296,10 @@ stop someone from editing the report *and* the digest together. An attestation
 closes that gap:
 
 ```bash
-pmate scan https://example.org --json evidence.json --pdf report.pdf \
+scanprivacy scan https://example.org --json evidence.json --pdf report.pdf \
   --attest attestation.intoto.json --sign cosign-keyless
 
-pmate verify-attestation attestation.intoto.json \
+scanprivacy verify-attestation attestation.intoto.json \
   --identity 'https://github.com/acme/site/.github/workflows/privacy.yml@refs/heads/main' \
   --oidc-issuer 'https://token.actions.githubusercontent.com'
 ```
@@ -327,7 +327,7 @@ first as if it were the second.
 ### The badge
 
 ```bash
-pmate badge scan.json --out .github/badges/privacy.svg
+scanprivacy badge scan.json --out .github/badges/privacy.svg
 ```
 
 Deliberately **not** a shields.io URL. A badge served by a third party makes
@@ -383,10 +383,10 @@ Every request carries a User-Agent naming the software, the purpose, and a
 contact address for **the instance that sent it**:
 
 ```
-privacymate/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: fabrizio.salmi@gmail.com)
+scanprivacy/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: fabrizio.salmi@gmail.com)
 ```
 
-Set `PMATE_CONTACT` to your own address before running this against anything
+Set `SCANPRIVACY_CONTACT` to your own address before running this against anything
 you do not own. The address is the only route by which the owner of an observed
 site can object, so it has to reach whoever is operating the engine — not
 whoever wrote it.
@@ -405,7 +405,7 @@ used.
 clean; `INCONCLUSIVE` if the site could not be loaded — and, in the refusal
 pass, if no refusal actually happened: a pass that found no consent mechanism,
 or could not use the one it found, has not observed what survives a refusal,
-and zero findings there means "never asked" rather than "clean". `pmate scan` exits `1`
+and zero findings there means "never asked" rather than "clean". `scanprivacy scan` exits `1`
 when the verdict is not conformant, so it works as a CI gate.
 
 ## Development
@@ -434,10 +434,10 @@ completeness of every locale.
 
 - Observes a site **once**. Several pages are visited (`--pages`), chosen
   deterministically, but a single visit is a photograph: two consecutive loads
-  can differ. `pmate diff` exposes that variance rather than hiding it;
+  can differ. `scanprivacy diff` exposes that variance rather than hiding it;
   stabilising over N repeats is on the roadmap.
 - The default pass expresses **no** consent, so what a site does after
-  *acceptance* is never verified. `pmate consent-pass` covers refusal only, is
+  *acceptance* is never verified. `scanprivacy consent-pass` covers refusal only, is
   opt-in, produces its own document, and works solely through the nine
   platforms in `knowledge/consent.yml`. Eight of those nine are implemented
   from the vendor's documentation and have not been confirmed against a live
@@ -454,7 +454,7 @@ completeness of every locale.
   different person, and reporting its findings under `www.example.org` sends
   the reader to the wrong repository. The apex and its `www.` count as one. Any
   sibling host the entry page links to is listed in the page plan, with the
-  reason, so the omission is visible; scan it separately, or use `pmate batch`.
+  reason, so the omission is visible; scan it separately, or use `scanprivacy batch`.
 - A finding may be **unfixable on the platform**, and the report now says so
   where it knows. GitHub Pages serves a fixed set of response headers and
   permits none, so `PM-SEC-01` (HSTS) is true there and cannot be closed in
@@ -474,7 +474,7 @@ completeness of every locale.
 **GNU AGPL-3.0-only** — full text in [LICENSE](LICENSE).
 
 Chosen for section 13, not out of habit. The natural way to deploy this engine
-is as a network service: someone runs `pmate serve` behind a domain and never
+is as a network service: someone runs `scanprivacy serve` behind a domain and never
 distributes a binary to anyone, which is precisely the case a permissive
 licence leaves uncovered. Under the AGPL, offering the engine to others over a
 network carries the same obligation as shipping it.
