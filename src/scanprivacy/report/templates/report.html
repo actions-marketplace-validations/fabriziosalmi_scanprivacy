@@ -13,6 +13,7 @@
 
 {# ------------------------------------------------------------ cover page #}
 <section class="copertina">
+  <p class="occhiello">{{ t.t('report.kicker') }}</p>
   <h1>{{ t.t('consent_pass.title' if scan.mode == 'refusal_pass' else 'report.title', domain=scan.domain) }}</h1>
   <p class="sottotitolo">
     {% if scan.mode == 'refusal_pass' %}

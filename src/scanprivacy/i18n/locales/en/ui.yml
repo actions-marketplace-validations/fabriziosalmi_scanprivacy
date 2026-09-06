@@ -111,6 +111,7 @@ enum:
     visitor_id: visitor identifier
 
 report:
+  kicker: scanprivacy — technical report
   title: Privacy assessment — {domain}
   document_title: "Privacy assessment — {domain}"
   description: >
