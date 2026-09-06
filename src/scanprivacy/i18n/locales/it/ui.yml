@@ -478,6 +478,17 @@ evidence:
   platform_constraint: Vincolo della piattaforma
 
 record:
+  vantage:
+    label: Punto di osservazione
+    not_configured: >
+      non registrato. Impostare SCANPRIVACY_VANTAGE per dichiarare da dove è
+      stata eseguita la scansione, oppure SCANPRIVACY_VANTAGE_LOOKUP per farlo
+      determinare. Nessuno dei due è attivo per impostazione predefinita: un
+      motore che chiede a un terzo dove si trova, a ogni scansione, farebbe
+      esattamente ciò che questo rapporto serve a rilevare.
+    lookup_failed: "la determinazione configurata non è andata a buon fine"
+    declared: "dichiarato dall'operatore"
+    looked_up: "determinato tramite {endpoint}"
   findings_digest_note: >
     Copre i rilievi così come pubblicati. Il digest dell'evidenza qui sopra
     copre l'osservazione da cui derivano; questo rileva un documento i cui
@@ -776,6 +787,18 @@ cookie_policy:
   how_to_withdraw: Istruzioni per disabilitarli e revocare il consenso
 
 diff:
+  vantage_changed: >
+    Le due scansioni sono state effettuate da luoghi diversi ({before} -> {after}).
+    Un sito non risponde allo stesso modo a ogni osservatore: i banner di consenso
+    sono geolocalizzati, le CDN rispondono da edge diversi e alcuni host non
+    servono nulla fuori dal proprio mercato. Parte di quanto segue può essere
+    l'osservatore che è cambiato, non il sito. Rieseguire la scansione dallo
+    stesso punto di osservazione prima di leggerla come remediation o come
+    regressione.
+  vantage_unknown: >
+    Almeno una delle due scansioni non registra da dove è stata effettuata, quindi
+    non si può dimostrare che abbiano osservato il sito dallo stesso luogo. Se il
+    confronto conta, impostare SCANPRIVACY_VANTAGE nelle prossime esecuzioni.
   configuration_changed: >
     Le due scansioni sono state prodotte da configurazioni diverse del motore
     ({changed} differiscono). Parte di quanto segue descrive la modifica al

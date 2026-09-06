@@ -473,6 +473,16 @@ evidence:
   platform_constraint: Platform constraint
 
 record:
+  vantage:
+    label: Observation point
+    not_configured: >
+      not recorded. Set SCANPRIVACY_VANTAGE to state where the scan was run
+      from, or SCANPRIVACY_VANTAGE_LOOKUP to have it looked up. Neither is on by
+      default: an engine that asks a third party where it is, on every scan,
+      would be doing the thing this report is written to detect.
+    lookup_failed: "the configured lookup did not complete"
+    declared: "declared by the operator"
+    looked_up: "looked up at {endpoint}"
   findings_digest_note: >
     Covers the findings as published. The evidence digest above covers the
     observation they were derived from; this one detects a document whose
@@ -767,6 +777,17 @@ cookie_policy:
   how_to_withdraw: Instructions to disable them and withdraw consent
 
 diff:
+  vantage_changed: >
+    These two scans were made from different places ({before} -> {after}). A site
+    does not answer every observer the same way: consent banners are geo-gated,
+    CDNs reply from different edges, and some hosts serve nothing outside their
+    market. Part of what appears below may be the observer changing rather than
+    the site. Re-scan from the earlier vantage point before reading it as
+    remediation or as a regression.
+  vantage_unknown: >
+    At least one of these scans does not record where it was made from, so the
+    two cannot be shown to have observed the site from the same place. Set
+    SCANPRIVACY_VANTAGE on future runs if this comparison matters.
   configuration_changed: >
     These two scans were produced by different engine configurations ({changed}
     differ). Part of what appears below describes the change in the engine, not

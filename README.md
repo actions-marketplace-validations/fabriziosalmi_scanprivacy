@@ -386,6 +386,26 @@ contact address for **the instance that sent it**:
 scanprivacy/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: fabrizio.salmi@gmail.com)
 ```
 
+### Where the scan was run from
+
+A site does not answer every observer the same way: consent banners are
+geo-gated, CDNs reply from different edges, some hosts serve nothing outside
+their market. Two honest scans can disagree for a reason that is not about the
+site, so the evidence record carries an observation point:
+
+```bash
+SCANPRIVACY_VANTAGE="IT / Genova / AS3269 Telecom Italia"   # declared, no network call
+SCANPRIVACY_VANTAGE_LOOKUP=https://ipinfo.io/json           # looked up, opt-in
+```
+
+Neither is set by default, and the record then says the vantage point is
+undetermined rather than leaving the field out. The lookup is opt-in on purpose:
+an engine that asks a third party where it is, on every scan, sends the
+operator's address to a company nobody chose in order to produce a privacy
+report — which is the shape of the thing it exists to report. `scanprivacy diff`
+warns when two scans were made from different places, for the same reason it
+warns when they were made by different engine versions.
+
 Set `SCANPRIVACY_CONTACT` to your own address before running this against anything
 you do not own. The address is the only route by which the owner of an observed
 site can object, so it has to reach whoever is operating the engine — not

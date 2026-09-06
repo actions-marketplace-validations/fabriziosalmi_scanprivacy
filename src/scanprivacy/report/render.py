@@ -159,15 +159,39 @@ def posture_rows(
     return rows
 
 
+def vantage_line(record: dict[str, Any] | None, t: Translator) -> str:
+    """Where the scan was run from, as one readable sentence.
+
+    Printed even when undetermined, and especially then: a method section that
+    silently omits the observation point lets a reader assume it does not
+    matter, and it is the difference between two scans of one site disagreeing
+    about the site and disagreeing about the observer."""
+    vantage = (record or {}).get("vantage") or {}
+    source = vantage.get("source")
+    if source == "declared":
+        return f"{vantage.get('declared')} — {t.t('record.vantage.declared')}"
+    if source == "looked_up":
+        place = " / ".join(
+            str(vantage[k]) for k in ("country", "region", "city", "org") if vantage.get(k)
+        )
+        via = t.t("record.vantage.looked_up", endpoint=vantage.get("endpoint", ""))
+        return f"{place} — {via}" if place else via
+    reason = t.t(vantage.get("reason_key") or "record.vantage.not_configured")
+    detail = vantage.get("detail")
+    return f"{reason} ({detail})" if detail else reason
+
+
 def scan_posture_rows(record: dict[str, Any] | None, t: Translator) -> list[tuple[str, str]]:
     posture = (record or {}).get("posture") or {}
-    return posture_rows(
+    rows = posture_rows(
         posture.get("keys", []),
         t,
         max_pages=posture.get("max_pages"),
         per_host_rps=posture.get("per_host_rps"),
         user_agent=posture.get("user_agent"),
     )
+    rows.append((t.t("record.vantage.label"), vantage_line(record, t)))
+    return rows
 
 
 def render_evidence(evidence: dict[str, Any], t: Translator) -> list[tuple[str, Any]]:

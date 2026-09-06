@@ -33,6 +33,30 @@ LICENCE = "AGPL-3.0-only"
 SOURCE_URL_DEFAULT = "https://github.com/fabriziosalmi/scanprivacy"
 SOURCE_URL = os.environ.get("SCANPRIVACY_SOURCE_URL", "").strip() or SOURCE_URL_DEFAULT
 
+# Where the measurement was made from.
+#
+# A site does not behave the same towards every observer. Consent banners are
+# geo-gated, CDNs answer from different edges, and some hosts serve nothing at
+# all outside their market. Two honest scans of one site can therefore disagree
+# for a reason that has nothing to do with the site, and the evidence record had
+# no field in which to say so — which makes the disagreement look like a change
+# on the site, or worse, like an error in one of the two reports.
+#
+# Determined the way this engine determines everything else: by declaration or
+# by observation, never by assumption.
+#
+#   SCANPRIVACY_VANTAGE="IT / Milano / AS29447 Iliad"   declared by the operator
+#   SCANPRIVACY_VANTAGE_LOOKUP=https://ipinfo.io/json   looked up, opt-in
+#
+# Neither is set by default, and the record then says the vantage point is
+# undetermined rather than omitting the field. An engine that asks a third party
+# where it is, on every scan, would be sending the operator's address to a
+# company nobody chose in order to write a privacy report — the exact shape of
+# the thing it exists to report. So the lookup is opt-in, the endpoint is the
+# operator's to name, and the record always states which of the three happened.
+VANTAGE_DECLARED = os.environ.get("SCANPRIVACY_VANTAGE", "").strip()
+VANTAGE_LOOKUP_URL = os.environ.get("SCANPRIVACY_VANTAGE_LOOKUP", "").strip()
+
 # This address travels in the User-Agent of every request the engine makes, to
 # every site it observes. Two requirements pull against each other.
 #

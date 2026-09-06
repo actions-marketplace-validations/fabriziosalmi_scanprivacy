@@ -31,6 +31,7 @@ from typing import Any
 
 from .. import __version__
 from ..config import DEFAULTS, KNOWLEDGE_DIR, RULES_DIR, Settings
+from ..observe.vantage import observation_point
 from ..i18n.translator import LOCALES_DIR
 
 
@@ -110,6 +111,11 @@ def build_record(
     catalogues = catalogue_fingerprint()
     return {
         "engine": engine_identity(browser_version),
+        # Where the measurement was made from. A site answers differently to
+        # different observers, so two honest scans can disagree for a reason
+        # that is not about the site — and a record with no field for it makes
+        # that disagreement look like a change, or like an error.
+        "vantage": observation_point(),
         "digests": {
             "ruleset": ruleset["digest"],
             "knowledge": knowledge["digest"],

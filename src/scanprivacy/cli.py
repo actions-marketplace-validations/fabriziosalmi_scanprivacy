@@ -271,6 +271,18 @@ def _cmd_diff(args: argparse.Namespace) -> int:
         print()
         print(t.t(configuration["note_key"], changed=", ".join(configuration.get("changed") or [])))
         print()
+    # The other half of what a measurement depends on: the engine, and the place
+    # it was run from.
+    vantage = result.get("vantage") or {}
+    if vantage.get("status") == "changed":
+        print(
+            t.t(
+                "diff.vantage_changed",
+                before=" / ".join(str(x) for x in (vantage.get("before") or []) if x),
+                after=" / ".join(str(x) for x in (vantage.get("after") or []) if x),
+            )
+        )
+        print()
     print(t.t("cli.diff_resolved", n=sum(result["counts"]["resolved"].values())))
     print(t.t("cli.diff_new", n=sum(result["counts"]["new"].values())))
     print(t.t("cli.diff_persisting", n=sum(result["counts"]["persisting"].values())))

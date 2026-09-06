@@ -73,6 +73,43 @@ def _comparability(before: dict[str, Any], after: dict[str, Any]) -> dict[str, A
     }
 
 
+def _vantage(scan: dict[str, Any]) -> dict[str, Any]:
+    return ((scan.get("record") or {}).get("vantage")) or {}
+
+
+def _vantage_comparability(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
+    """Were these two scans made from the same place?
+
+    The same reasoning as the engine digests above, applied to the other half of
+    what a measurement depends on. A consent banner shown only in the EU, a CDN
+    answering from a different edge, a host that serves nothing outside its
+    market: the site did not change, the observer did. Read as remediation, that
+    is a fix nobody made; read as a regression, a fault nobody introduced.
+
+    Compared on what identifies a place — the declared string, or the country
+    and network from a lookup — and not on the whole fragment, because an IP
+    address or a timestamp differing between two scans from the same city is not
+    a difference worth warning about.
+    """
+    old, new = _vantage(before), _vantage(after)
+    if not old or not new or "undetermined" in (old.get("source"), new.get("source")):
+        return {"status": "unknown", "note_key": "diff.vantage_unknown"}
+
+    def place(v: dict[str, Any]) -> tuple:
+        if v.get("source") == "declared":
+            return ("declared", v.get("declared"))
+        return ("looked_up", v.get("country"), v.get("org") or v.get("asn"))
+
+    if place(old) != place(new):
+        return {
+            "status": "changed",
+            "before": place(old)[1:],
+            "after": place(new)[1:],
+            "note_key": "diff.vantage_changed",
+        }
+    return {"status": "same", "note_key": None}
+
+
 def diff(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
     """`before` and `after` are two `ScanResult.to_dict()` payloads."""
     old, new = _index(before.get("findings", [])), _index(after.get("findings", []))
@@ -111,5 +148,6 @@ def diff(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
         "new": sorted(appeared, key=lambda f: f["id"]),
         "persisting": sorted(persisting, key=lambda f: (-(f.get("age_days") or 0), f["id"])),
         "configuration": _comparability(before, after),
+        "vantage": _vantage_comparability(before, after),
         "note_key": "diff.note",
     }
