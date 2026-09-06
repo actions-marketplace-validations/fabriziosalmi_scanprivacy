@@ -31,9 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
-      # NOT YET PUBLISHED. `fabriziosalmi/scanprivacy` does not exist on GitHub
-      # — this project lives on a private GitLab instance — so copying this file
-      # as-is fails at this step with "repository not found".
+      # NOT YET PUBLISHED. `fabriziosalmi/scanprivacy` is a private repository
+      # with no `v1` tag, so copying this file as-is fails at this step with
+      # "repository not found".
       #
       # Every other `uses:` here is pinned to a commit, deliberately, because a
       # version tag can be moved by whoever controls the repository. This one

@@ -111,3 +111,22 @@ against the subject:
 
 An unknown placeholder stays visible in the output: a writing mistake in a rule
 should be obvious, not silent.
+
+## The `PM-` prefix, and when it becomes `SP-`
+
+The project was renamed from privacymate to scanprivacy; the rule ids were not.
+They are identifiers rather than branding. Each appears in every finding id
+derived from it, in every SARIF `ruleId`, in kept baselines, and in any
+code-scanning alert already raised — so renaming them makes every existing
+finding a *different* finding, and a comparison across the change reports the
+whole estate resolved and an identical estate discovered.
+
+Agreed 2026-09-06: **`SP-` at the next minor bump.** A version boundary is where
+a reader expects identifiers to move, and it is the one place the cost is worth
+paying.
+
+`tests/test_rule_ids.py` fails the moment `__version__` reaches 0.2.0 with `PM-`
+ids still in this directory, and its message carries the checklist: the files
+here, the keys in `i18n/locales/*/rules.yml`, the mappings in
+`knowledge/frameworks.yml`, and every rule id written into a test. Take a fresh
+baseline afterwards, and do not diff across the boundary.

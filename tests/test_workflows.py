@@ -38,7 +38,7 @@ SHA = re.compile(r"^[^@]+@[0-9a-f]{40}(\s|#|$)")
 # References that cannot be pinned, each with the reason. Anything not on this
 # list must be a commit.
 UNPINNABLE = {
-    "fabriziosalmi/scanprivacy@v1": "not published: this project lives on a private GitLab instance",
+    "fabriziosalmi/scanprivacy@v1": "not published: the repository is private and there is no v1 tag",
 }
 
 
