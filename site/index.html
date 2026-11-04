@@ -1,84 +1,123 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>scanprivacy: passive privacy conformance engine</title>
-<meta name="description" content="URL in, findings graph and remediation out. A deterministic, passive engine for GDPR, ePrivacy and AI Act observation. Open source, AGPL-3.0.">
-<link rel="canonical" href="https://scanprivacy.org/">
-<meta property="og:title" content="scanprivacy">
-<meta property="og:description" content="URL in, findings graph and remediation out. Passive, reproducible, verifiable.">
-<meta property="og:url" content="https://scanprivacy.org/">
-<style>
-:root{--bg:#fbfbf9;--fg:#16181d;--mut:#5b6270;--line:#e3e4e0;--card:#fff;--acc:#0b5fff;--code:#f2f3ef}
-@media (prefers-color-scheme:dark){:root{--bg:#101215;--fg:#e9ebee;--mut:#9aa1ad;--line:#262a31;--card:#171a1f;--acc:#6ea0ff;--code:#1c2026}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.w{max-width:820px;margin:0 auto;padding:0 16px}
-header{border-bottom:1px solid var(--line)}
-nav{display:flex;gap:20px;align-items:center;padding:16px 0;flex-wrap:wrap}
-nav b{margin-right:auto;font-size:18px}
-a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
-h1{font-size:clamp(30px,6vw,46px);line-height:1.15;margin:56px 0 16px;letter-spacing:-.02em}
-h2{font-size:24px;margin:56px 0 12px}
-p.lead{font-size:20px;color:var(--mut);margin:0 0 28px}
-pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}
-code{font:.9em ui-monospace,SFMono-Regular,Menlo,monospace}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
-.card h3{margin:0 0 6px;font-size:17px}.card p{margin:0;color:var(--mut);font-size:15.5px}
-.btn{display:inline-block;background:var(--acc);color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;margin-right:8px}
-.btn.o{background:transparent;color:var(--acc);border:1px solid var(--acc)}
-.note{border-left:3px solid var(--acc);padding:4px 14px;color:var(--mut)}
-footer{border-top:1px solid var(--line);margin-top:64px;padding:24px 0 40px;color:var(--mut);font-size:15px}
-</style>
-</head>
-<body>
-<header><div class="w"><nav>
-<b>scanprivacy</b>
-<a href="/docs/">Docs</a>
-<a href="/docs/rules.html">Rules</a>
-<a href="https://github.com/fabriziosalmi/scanprivacy">GitHub</a>
-</nav></div></header>
-
-<main class="w">
-<h1>URL in. Findings, evidence and fixes out.</h1>
-<p class="lead">A deterministic engine that observes a website the way a visitor who has not yet decided sees it, and reports what it saw against GDPR, ePrivacy and the AI Act. Passive, reproducible, verifiable.</p>
-<p><a class="btn" href="#start">Get started</a><a class="btn o" href="https://github.com/fabriziosalmi/scanprivacy">Source on GitHub</a></p>
-
-<h2>What makes it different</h2>
-<div class="grid">
-<div class="card"><h3>Only what was observed</h3><p>A finding comes from something the engine saw. A failed read never becomes an absence, and nothing is reported as passed that was not checked.</p></div>
-<div class="card"><h3>Reproducible evidence</h3><p>The JSON result carries digests of the observation and the configuration. <code>scanprivacy verify</code> recomputes them.</p></div>
-<div class="card"><h3>Legitimate requests only</h3><p>It reads from the entry page, honours robots.txt, never requests state-changing URLs, limits itself to one page load per second per host, and names its operator in the User-Agent.</p></div>
-<div class="card"><h3>Reports people can use</h3><p>PDF and Markdown in English and Italian, with remediation per finding, an Art. 30 style recipient inventory, SARIF for code scanning and signed attestations.</p></div>
+<div class="frame">
+  <section class="hero{{HERO_CLASS}}" aria-labelledby="top">
+    <div>
+      <p class="eyebrow">Open source privacy conformance engine</p>
+      <h1 id="top">What a website does before the visitor says yes.</h1>
+      <p class="lede">scanprivacy loads a page the way a first-time visitor would and records every request, cookie and storage write. It reports what it saw against GDPR, ePrivacy and the AI Act, and every finding carries the evidence behind it. It never clicks, logs in or accepts anything.</p>
+      <div class="install">
+<pre data-copy><code>git clone https://github.com/fabriziosalmi/scanprivacy
+cd scanprivacy
+pip install -e .
+python -m playwright install chromium
+scanprivacy scan https://example.org --pdf report.pdf --json evidence.json</code></pre>
+      </div>
+      <p class="actions">
+        <a class="button" href="/docs/quickstart.html">Read the quickstart</a>
+        {{EXAMPLE_LINK}}
+        <a href="https://github.com/fabriziosalmi/scanprivacy">Source on GitHub</a>
+      </p>
+    </div>
+    {{SPECIMEN}}
+  </section>
 </div>
 
-<h2 id="start">Use it</h2>
-<pre>pip install -e .
-python -m playwright install chromium
-scanprivacy scan https://example.org --pages 5 --pdf report.pdf --json evidence.json
-scanprivacy verify evidence.json</pre>
+<section class="section" aria-labelledby="observes">
+  <div class="frame section-grid">
+    <h2 id="observes">How it observes</h2>
+    <dl class="facts">
+      <div>
+        <dt>One visit, no choice</dt>
+        <dd>The page is loaded once, as a visitor who has neither accepted nor refused anything. What loads before that choice is what gets reported. The opt-in refusal pass is the only mode that touches a consent banner, and it writes a separate document.</dd>
+      </div>
+      <div>
+        <dt>Evidence first</dt>
+        <dd>Each finding lists the requests, cookies or headers that produced it, with steps to check it yourself using a browser and curl. A read that failed is a stated limit in the report, never an absence.</dd>
+      </div>
+      <div>
+        <dt>Polite by construction</dt>
+        <dd>It honours robots.txt, makes at most one page load per second to a host, never requests URLs that change state, and names its operator and a contact address in the User-Agent.</dd>
+      </div>
+      <div>
+        <dt>Reproducible</dt>
+        <dd>The JSON result carries digests of the observation and of the rules applied. <code>scanprivacy verify</code> recomputes them, and two results can be compared finding by finding with <code>scanprivacy diff</code>.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
 
-<h2>In CI</h2>
-<pre>- uses: fabriziosalmi/scanprivacy@v1
+<section class="section" aria-labelledby="outputs">
+  <div class="frame section-grid">
+    <h2 id="outputs">What you get</h2>
+    <div>
+      <div class="table-wrap" role="region" aria-label="Outputs, scrollable" tabindex="0">
+        <table>
+          <thead><tr><th scope="col">Output</th><th scope="col">Command</th><th scope="col">Use</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Report, PDF and Markdown</th><td><code>scan --pdf --md</code></td><td>English and Italian, with remediation steps for each finding.</td></tr>
+            <tr><th scope="row">Evidence, JSON</th><td><code>scan --json</code>, <code>verify</code>, <code>diff</code></td><td>The observation and the digests that make it checkable.</td></tr>
+            <tr><th scope="row">SARIF</th><td><code>sarif</code>, the GitHub Action</td><td>Findings in code scanning.</td></tr>
+            <tr><th scope="row">Badge, SVG</th><td><code>badge</code></td><td>The current grade for a README.</td></tr>
+            <tr><th scope="row">Signed attestation</th><td><code>attest</code>, <code>verify-attestation</code></td><td>Show that a report is the one that was published (cosign).</td></tr>
+            <tr><th scope="row">HTTP API</th><td><code>serve</code></td><td>Scans as a service, behind an API key.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="evidence">
+  <div class="frame section-grid">
+    <h2 id="evidence">Evidence you can check</h2>
+    <div>
+      <p>A report is a claim about a site at one moment. The JSON result next to it holds what was observed, and the digests in it let anyone confirm that the report describes that evidence and that the same rules were applied.</p>
+      <pre data-copy><code>$ scanprivacy verify evidence.json
+evidence intact    : yes
+findings intact    : yes
+  declared         : 923abf4d7fb19067…
+  recomputed       : 923abf4d7fb19067…
+ruleset unchanged  : yes
+knowledge unchanged: yes</code></pre>
+      <p>The example report on this site is made by the engine each time the site is built, and its evidence file is published next to it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="limits">
+  <div class="frame section-grid">
+    <h2 id="limits">Limits, stated</h2>
+    <div>
+      <ul class="plain-list">
+        <li>It observes once, from one place. A single visit is a photograph: two loads of the same page can differ, and <code>diff</code> shows that variance instead of hiding it.</li>
+        <li>The default pass expresses no consent, so what a site does after acceptance is not verified. The refusal pass covers refusal only, for the consent platforms it knows.</li>
+        <li>A scan covers one deployment. Sibling hosts the entry page links to are listed in the page plan and not followed.</li>
+        <li>Text-based checks, such as the Art. 13 elements of a privacy notice, can miss an unusual wording, which is why those findings carry lower confidence.</li>
+        <li>It is not legal advice and not a certification.</li>
+      </ul>
+      <p><a href="https://github.com/fabriziosalmi/scanprivacy/blob/main/README.md#known-limits-v01">Read the full list of known limits</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="run">
+  <div class="frame section-grid">
+    <h2 id="run">Run it</h2>
+    <div class="stack">
+      <div>
+        <h3>In continuous integration</h3>
+<pre data-copy><code>- uses: fabriziosalmi/scanprivacy@v1
   with:
     url: https://www.example.org
-    fail-on: critical</pre>
-
-<h2>Run it as a service</h2>
-<pre>docker build -t scanprivacy .
-docker run --rm -e SCANPRIVACY_API_KEY=... -p 127.0.0.1:8099:8099 scanprivacy</pre>
-<p>It refuses to listen beyond loopback without an API key, because every request it makes reaches third parties in your name.</p>
-
-<!--EXAMPLE-->
-
-<h2>Scope and honesty</h2>
-<p class="note">This is an observation tool, not legal advice or a certification. It sees one vantage point, one moment, and a visitor who has made no choice. The README lists its known limits.</p>
-
-<p>An online scanner is planned after a dedicated hardening phase. Until then, run it yourself: it is open source.</p>
-</main>
-
-<footer><div class="w">scanprivacy is free software under the <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>. By <a href="https://github.com/fabriziosalmi">Fabrizio Salmi</a>.</div></footer>
-</body>
-</html>
+    fail-on: critical</code></pre>
+      </div>
+      <div>
+        <h3>As a service</h3>
+<pre data-copy><code>docker build -t scanprivacy .
+docker run --rm \
+  -e SCANPRIVACY_API_KEY="$(python -c 'import secrets;print(secrets.token_urlsafe(32))')" \
+  -p 127.0.0.1:8099:8099 -v scanprivacy-data:/data scanprivacy</code></pre>
+        <p>It refuses to listen beyond loopback without an API key, because every request it makes reaches third parties in your name. Read <a href="/docs/deploy.html">Deployment</a> before exposing it.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -52,6 +52,7 @@ scanprivacy = [
   "knowledge/*.yml",
   "i18n/locales/*/*.yml",
   "report/templates/*",
+  "report/templates/fonts/*",
 ]
 
 [tool.ruff]
