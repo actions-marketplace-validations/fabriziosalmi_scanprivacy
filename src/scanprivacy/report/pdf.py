@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -211,10 +212,41 @@ def render_html(result: ScanResult, locale: str = DEFAULT_LOCALE) -> str:
     return _env.get_template("report.html").render(**build_context(result, locale))
 
 
+def check_resource(url: str) -> None:
+    """Raise `ValueError` unless a report may load `url`: only `data:` URLs and
+    files under the report templates.
+
+    The report is rendered from text that came from a scanned site, and
+    WeasyPrint fetches whatever a document points at (it has had SSRF advisories
+    for exactly that). A report needs nothing from the network, so nothing else
+    is allowed.
+    """
+    parts = urlsplit(url)
+    allowed = parts.scheme == "data" or (
+        parts.scheme == "file" and Path(unquote(parts.path)).resolve().is_relative_to(TEMPLATES.resolve())
+    )
+    if not allowed:
+        raise ValueError(f"refusing to fetch {url!r}: a report loads no remote resources")
+
+
+def local_only_fetcher():
+    """A WeasyPrint URL fetcher that applies `check_resource` to every request."""
+    from weasyprint.urls import URLFetcher  # lazy: pulls in cairo/pango
+
+    class LocalOnlyFetcher(URLFetcher):
+        def fetch(self, url, headers=None):
+            check_resource(url)
+            return super().fetch(url, headers)
+
+    return LocalOnlyFetcher(allowed_protocols=("data", "file"))
+
+
 def render_pdf(result: ScanResult, out: Path, locale: str = DEFAULT_LOCALE) -> Path:
     from weasyprint import HTML  # lazy: pulls in cairo/pango
 
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    HTML(string=render_html(result, locale), base_url=str(TEMPLATES)).write_pdf(str(out))
+    HTML(
+        string=render_html(result, locale), base_url=str(TEMPLATES), url_fetcher=local_only_fetcher()
+    ).write_pdf(str(out))
     return out

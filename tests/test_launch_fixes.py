@@ -535,3 +535,40 @@ def test_the_image_and_the_action_install_from_the_runtime_lock():
     assert "requirements.runtime.lock" in (root / "Dockerfile").read_text(encoding="utf-8")
     action = (root / "action.yml").read_text(encoding="utf-8")
     assert "--require-hashes" in action and "requirements.runtime.lock" in action
+
+
+# ------------------------------------------------------------ report rendering
+
+
+def test_a_report_loads_no_remote_resource():
+    from scanprivacy.report.pdf import check_resource
+
+    for url in ("http://127.0.0.1:9/x.png", "https://example.org/a.css", "ftp://example.org/x", "file:///etc/passwd"):
+        with pytest.raises(ValueError, match="no remote resources"):
+            check_resource(url)
+
+
+def test_the_report_stylesheet_and_inline_data_are_still_allowed():
+    from scanprivacy.report.pdf import TEMPLATES, check_resource
+
+    check_resource((TEMPLATES / "base.css").as_uri())
+    check_resource("data:image/png;base64,AAAA")
+
+
+def test_the_fetcher_refuses_a_remote_url_before_any_connection(tmp_path):
+    from scanprivacy.report.pdf import local_only_fetcher
+
+    try:
+        fetcher = local_only_fetcher()
+    except OSError:
+        pytest.skip("WeasyPrint's system libraries are not installed here")
+    with pytest.raises(ValueError):
+        fetcher.fetch("http://127.0.0.1:9/never")
+
+
+def test_the_declared_weasyprint_floor_excludes_the_advisory_range():
+    import re
+
+    text = (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8")
+    match = re.search(r'"weasyprint>=(\d+)', text)
+    assert match and int(match.group(1)) >= 70, "versions below 70 have a published SSRF advisory"

@@ -12,3 +12,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # The suite and the image are validated on Python 3.12 (and 3.11 for the
+      # floor). A newer interpreter is a deliberate change, tested before it is
+      # merged, not a weekly bump: Playwright and WeasyPrint ship wheels per
+      # version.
+      - dependency-name: python
+        versions: [">=3.13"]
