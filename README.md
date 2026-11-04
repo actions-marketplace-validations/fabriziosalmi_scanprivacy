@@ -349,7 +349,7 @@ SVG is generated locally, committed, and loads nothing.
 core/        enums.py (canonical vocabularies) · models.py (language-neutral) · graph.py
 i18n/        translator.py · locales/{en,it}/
 knowledge/   registry.py · vendors.yml · platforms.yml · frameworks.yml
-rules/       21 logic-only rules (see rules/README.md)
+rules/       31 logic-only rules: 27 passive, 4 in the refusal pass (see rules/README.md)
 observe/     browser.py · discover.py (which link is really the notice) · docs.py · tls.py · robots.py
 analyze/     context.py (facts) → subjects.py · predicates.py · engine.py → graph.py · verdict.py · diff.py
 report/      render.py (facts → sentences, once) · markdown.py · pdf.py · record.py · templates/
@@ -442,7 +442,7 @@ python3.12 -m venv .venv && ./.venv/bin/pip install -e '.[dev]'
 ./.venv/bin/python -m pytest tests -q
 ```
 
-`requirements.lock` pins the exact resolution — 49 packages with sha256 hashes,
+`requirements.lock` (with the development tools) and `requirements.runtime.lock` (what the image and the Action install) pin the exact resolution, every package with its sha256 hashes,
 generated with `uv pip compile --generate-hashes`. Use it when the versions
 matter, which for this engine is more often than usual: the reports carry
 configuration digests and signed attestations asserting that two scans are the

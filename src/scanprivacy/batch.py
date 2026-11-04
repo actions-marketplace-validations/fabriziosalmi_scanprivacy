@@ -15,6 +15,7 @@ Three properties separate a fleet run from a loop over `scan()`:
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -50,7 +51,10 @@ def read_targets(source: Path | Iterable[str]) -> list[str]:
 def _slug(url: str) -> str:
     parts = urlsplit(url)
     path = (parts.path or "/").strip("/").replace("/", "-")
-    return f"{parts.netloc}{'-' + path if path else ''}".replace(":", "_")
+    readable = f"{parts.netloc}{'-' + path if path else ''}".replace(":", "_")
+    # The readable part drops the query and maps "/" to "-", so two different
+    # targets could name the same file and overwrite each other's result.
+    return f"{readable}-{hashlib.sha256(url.encode('utf-8')).hexdigest()[:8]}"
 
 
 def _is_finished_scan_of(payload: Any, url: str) -> bool:

@@ -29,9 +29,9 @@ RUN apt-get update -qq \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY pyproject.toml README.md LICENSE requirements.lock ./
+COPY pyproject.toml README.md LICENSE requirements.runtime.lock ./
 COPY src ./src
-RUN pip install --require-hashes --no-deps -r requirements.lock \
+RUN pip install --require-hashes --no-deps -r requirements.runtime.lock \
  && pip install --no-deps . \
  && python -m playwright install --with-deps chromium \
  && rm -rf /var/lib/apt/lists/*
@@ -49,5 +49,11 @@ ENV SCANPRIVACY_DATA_DIR=/data
 VOLUME /data
 
 EXPOSE 8099
+
+# `/healthz` answers 503 when results cannot be stored. A container that runs a
+# one-off CLI command is not a server, so the check only means something for the
+# default command.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8099/healthz', timeout=3)"
 ENTRYPOINT ["scanprivacy"]
 CMD ["serve", "--host", "0.0.0.0", "--port", "8099"]

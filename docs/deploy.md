@@ -1,7 +1,8 @@
 # Deployment
 
 ```bash
-docker build -t scanprivacy .
+docker build -t scanprivacy \
+  --build-arg REVISION="$(git rev-parse HEAD)" --build-arg VERSION=0.1.0 .
 docker run --rm -e SCANPRIVACY_API_KEY="$(python -c 'import secrets;print(secrets.token_urlsafe(32))')" \
   -e SCANPRIVACY_CONTACT=you@example.org -p 127.0.0.1:8099:8099 \
   -v scanprivacy-data:/data scanprivacy
@@ -24,6 +25,18 @@ Every finished scan is written to `/data/scans/<id>.json` (the image sets `SCANP
 The engine makes requests to third-party sites with a User-Agent naming you and your contact address (`SCANPRIVACY_CONTACT`). An instance open to strangers sends those requests in your name. Put authentication in front, keep the container off your internal network, and read "Running the API anywhere but loopback" and "Scope: legitimate requests only" in the README.
 
 If you run a modified build as a service, set `SCANPRIVACY_SOURCE_URL` to your own source (AGPL section 13).
+
+## Backup
+
+The only durable state is the data directory (`/data` in the image): `scans/<id>.json`, one file per finished scan, each written atomically. Back it up by copying the directory or snapshotting the volume; there is no other state to restore. A restored file is verified against its own digests when it is read. Results are never deleted by the service: prune old files yourself (for example `find /data/scans -name '*.json' -mtime +90 -delete`) according to your retention policy, since a scan names a site and what is wrong with it.
+
+## Rotating the API key
+
+The key is one static value read at start-up. To rotate it, set the new value and restart; clients must switch at the same moment. There is no overlap window, so schedule it.
+
+## Container notes
+
+The image runs Chromium as the unprivileged user 10001 and a default `docker run` starts the browser without extra flags (checked on the published image: a scan of a public site completes). It has a `HEALTHCHECK` on `/healthz`. If you run with a restrictive seccomp profile or without a usable `/dev/shm`, give the container more shared memory (`--shm-size=1g`) before you reach for `--no-sandbox`.
 
 ## Single process
 

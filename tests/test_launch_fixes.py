@@ -437,3 +437,101 @@ def test_serve_refuses_an_unknown_log_level(monkeypatch, capsys):
     args = type("A", (), {"host": "127.0.0.1", "port": 1})()
     assert cli._cmd_serve(args) == 2
     assert "SCANPRIVACY_LOG_LEVEL" in capsys.readouterr().err
+
+
+# --------------------------------------- persistence, pending scans, no-key guard
+
+
+def test_a_write_that_fails_midway_leaves_no_truncated_result(scans_dir, monkeypatch):
+    scan_id = _stored(scans_dir)
+    before = (scans_dir / f"{scan_id}.json").read_text(encoding="utf-8")
+
+    def broken_replace(src, dst):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(api.os, "replace", broken_replace)
+    newer = ScanResult(
+        scan_id=scan_id, url="https://example.org/changed", final_url="https://example.org/changed",
+        started_at="t0", finished_at="t1", status=ScanStatus.OK, verdict=grade([], observed_ok=True),
+    )
+    assert api._persist(newer) is False
+    assert (scans_dir / f"{scan_id}.json").read_text(encoding="utf-8") == before
+    assert [p.name for p in scans_dir.iterdir()] == [f"{scan_id}.json"], "a temporary file was left behind"
+
+
+def test_an_accepted_scan_that_never_finished_reads_as_an_error_after_a_restart(scans_dir, monkeypatch):
+    monkeypatch.setattr(api, "check_public_target", lambda url: None)
+    monkeypatch.setattr(api, "_run", lambda scan_id, request: asyncio.sleep(0))
+    client = TestClient(api.app)
+    response = client.post("/v1/scans", json={"url": "https://example.org/"})
+    scan_id = response.json()["scan_id"]
+    api._SCANS.clear()  # a new process: nothing in memory
+    body = client.get(f"/v1/scans/{scan_id}").json()
+    assert body["status"] == "error"
+    assert body["error_ref"] == scan_id
+
+
+def test_a_stored_result_whose_evidence_was_altered_is_refused(scans_dir):
+    from scanprivacy.report.record import build_record
+
+    result = ScanResult(
+        scan_id="abcdef012345", url="https://e.org/", final_url="https://e.org/",
+        started_at="t0", finished_at="t1", status=ScanStatus.OK, verdict=grade([], observed_ok=True),
+        observation={"browser": {"requests": []}},
+    )
+    result.record = build_record(url=result.url, observation=result.observation, findings=[])
+    assert api._persist(result)
+    client = TestClient(api.app)
+    assert client.get("/v1/scans/abcdef012345").status_code == 200
+
+    path = scans_dir / "abcdef012345.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["observation"]["browser"]["requests"] = [{"url": "https://tampered.example/"}]
+    path.write_text(json.dumps(data), encoding="utf-8")
+    assert client.get("/v1/scans/abcdef012345").status_code == 500
+
+
+def test_without_a_key_only_a_local_caller_is_accepted(monkeypatch):
+    monkeypatch.delenv("SCANPRIVACY_API_KEY", raising=False)
+    remote = TestClient(api.app, client=("203.0.113.9", 4000))
+    assert remote.get("/v1/rules").status_code == 403
+    local = TestClient(api.app, client=("127.0.0.1", 4000))
+    assert local.get("/v1/rules").status_code == 200
+    assert remote.get("/healthz").status_code in (200, 503)  # liveness stays open
+
+
+def test_oversized_request_fields_are_refused(scans_dir, monkeypatch):
+    monkeypatch.setattr(api, "check_public_target", lambda url: None)
+    client = TestClient(api.app)
+    assert client.post("/v1/scans", json={"url": "https://example.org/" + "a" * 3000}).status_code == 422
+    big = {"note": "x" * 9000}
+    assert client.post("/v1/scans", json={"url": "https://example.org/", "context": big}).status_code == 422
+
+
+def test_targets_that_differ_only_by_query_do_not_share_a_result_file():
+    assert batch._slug("https://example.org/page?a=1") != batch._slug("https://example.org/page?a=2")
+    assert batch._slug("https://example.org/a/b") != batch._slug("https://example.org/a-b")
+    assert batch._slug("https://example.org/a") == batch._slug("https://example.org/a")
+
+
+def test_the_runtime_lock_is_a_subset_of_the_development_lock():
+    import re
+
+    root = Path(__file__).resolve().parents[1]
+
+    def pins(name: str) -> dict[str, str]:
+        text = (root / name).read_text(encoding="utf-8")
+        return dict(re.findall(r"^([A-Za-z0-9_.-]+)==([^\s\\]+)", text, re.M))
+
+    full, runtime = pins("requirements.lock"), pins("requirements.runtime.lock")
+    assert runtime and set(runtime) <= set(full)
+    assert {k: v for k, v in runtime.items() if full[k] != v} == {}, "the two locks disagree"
+    for development_only in ("pytest", "ruff", "coverage", "markdown"):
+        assert development_only not in runtime
+
+
+def test_the_image_and_the_action_install_from_the_runtime_lock():
+    root = Path(__file__).resolve().parents[1]
+    assert "requirements.runtime.lock" in (root / "Dockerfile").read_text(encoding="utf-8")
+    action = (root / "action.yml").read_text(encoding="utf-8")
+    assert "--require-hashes" in action and "requirements.runtime.lock" in action

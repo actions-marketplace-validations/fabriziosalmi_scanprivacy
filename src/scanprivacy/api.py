@@ -23,17 +23,19 @@ import json
 import logging
 import os
 import re
+import tempfile
 import uuid
 from collections import OrderedDict
 from contextlib import asynccontextmanager
 from dataclasses import replace
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 from fastapi.responses import JSONResponse, PlainTextResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .analyze.engine import load_rules
 from .auth import posture as auth_posture, require_api_key
@@ -46,6 +48,7 @@ from .i18n.translator import DEFAULT_LOCALE, Translator, available_locales
 from .knowledge.registry import all_vendors
 from .knowledge.remediation import catalogue as remediation_catalogue, entry_for
 from .report.markdown import render
+from .report.record import verify_record
 from .observe.rate import PerHostLimiter
 from .scanner import scan
 
@@ -117,12 +120,24 @@ def _evict_if_needed() -> None:
         _SCANS.pop(scan_id, None)
 
 
+MAX_URL_LENGTH = 2048
+MAX_CONTEXT_BYTES = 8192
+
+
 class ScanRequest(BaseModel):
-    url: str = Field(..., description="public URL to observe (http/https)")
+    url: str = Field(..., max_length=MAX_URL_LENGTH, description="public URL to observe (http/https)")
     read_documents: bool = Field(default=True, description="also read the linked legal documents")
     context: dict[str, Any] = Field(
         default_factory=dict, description="tenant, project, labels, sector, NIS2 status"
     )
+
+    @field_validator("context")
+    @classmethod
+    def _context_is_small(cls, value: dict[str, Any]) -> dict[str, Any]:
+        # It is stored with the result and carried into reports.
+        if len(json.dumps(value, default=str)) > MAX_CONTEXT_BYTES:
+            raise ValueError(f"context is larger than {MAX_CONTEXT_BYTES} bytes")
+        return value
 
 
 def _persist(result: ScanResult) -> bool:
@@ -136,14 +151,48 @@ def _persist(result: ScanResult) -> bool:
     reason.
     """
     try:
-        SCANS_DIR.mkdir(parents=True, exist_ok=True)
-        (SCANS_DIR / f"{result.scan_id}.json").write_text(
-            json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+        _write_atomically(
+            SCANS_DIR / f"{result.scan_id}.json",
+            json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str),
         )
         return True
     except OSError:
         logger.exception("could not persist scan %s", result.scan_id)
         return False
+
+
+def _write_atomically(path: Path, text: str) -> None:
+    """Write to a temporary file in the same directory, flush it to disk, then
+    rename it over the destination. A process killed mid-write leaves either the
+    old file or the complete new one, never a truncated result that every later
+    GET would report as unreadable."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _mark_pending(scan_id: str, url: str) -> None:
+    """Leave a note on disk that this scan was accepted. If the process dies
+    before the result replaces it, the id reads as an error after a restart
+    instead of vanishing into a 404."""
+    try:
+        _write_atomically(
+            SCANS_DIR / f"{scan_id}.json",
+            json.dumps({"schema_version": 1, "scan_id": scan_id, "url": url, "pending": True}),
+        )
+    except OSError:
+        logger.exception("could not record the pending scan %s", scan_id)
 
 
 async def _run(scan_id: str, request: ScanRequest) -> None:
@@ -191,6 +240,13 @@ async def _observe(scan_id: str, request: ScanRequest) -> None:
 
         persisted = _persist(result)  # on disk before the entry can ever be evicted
         _SCANS[scan_id].update(status="done", result=result, persisted=persisted)
+        logger.info(
+            "scan %s finished: grade %s, %d findings, persisted=%s",
+            scan_id,
+            result.verdict.grade.value if result.verdict else "none",
+            len(result.findings),
+            persisted,
+        )
     except asyncio.TimeoutError:
         logger.warning("scan %s exceeded its budget of %ss", scan_id, API_SETTINGS.per_scan_budget_s)
         _SCANS[scan_id].update(status="error", error="scan budget exceeded", error_ref=scan_id)
@@ -226,7 +282,20 @@ def _from_disk(scan_id: str) -> dict[str, Any] | None:
     if not path.is_file():
         return None
     try:
-        result = scan_from_dict(json.loads(path.read_text(encoding="utf-8")))
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("pending"):
+            # Accepted by a process that did not finish it.
+            return {
+                "status": "error",
+                "url": data.get("url"),
+                "result": None,
+                "persisted": True,
+                "error": "the service stopped before this scan finished",
+                "error_ref": scan_id,
+            }
+        if (data.get("record") or {}) and not verify_record(data)["evidence_intact"]:
+            raise ValueError("the stored evidence no longer matches its digest")
+        result = scan_from_dict(data)
     except (OSError, ValueError, KeyError, TypeError):
         # Not "unknown": the result exists and cannot be read, and saying 404
         # would tell the caller the scan never happened.
@@ -324,6 +393,7 @@ async def create_scan(request: ScanRequest, background: BackgroundTasks) -> dict
     try:
         await asyncio.to_thread(check_public_target, request.url)
     except TargetRefused as refused:
+        logger.info("scan refused before it started: %s (%s)", refused.reason, parts.hostname)
         raise HTTPException(
             status_code=403,
             detail=f"target refused: {refused.reason}"
@@ -351,6 +421,8 @@ async def create_scan(request: ScanRequest, background: BackgroundTasks) -> dict
         "result": None,
         "error": None,
     }
+    _mark_pending(scan_id, request.url)
+    logger.info("scan %s accepted for %s", scan_id, parts.hostname)
     background.add_task(_run, scan_id, request)
     return {"scan_id": scan_id, "status": "queued", "url": request.url, "poll": f"/v1/scans/{scan_id}"}
 
