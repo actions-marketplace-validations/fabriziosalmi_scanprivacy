@@ -28,7 +28,7 @@ from .config import DEFAULTS, UA, UA_FALLBACK, Settings
 from .core.enums import ScanStatus
 from .core.models import ScanResult
 from .observe.browser import obs_to_dict, observe_url, launch_browser
-from .observe.discover import fallback_candidates, pick_documents
+from .observe.discover import fallback_candidates, linked_why, pick_documents
 from .observe.docs import doc_to_dict, fetch_document, fetch_documents
 from .observe.consent import run_refusal_pass
 from .observe.pages import select_pages, sibling_hosts
@@ -59,7 +59,7 @@ async def _collect_documents(browser, obs, robots, settings, limiter) -> list:
     was worded unusually would be the worst error this engine can make.
     """
     candidates = pick_documents(obs, DOCUMENT_PRIORITY)
-    picked = [(c.kind, c.url, f"link (score {c.score}: {c.why})") for c in candidates]
+    picked = [(c.kind, c.url, linked_why(c)) for c in candidates]
 
     documents = []
     if picked:

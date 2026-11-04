@@ -769,6 +769,9 @@ art13:
   last_updated: Data di ultimo aggiornamento del documento
 
 discovery:
+  linked: collegato dalla pagina
+  conventional_path: percorso convenzionale
+  no_link_found: nessun link trovato
   path_is_a_document: il path indica un documento
   path_related: path attinente
   link_text_exact: testo del link esatto
