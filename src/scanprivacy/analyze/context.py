@@ -52,7 +52,10 @@ FUNCTIONAL_KEY_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"cookie[-_]?(consent|notice|law|yes|bot)|iub|CookieConsent|cmplz|borlabs|klaro|euconsent", re.I),
     re.compile(r"^(cf_clearance|__cf_bm|_cfuvid|__cflb|AWSALB|AWSALBCORS|incap_ses|visid_incap)", re.I),
     re.compile(r"^(theme|lang|locale|i18n|color[-_]?scheme|font[-_]?size|sidebar|darkmode)", re.I),
-    re.compile(r"^(PHPSESSID|JSESSIONID|ASP\.NET_SessionId|csrftoken|XSRF-TOKEN|__Host-|__Secure-|wordpress_sec)", re.I),
+    re.compile(
+        r"^(PHPSESSID|JSESSIONID|ASP\.NET_SessionId|csrftoken|XSRF-TOKEN|__Host-|__Secure-|wordpress_sec)",
+        re.I,
+    ),
 ]
 
 # Processors that never appear as a subresource host because they *are* the

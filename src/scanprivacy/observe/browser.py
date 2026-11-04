@@ -235,6 +235,8 @@ class Observation:
         return urlsplit(self.final_url or self.url).netloc
 
 
+_MS_PER_SECOND = 1000
+
 _STORAGE_JS = """() => {
   const out = [];
   const grab = (store, kind) => {
@@ -362,7 +364,7 @@ async def observe_in_context(context, url: str, settings: Settings = DEFAULTS) -
                 resource_type=rtype,
                 failed=failed,
                 peer_ip=peer,
-                t_ms=int((time.monotonic() - t0) * 1000),
+                t_ms=int((time.monotonic() - t0) * _MS_PER_SECOND),
                 frame_depth=frame_depth,
                 frame_url=frame_url,
             )

@@ -89,7 +89,7 @@ def _evict_if_needed() -> None:
 
 class ScanRequest(BaseModel):
     url: str = Field(..., description="public URL to observe (http/https)")
-    read_documents: bool = Field(True, description="also read the linked legal documents")
+    read_documents: bool = Field(default=True, description="also read the linked legal documents")
     context: dict[str, Any] = Field(
         default_factory=dict, description="tenant, project, labels, sector, NIS2 status"
     )

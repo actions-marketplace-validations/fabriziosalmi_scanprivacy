@@ -34,7 +34,9 @@ def test_the_four_invisible_criteria_are_never_counted_as_met():
     screening = screen(build_context([page]))
 
     invisible = {key for key, observable in CRITERIA if not observable}
-    assert invisible == {"automated_decision", "sensitive_data", "large_scale", "vulnerable_subjects", "prevents_rights"}
+    assert invisible == {
+        "automated_decision", "sensitive_data", "large_scale", "vulnerable_subjects", "prevents_rights",
+    }
     for criterion in screening.criteria:
         if criterion.key in invisible:
             assert criterion.met is False

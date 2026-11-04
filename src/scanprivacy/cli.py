@@ -383,7 +383,8 @@ def _cmd_verify_attestation(args: argparse.Namespace) -> int:
     if checked.signature_verified is None:
         print(f"signature          : NOT VERIFIED — {checked.signature_detail}")
     else:
-        print(f"signature          : {'verified' if checked.signature_verified else 'INVALID'} ({checked.signature_mode})")
+        signature = "verified" if checked.signature_verified else "INVALID"
+        print(f"signature          : {signature} ({checked.signature_mode})")
     # fail-closed: anything short of a verified signature over matching
     # artefacts is a failure, because that is what a recipient is relying on
     return 0 if checked.ok else 1

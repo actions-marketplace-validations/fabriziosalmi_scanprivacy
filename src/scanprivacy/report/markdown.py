@@ -217,7 +217,8 @@ def render(result: ScanResult, locale: str = DEFAULT_LOCALE, include_graph: bool
     # A partial observation that presents itself as complete is the failure
     # this engine exists to avoid. If a read did not finish, the reader is told
     # which one, rather than being handed a silence that looks like an answer.
-    probes = sorted({f for page in ((result.observation or {}).get("pages") or []) for f in (page.get("probe_failures") or [])})
+    pages = (result.observation or {}).get("pages") or []
+    probes = sorted({f for page in pages for f in (page.get("probe_failures") or [])})
     if probes:
         add("")
         add(t.t("report.limits.partial", probes=", ".join(probes)))

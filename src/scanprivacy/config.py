@@ -45,7 +45,7 @@ SOURCE_URL = os.environ.get("SCANPRIVACY_SOURCE_URL", "").strip() or SOURCE_URL_
 # Determined the way this engine determines everything else: by declaration or
 # by observation, never by assumption.
 #
-#   SCANPRIVACY_VANTAGE="IT / Milano / AS29447 Iliad"   declared by the operator
+#   SCANPRIVACY_VANTAGE="IT / Milano / <network name>"   declared by the operator
 #   SCANPRIVACY_VANTAGE_LOOKUP=https://ipinfo.io/json   looked up, opt-in
 #
 # Neither is set by default, and the record then says the vantage point is

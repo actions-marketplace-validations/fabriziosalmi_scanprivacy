@@ -7,13 +7,13 @@ deploying it.
 
 Across an HTTP boundary it is the opposite. An endpoint that fetches any URL a
 stranger submits is a probe into whatever network the service happens to run
-on — cloud metadata at 169.254.169.254, an internal dashboard on a private
+on — the cloud metadata service on its link-local address, an internal dashboard on a private
 range, a service listening only on loopback — and this engine hands the result
 back in a report. So the API validates and the CLI does not, and the asymmetry
 is the point rather than an oversight.
 
 The name is resolved before the decision. A public hostname whose A record
-points at 169.254.169.254 is not an edge case; it is the entire technique.
+points at that metadata address is not an edge case; it is the entire technique.
 """
 
 from __future__ import annotations

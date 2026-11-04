@@ -61,7 +61,7 @@ read from disk, and an entry that failed to persist is never evicted).
 
 Targets are checked twice. Before the fetch, the hostname is resolved and every
 address behind it must be public — a name whose A record points at
-`169.254.169.254` is the technique, not an edge case. After the fetch, the
+the cloud metadata address is the technique, not an edge case. After the fetch, the
 addresses Chromium reports having *actually reached* are checked again, which
 catches a record that changed in between and a redirect that moved the
 destination entirely. A result that touched a private address is discarded
