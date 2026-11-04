@@ -197,10 +197,10 @@ def test_the_proxy_connects_to_the_address_it_checked_and_does_not_resolve_again
         reader, writer = await asyncio.open_connection("127.0.0.1", proxy.port)
         writer.write(f"CONNECT allowed.test:{target.port} HTTP/1.1\r\nhost: allowed.test\r\n\r\n".encode())
         await writer.drain()
-        status = await reader.readline()
+        status = await reader.readuntil(b"\r\n\r\n")  # the whole CONNECT answer, blank line included
         writer.write(b"GET /pinned HTTP/1.1\r\nhost: allowed.test\r\nconnection: close\r\n\r\n")
         await writer.drain()
-        await reader.read(200)
+        await reader.read()  # until the server closes: its handler has run by then
         writer.close()
         ips = dict(proxy.ips)
         await proxy.stop()
