@@ -527,6 +527,8 @@ verdict:
   not_conformant_note: Presenti rilievi che richiedono intervento prima di considerare il sito conforme.
   inconclusive_note: "Il sito non è stato caricato: l'esito non è un esito favorevole."
   inconclusive_blocking: osservazione non riuscita — nessun rilievo può essere escluso
+  rule_error_note: "Alcune regole non hanno potuto essere valutate: l'esito non è un esito favorevole."
+  rule_error_blocking: "una regola non ha potuto essere valutata — i rilievi seguenti possono essere incompleti"
   robots_skip: il robots.txt del sito non consente allo user agent dichiarato di leggere questo URL
 
 cli:

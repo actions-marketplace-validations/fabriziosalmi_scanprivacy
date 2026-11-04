@@ -25,7 +25,6 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..analyze.engine import load_rules
-from ..core.enums import Effort
 from ..i18n.translator import DEFAULT_LOCALE, Translator
 from .registry import all_vendors, mapping_for
 

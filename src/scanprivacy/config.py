@@ -20,8 +20,36 @@ ROOT = PACKAGE_DIR.parents[1]
 RULES_DIR = PACKAGE_DIR / "rules"
 KNOWLEDGE_DIR = PACKAGE_DIR / "knowledge"
 
-# Written output stays outside the package, next to the working directory.
-DATA_DIR = Path.cwd() / "data"
+class ConfigError(ValueError):
+    """An environment variable has a value the service cannot run with."""
+
+
+def env_int(name: str, default: int, minimum: int = 1) -> int:
+    """An integer setting, or a clear refusal.
+
+    `int()` alone accepts `0` (a semaphore of zero leaves every scan queued
+    forever while the API keeps answering 202) and a bad value crashed the import
+    with a traceback that did not name the variable.
+    """
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        raise ConfigError(f"{name}={raw!r} is not an integer") from None
+    if value < minimum:
+        raise ConfigError(f"{name}={value} is below the minimum of {minimum}")
+    return value
+
+
+# Written output stays outside the package. `SCANPRIVACY_DATA_DIR` names where;
+# without it, `data/` next to the working directory.
+def data_dir_from(environ) -> Path:
+    return Path((environ.get("SCANPRIVACY_DATA_DIR") or "").strip() or Path.cwd() / "data")
+
+
+DATA_DIR = data_dir_from(os.environ)
 SCANS_DIR = DATA_DIR / "scans"
 
 # AGPL section 13. Someone who reaches this engine over a network is entitled to
@@ -45,7 +73,7 @@ SOURCE_URL = os.environ.get("SCANPRIVACY_SOURCE_URL", "").strip() or SOURCE_URL_
 # Determined the way this engine determines everything else: by declaration or
 # by observation, never by assumption.
 #
-#   SCANPRIVACY_VANTAGE="IT / Milano / AS29447 Iliad"   declared by the operator
+#   SCANPRIVACY_VANTAGE="IT / Milano / <network name>"   declared by the operator
 #   SCANPRIVACY_VANTAGE_LOOKUP=https://ipinfo.io/json   looked up, opt-in
 #
 # Neither is set by default, and the record then says the vantage point is
@@ -58,24 +86,18 @@ VANTAGE_DECLARED = os.environ.get("SCANPRIVACY_VANTAGE", "").strip()
 VANTAGE_LOOKUP_URL = os.environ.get("SCANPRIVACY_VANTAGE_LOOKUP", "").strip()
 
 # This address travels in the User-Agent of every request the engine makes, to
-# every site it observes. Two requirements pull against each other.
+# every site it observes. It must be an address the owner of a scanned site can
+# actually reach: a contact that bounces is worse than no contact, because it
+# claims accountability without offering it. It must also not be one person's
+# mailbox in a public repository, which would conscript its owner into
+# answering for every deployment they never saw.
 #
-# It must be an address the owner of a scanned site can actually reach. A
-# contact that bounces is worse than no contact: it claims accountability
-# without offering it. `abuse@scanprivacy.org` does not exist yet, so it cannot
-# be the default of a build anybody runs today.
-#
-# And it should not stay one person's mailbox once this file is public: a
-# personal address in a public repository conscripts its owner into answering
-# for every deployment they never saw, and hands harvesters a working address.
-#
-# The first requirement wins while the repository is private and the mailbox is
-# not there. `SCANPRIVACY_CONTACT` overrides it. **Before this repository is made
-# public, create `abuse@scanprivacy.org` and change this line.**
+# So the default is the project's role address, `abuse@scanprivacy.org`, which
+# forwards to the maintainer. `SCANPRIVACY_CONTACT` overrides it, and whoever
+# runs their own instance should, since the requests are theirs.
 # tests/test_user_agent.py holds the address here, the README and SECURITY.md to
-# the same value, so the three cannot drift apart — but nothing can tell you the
-# day the repository stops being private.
-UA_CONTACT_DEFAULT = "fabrizio.salmi@gmail.com"
+# the same value, so the three cannot drift apart.
+UA_CONTACT_DEFAULT = "abuse@scanprivacy.org"
 UA_CONTACT = os.environ.get("SCANPRIVACY_CONTACT", "").strip() or UA_CONTACT_DEFAULT
 UA = (
     "scanprivacy/0.1 (+passive EU privacy conformance observation; "
@@ -120,6 +142,11 @@ class Settings:
     has to be something an operator turns on for their own estate rather than
     something that happens to a stranger's site without anyone deciding."""
 
+    guard_requests: bool = False
+    """Refuse, before it is sent, any browser request whose host does not resolve
+    to public addresses only. Off for the command line, where the operator
+    chose the target and `http://localhost:8000` is a legitimate thing to check.
+    On for the API, where a stranger chooses it. See `observe/guard.py`."""
     per_host_rps: float = 1.0
     """At most one request per second per host, beyond what the page itself
     triggers. Applies to our document fetches, not to the browser's own

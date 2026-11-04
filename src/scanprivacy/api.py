@@ -22,32 +22,53 @@ import asyncio
 import json
 import logging
 import os
+import re
+import tempfile
 import uuid
 from collections import OrderedDict
+from contextlib import asynccontextmanager
+from dataclasses import replace
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 from fastapi.responses import JSONResponse, PlainTextResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .analyze.engine import load_rules
 from .auth import posture as auth_posture, require_api_key
 from . import __version__
-from .config import DEFAULTS, LICENCE, SCANS_DIR, SOURCE_URL
+from .config import DEFAULTS, LICENCE, SCANS_DIR, SOURCE_URL, env_int
 from .core.graph import to_mermaid
-from .core.models import ScanResult
+from .core.models import ScanResult, scan_from_dict
 from .core.target import TargetRefused, check_observed_peers, check_public_target, peers_of
 from .i18n.translator import DEFAULT_LOCALE, Translator, available_locales
 from .knowledge.registry import all_vendors
 from .knowledge.remediation import catalogue as remediation_catalogue, entry_for
 from .report.markdown import render
+from .report.record import verify_record
+from .observe.rate import PerHostLimiter
 from .scanner import scan
 
+@asynccontextmanager
+async def _lifespan(_: FastAPI):
+    yield
+    # Scans run as background tasks of this process; stopping it ends them. Say
+    # so, and mark them, rather than leaving callers polling an id that will never
+    # finish. (Finished results are on disk and survive; see _from_disk.)
+    lost = [sid for sid, e in _SCANS.items() if e.get("status") in ("queued", "running")]
+    for sid in lost:
+        _SCANS[sid].update(status="error", error="the service stopped before this scan finished", error_ref=sid)
+    if lost:
+        logger.warning("shutdown interrupted %d scans: %s", len(lost), ", ".join(lost))
+
+
 app = FastAPI(
+    lifespan=_lifespan,
     title="scanprivacy",
-    version="0.1.0",
+    version=__version__,
     description="Passive privacy conformance observation: URL in, findings graph and remediation out.",
 )
 
@@ -57,11 +78,20 @@ app = FastAPI(
 # many as the caller cares to ask for, and the store below keeps every result —
 # observation included — for the lifetime of the process. Neither needed an
 # attacker: a well-meaning script with a list of domains would do it.
-MAX_CONCURRENT_SCANS = int(os.environ.get("SCANPRIVACY_MAX_CONCURRENT_SCANS", "3"))
-MAX_SCANS_IN_FLIGHT = int(os.environ.get("SCANPRIVACY_MAX_SCANS_IN_FLIGHT", "50"))
-SCAN_RETENTION = int(os.environ.get("SCANPRIVACY_SCAN_RETENTION", "200"))
+MAX_CONCURRENT_SCANS = env_int("SCANPRIVACY_MAX_CONCURRENT_SCANS", 3)
+MAX_SCANS_IN_FLIGHT = env_int("SCANPRIVACY_MAX_SCANS_IN_FLIGHT", 50)
+SCAN_RETENTION = env_int("SCANPRIVACY_SCAN_RETENTION", 200)
 
 logger = logging.getLogger("scanprivacy.api")
+
+# Across this boundary a stranger chooses the target, so every request the
+# browser makes is vetted before it is sent. The command line does not do this.
+API_SETTINGS = replace(DEFAULTS, guard_requests=True)
+
+# One per-host budget for every scan this process runs. A limiter per scan kept
+# "one page load per second per host" true inside a scan and false across the
+# scans of a service that two callers can point at the same site.
+_HOST_LIMITER = PerHostLimiter(API_SETTINGS.per_host_rps)
 
 _SCAN_SLOTS = asyncio.Semaphore(MAX_CONCURRENT_SCANS)
 
@@ -72,27 +102,42 @@ _SCANS: "OrderedDict[str, dict[str, Any]]" = OrderedDict()
 
 
 def _evict_if_needed() -> None:
-    while len(_SCANS) > SCAN_RETENTION:
-        scan_id, entry = next(iter(_SCANS.items()))
+    for scan_id, entry in list(_SCANS.items()):
+        if len(_SCANS) <= SCAN_RETENTION:
+            break
         if entry.get("status") in ("queued", "running"):
             # Never evict work that has not finished: the caller is still
             # holding an id we told them to poll.
-            break
+            continue
         if entry.get("status") == "done" and not entry.get("persisted", False):
             # Eviction is only safe because the result is on disk. If the write
-            # failed, dropping the entry destroys the only copy — so keep it and
-            # let the store exceed its bound rather than lose evidence.
+            # failed, dropping the entry destroys the only copy, so it stays; the
+            # entries behind it are still evictable, and new scans are refused
+            # while results cannot be stored (see create_scan) so the store
+            # cannot grow without bound.
             logger.warning("scan %s was never persisted; keeping it in memory", scan_id)
-            break
+            continue
         _SCANS.pop(scan_id, None)
 
 
+MAX_URL_LENGTH = 2048
+MAX_CONTEXT_BYTES = 8192
+
+
 class ScanRequest(BaseModel):
-    url: str = Field(..., description="public URL to observe (http/https)")
-    read_documents: bool = Field(True, description="also read the linked legal documents")
+    url: str = Field(..., max_length=MAX_URL_LENGTH, description="public URL to observe (http/https)")
+    read_documents: bool = Field(default=True, description="also read the linked legal documents")
     context: dict[str, Any] = Field(
         default_factory=dict, description="tenant, project, labels, sector, NIS2 status"
     )
+
+    @field_validator("context")
+    @classmethod
+    def _context_is_small(cls, value: dict[str, Any]) -> dict[str, Any]:
+        # It is stored with the result and carried into reports.
+        if len(json.dumps(value, default=str)) > MAX_CONTEXT_BYTES:
+            raise ValueError(f"context is larger than {MAX_CONTEXT_BYTES} bytes")
+        return value
 
 
 def _persist(result: ScanResult) -> bool:
@@ -106,14 +151,48 @@ def _persist(result: ScanResult) -> bool:
     reason.
     """
     try:
-        SCANS_DIR.mkdir(parents=True, exist_ok=True)
-        (SCANS_DIR / f"{result.scan_id}.json").write_text(
-            json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+        _write_atomically(
+            SCANS_DIR / f"{result.scan_id}.json",
+            json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str),
         )
         return True
     except OSError:
         logger.exception("could not persist scan %s", result.scan_id)
         return False
+
+
+def _write_atomically(path: Path, text: str) -> None:
+    """Write to a temporary file in the same directory, flush it to disk, then
+    rename it over the destination. A process killed mid-write leaves either the
+    old file or the complete new one, never a truncated result that every later
+    GET would report as unreadable."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _mark_pending(scan_id: str, url: str) -> None:
+    """Leave a note on disk that this scan was accepted. If the process dies
+    before the result replaces it, the id reads as an error after a restart
+    instead of vanishing into a 404."""
+    try:
+        _write_atomically(
+            SCANS_DIR / f"{scan_id}.json",
+            json.dumps({"schema_version": 1, "scan_id": scan_id, "url": url, "pending": True}),
+        )
+    except OSError:
+        logger.exception("could not record the pending scan %s", scan_id)
 
 
 async def _run(scan_id: str, request: ScanRequest) -> None:
@@ -131,12 +210,13 @@ async def _observe(scan_id: str, request: ScanRequest) -> None:
         result = await asyncio.wait_for(
             scan(
                 request.url,
-                DEFAULTS,
+                API_SETTINGS,
                 scan_id=scan_id,
                 read_documents=request.read_documents,
                 context=request.context,
+                limiter=_HOST_LIMITER,
             ),
-            timeout=DEFAULTS.per_scan_budget_s,
+            timeout=API_SETTINGS.per_scan_budget_s,
         )
         # The pre-flight check resolved a name and decided; this checks where
         # the browser actually went. Between the two, a record can change and a
@@ -160,8 +240,16 @@ async def _observe(scan_id: str, request: ScanRequest) -> None:
 
         persisted = _persist(result)  # on disk before the entry can ever be evicted
         _SCANS[scan_id].update(status="done", result=result, persisted=persisted)
+        logger.info(
+            "scan %s finished: grade %s, %d findings, persisted=%s",
+            scan_id,
+            result.verdict.grade.value if result.verdict else "none",
+            len(result.findings),
+            persisted,
+        )
     except asyncio.TimeoutError:
-        _SCANS[scan_id].update(status="error", error="scan budget exceeded")
+        logger.warning("scan %s exceeded its budget of %ss", scan_id, API_SETTINGS.per_scan_budget_s)
+        _SCANS[scan_id].update(status="error", error="scan budget exceeded", error_ref=scan_id)
     except Exception as exc:
         # The client is told a scan failed and is given a reference; the cause
         # goes to the log. An exception's text carries filesystem paths, module
@@ -178,8 +266,54 @@ async def _observe(scan_id: str, request: ScanRequest) -> None:
         _evict_if_needed()
 
 
+_SCAN_ID = re.compile(r"[0-9a-f]{12}")
+
+
+def _from_disk(scan_id: str) -> dict[str, Any] | None:
+    """A result that left memory, or that predates this process.
+
+    Eviction and restarts drop the in-memory entry on the grounds that the
+    result is on disk; this is the half that reads it back. The id is matched
+    against the shape the service itself issues before it reaches a path.
+    """
+    if not _SCAN_ID.fullmatch(scan_id):
+        return None
+    path = SCANS_DIR / f"{scan_id}.json"
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("pending"):
+            # Accepted by a process that did not finish it.
+            return {
+                "status": "error",
+                "url": data.get("url"),
+                "result": None,
+                "persisted": True,
+                "error": "the service stopped before this scan finished",
+                "error_ref": scan_id,
+            }
+        if (data.get("record") or {}) and not verify_record(data)["evidence_intact"]:
+            raise ValueError("the stored evidence no longer matches its digest")
+        result = scan_from_dict(data)
+    except (OSError, ValueError, KeyError, TypeError):
+        # Not "unknown": the result exists and cannot be read, and saying 404
+        # would tell the caller the scan never happened.
+        logger.exception("stored result for scan %s is unreadable", scan_id)
+        raise HTTPException(status_code=500, detail="stored result is unreadable") from None
+    return {
+        "status": "done",
+        "url": result.url,
+        "result": result,
+        "persisted": True,
+        "error": None,
+    }
+
+
 def _get(scan_id: str) -> dict[str, Any]:
     entry = _SCANS.get(scan_id)
+    if entry is None:
+        entry = _from_disk(scan_id)
     if entry is None:
         raise HTTPException(status_code=404, detail="unknown scan_id")
     return entry
@@ -208,13 +342,27 @@ def _locale(lang: str) -> str:
     return lang
 
 
+def _storage_writable() -> bool:
+    try:
+        SCANS_DIR.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return False
+    return os.access(SCANS_DIR, os.W_OK)
+
+
 @app.get("/healthz")
-async def healthz() -> dict[str, Any]:
+async def healthz() -> JSONResponse:
     """Deliberately unauthenticated. A liveness probe that needs a credential
     stops working the day the credential rotates, and it discloses nothing a
-    caller could not learn by reading the package."""
-    return {
-        "ok": True,
+    caller could not learn by reading the package.
+
+    `ok` is false, with a 503, when results cannot be stored: the service would
+    accept scans whose evidence it then loses.
+    """
+    storage_ok = _storage_writable()
+    return JSONResponse(status_code=200 if storage_ok else 503, content={
+        "ok": storage_ok,
+        "storage_writable": storage_ok,
         "version": __version__,
         # AGPL section 13: whoever reaches this instance over a network is owed
         # its source. An unauthenticated liveness probe is the one place every
@@ -226,7 +374,7 @@ async def healthz() -> dict[str, Any]:
         "vendors": len(all_vendors()),
         "locales": available_locales(),
         **auth_posture(),
-    }
+    })
 
 
 @app.get("/v1/locales", dependencies=[Depends(require_api_key)])
@@ -245,11 +393,18 @@ async def create_scan(request: ScanRequest, background: BackgroundTasks) -> dict
     try:
         await asyncio.to_thread(check_public_target, request.url)
     except TargetRefused as refused:
+        logger.info("scan refused before it started: %s (%s)", refused.reason, parts.hostname)
         raise HTTPException(
             status_code=403,
             detail=f"target refused: {refused.reason}"
             + (f" ({refused.detail})" if refused.detail else ""),
         ) from None
+    if not _storage_writable():
+        raise HTTPException(
+            status_code=503,
+            detail="results cannot be stored right now; retry later",
+            headers={"retry-after": "60"},
+        )
     in_flight = sum(1 for e in _SCANS.values() if e.get("status") in ("queued", "running"))
     if in_flight >= MAX_SCANS_IN_FLIGHT:
         raise HTTPException(
@@ -266,6 +421,8 @@ async def create_scan(request: ScanRequest, background: BackgroundTasks) -> dict
         "result": None,
         "error": None,
     }
+    _mark_pending(scan_id, request.url)
+    logger.info("scan %s accepted for %s", scan_id, parts.hostname)
     background.add_task(_run, scan_id, request)
     return {"scan_id": scan_id, "status": "queued", "url": request.url, "poll": f"/v1/scans/{scan_id}"}
 

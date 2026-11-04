@@ -10,7 +10,7 @@ from __future__ import annotations
 from scanprivacy.analyze.context import build_context
 from scanprivacy.analyze.dpia import CRITERIA, screen, transfer_assessments
 from scanprivacy.analyze.engine import evaluate, load_rules
-from scanprivacy.observe.browser import CookieSet, Observation, Request
+from scanprivacy.observe.browser import Observation, Request
 
 
 def _page(url: str = "https://x.it/") -> Observation:
@@ -34,7 +34,9 @@ def test_the_four_invisible_criteria_are_never_counted_as_met():
     screening = screen(build_context([page]))
 
     invisible = {key for key, observable in CRITERIA if not observable}
-    assert invisible == {"automated_decision", "sensitive_data", "large_scale", "vulnerable_subjects", "prevents_rights"}
+    assert invisible == {
+        "automated_decision", "sensitive_data", "large_scale", "vulnerable_subjects", "prevents_rights",
+    }
     for criterion in screening.criteria:
         if criterion.key in invisible:
             assert criterion.met is False

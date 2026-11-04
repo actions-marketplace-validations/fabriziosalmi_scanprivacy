@@ -19,10 +19,14 @@ This engine's whole claim is that it observes passively and reports only what
 it saw. Anything that breaks either half of that sentence is in scope:
 
 - **Bypassing the target check.** The API resolves a hostname and requires every
-  address behind it to be public, then re-checks the addresses the browser
-  reports having actually reached. A way past either check turns an instance
-  into an SSRF proxy against its own network — this is the most serious class of
-  bug in the project.
+  address behind it to be public. While a scan runs, the browser, the robots.txt
+  reader and the TLS probe reach the network only through an egress proxy that
+  resolves each name itself, requires public addresses and connects to the
+  address it checked; the addresses actually reached are then checked a last
+  time. A request that reaches a non-public address by any route (a redirect, a
+  sub-resource, a WebSocket, a rebound name, a document or robots.txt URL taken
+  from the page) turns an instance into an SSRF proxy against its own network —
+  this is the most serious class of bug in the project.
 - **Bypassing `SCANPRIVACY_API_KEY`**, or reaching a `/v1` route without one.
 - **Escaping the bind guard**, so that `scanprivacy serve` listens on a non-loopback
   interface with no key configured.
@@ -69,7 +73,7 @@ disallow — is enough; nothing needs to be negotiated with anybody.
 
 **You can ask.** Write to the contact address in the User-Agent you received.
 Whoever runs that instance is answerable for it. If it was this project's own
-hosted instance, that address is `fabrizio.salmi@gmail.com`, and a request to stop
+hosted instance, that address is `abuse@scanprivacy.org`, and a request to stop
 does not need a reason.
 
 The engine loads public pages with a headless browser and reads the legal

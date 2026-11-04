@@ -1,0 +1,20 @@
+name: Bug report
+description: The engine did something it should not, or missed something it should have seen
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `scanprivacy --version`, or the commit
+    validations: {required: true}
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations: {required: true}
+  - type: textarea
+    id: repro
+    attributes:
+      label: Command and, if you can share it, the evidence JSON
+      description: Only for a site you are allowed to disclose. Otherwise describe the shape.

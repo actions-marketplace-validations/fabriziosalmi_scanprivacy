@@ -72,11 +72,11 @@ def _classify(org: str | None, cn: str | None) -> str:
     return "unknown"
 
 
-def _probe_sync(host: str, port: int = 443, timeout: float = 8.0) -> TlsInfo:
+def _probe_sync(host: str, port: int = 443, timeout: float = 8.0, connect_to: str | None = None) -> TlsInfo:
     info = TlsInfo(ok=False, host=host)
     ctx = ssl.create_default_context()
     try:
-        with socket.create_connection((host, port), timeout=timeout) as sock:
+        with socket.create_connection((connect_to or host, port), timeout=timeout) as sock:
             with ctx.wrap_socket(sock, server_hostname=host) as tls:
                 cert = tls.getpeercert()
                 der = tls.getpeercert(binary_form=True)
@@ -101,9 +101,20 @@ def _probe_sync(host: str, port: int = 443, timeout: float = 8.0) -> TlsInfo:
     return info
 
 
-async def probe(host: str, port: int = 443) -> TlsInfo:
+async def probe(host: str, port: int = 443, guarded: bool = False) -> TlsInfo:
+    """`guarded` is the API's setting: resolve once, require public addresses,
+    and connect to the address that was checked (SNI still names the host)."""
     host = host.split(":")[0]
-    return await asyncio.to_thread(_probe_sync, host, port)
+    connect_to = None
+    if guarded:
+        from ..core.target import TargetRefused, check_public_target
+
+        try:
+            checked = await asyncio.to_thread(check_public_target, f"https://{host}:{port}/")
+        except TargetRefused as refused:
+            return TlsInfo(ok=False, host=host, error=f"target refused: {refused.reason}")
+        connect_to = checked.addresses[0]
+    return await asyncio.to_thread(_probe_sync, host, port, 8.0, connect_to)
 
 
 def tls_to_dict(info: TlsInfo) -> dict:

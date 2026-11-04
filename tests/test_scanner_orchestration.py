@@ -126,8 +126,11 @@ def test_a_disallowed_subpath_is_skipped_and_the_skip_is_recorded(site):
     observed = [p["url"] for p in (result.observation or {}).get("pages") or []]
 
     assert not any("/private/" in u for u in observed), "a forbidden page was loaded"
-    if any("/private/" in str(entry.get("url", "")) for entry in plan):
-        assert skipped, "the page was dropped without saying why"
+    # Unconditional: the fixture links /private/secret, so selection must have
+    # considered it, and the plan must say it was dropped. A conditional here let
+    # the assertion pass without ever running.
+    assert any("/private/" in str(entry.get("url", "")) for entry in plan), "the forbidden page was never considered"
+    assert skipped, "the page was dropped without saying why"
 
 
 def test_robots_can_be_switched_off_only_deliberately(site):

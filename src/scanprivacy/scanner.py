@@ -32,6 +32,7 @@ from .observe.discover import fallback_candidates, pick_documents
 from .observe.docs import doc_to_dict, fetch_document, fetch_documents
 from .observe.consent import run_refusal_pass
 from .observe.pages import select_pages, sibling_hosts
+from .observe.egress import EgressProxy
 from .observe.rate import PerHostLimiter
 from .observe.robots import RobotsCache
 from .observe.tls import probe, tls_to_dict
@@ -51,7 +52,7 @@ POSTURE_KEYS = (
 )
 
 
-async def _collect_documents(browser, obs, robots, settings) -> list:
+async def _collect_documents(browser, obs, robots, settings, limiter) -> list:
     """Scored link selection, then conventional paths for what is still missing.
 
     The fallback matters: claiming "no privacy notice" because the footer link
@@ -67,7 +68,7 @@ async def _collect_documents(browser, obs, robots, settings) -> list:
             for kind, url, why in picked
             if not settings.respect_robots or await robots.allowed(url)
         ]
-        documents = await fetch_documents(browser, allowed, settings)
+        documents = await fetch_documents(browser, allowed, settings, limiter=limiter)
 
     still_missing = [k for k in ("privacy", "cookie") if not any(d.kind == k and d.ok for d in documents)]
     for kind in still_missing:
@@ -75,12 +76,29 @@ async def _collect_documents(browser, obs, robots, settings) -> list:
             if settings.respect_robots and not await robots.allowed(candidate.url):
                 continue
             evidence = await fetch_document(
-                browser, candidate.url, kind, settings, discovery=candidate.why
+                browser, candidate.url, kind, settings, discovery=candidate.why, limiter=limiter
             )
             documents.append(evidence)
             if evidence.ok:
                 break
     return documents
+
+
+def _grade_evaluated(findings, observed_ok: bool, ctx) -> Any:
+    """Grade, unless a rule could not be evaluated.
+
+    A predicate that raised means some rule did not run. Reporting the grade the
+    remaining rules give would read as a clean result for a check that never
+    happened, so the verdict is INCONCLUSIVE and says why.
+    """
+    if observed_ok and ctx.rule_errors:
+        return grade(
+            findings,
+            observed_ok=False,
+            note_key="verdict.rule_error_note",
+            blocking_key="verdict.rule_error_blocking",
+        )
+    return grade(findings, observed_ok=observed_ok)
 
 
 async def scan(
@@ -92,7 +110,32 @@ async def scan(
     limiter: PerHostLimiter | None = None,
 ) -> ScanResult:
     """`limiter` is shared across a fleet run: forty targets on one host must
-    share one budget, or the courtesy the method promises is not kept."""
+    share one budget, or the courtesy the method promises is not kept.
+
+    With `settings.guard_requests` (the API), every connection the scan makes
+    goes through a local proxy that refuses non-public addresses; see
+    `observe/egress.py`."""
+    egress = await EgressProxy().start() if settings.guard_requests else None
+    try:
+        return await _scan(url, settings, scan_id, read_documents, context, limiter, egress)
+    finally:
+        if egress is not None:
+            await egress.stop()
+
+
+def _launch_options(egress: EgressProxy | None) -> dict[str, Any]:
+    return {"proxy": egress.playwright_proxy()} if egress is not None else {}
+
+
+async def _scan(
+    url: str,
+    settings: Settings,
+    scan_id: str | None,
+    read_documents: bool,
+    context: dict[str, Any] | None,
+    limiter: PerHostLimiter | None,
+    egress: EgressProxy | None,
+) -> ScanResult:
     scan_id = scan_id or uuid.uuid4().hex[:12]
     started = datetime.now(timezone.utc).isoformat()
     result = ScanResult(
@@ -105,7 +148,7 @@ async def scan(
         context=context or {},
     )
 
-    robots = RobotsCache()
+    robots = RobotsCache(proxy=egress.url if egress is not None else None)
     if settings.respect_robots and not await robots.allowed(url):
         result.status = ScanStatus.ROBOTS_SKIP
         result.error = "verdict.robots_skip"
@@ -120,7 +163,8 @@ async def scan(
     # changes; reporting `UA` regardless would describe a request we never made.
     ua_used = UA
     async with async_playwright() as pw:
-        browser = await launch_browser(pw)
+        browser = await launch_browser(pw, **_launch_options(egress))
+        browser._scanprivacy_egress = egress
         browser_version = f"Chromium {browser.version}"
         try:
             await limiter.wait(urlsplit(url).netloc)
@@ -131,6 +175,7 @@ async def scan(
                 # Opt-in, because the retry drops the contact address the site
                 # owner would need in order to object — and whether that trade is
                 # acceptable is the operator's call, not this function's.
+                await limiter.wait(urlsplit(url).netloc)
                 retried = await observe_url(browser, url, settings, user_agent=UA_FALLBACK)
                 if retried.load_ok:
                     entry, ua_used = retried, UA_FALLBACK
@@ -170,14 +215,14 @@ async def scan(
             obs = entry
             documents = []
             if entry.load_ok and read_documents:
-                documents = await _collect_documents(browser, entry, robots, settings)
+                documents = await _collect_documents(browser, entry, robots, settings, limiter)
         finally:
             await browser.close()
 
     tls = None
     host = obs.host or urlsplit(url).netloc
     if host and (obs.final_url or url).startswith("https"):
-        tls = await probe(host)
+        tls = await probe(host, guarded=settings.guard_requests)
 
     ctx = build_context(pages, documents, tls)
     findings = evaluate(ctx, load_rules())
@@ -202,8 +247,10 @@ async def scan(
     }
     result.findings = findings
     result.graph = build_graph(ctx, findings)
-    result.verdict = grade(findings, observed_ok=obs.load_ok)
+    result.verdict = _grade_evaluated(findings, obs.load_ok, ctx)
     result.observation = {
+        **({"rule_errors": sorted(set(ctx.rule_errors))} if ctx.rule_errors else {}),
+        **({"blocked_requests": list(egress.blocked)} if egress is not None and egress.blocked else {}),
         # the entry page keeps its own key: header, TLS and document evidence
         # all describe the origin, and consumers built against the single-page
         # shape keep working
@@ -317,7 +364,9 @@ async def refusal_scan(
         browser = await launch_browser(pw)
         browser_version = f"Chromium {browser.version}"
         try:
-            consent_pass = await run_refusal_pass(browser, url, settings)
+            consent_pass = await run_refusal_pass(
+                browser, url, settings, limiter=PerHostLimiter(settings.per_host_rps)
+            )
         finally:
             await browser.close()
 
@@ -369,11 +418,14 @@ async def refusal_scan(
     # The passive scan still covers a site with no consent mechanism, through
     # PM-CNS-02. This pass declines to pretend it measured something.
     refusal_happened = consent_pass.attempt.performed
-    result.verdict = grade(
-        findings,
-        observed_ok=before.load_ok and refusal_happened,
-        note_key="" if refusal_happened else f"consent_pass.outcome.{consent_pass.attempt.outcome}",
-    )
+    if before.load_ok and refusal_happened:
+        result.verdict = _grade_evaluated(findings, True, ctx)
+    else:
+        result.verdict = grade(
+            findings,
+            observed_ok=False,
+            note_key=f"consent_pass.outcome.{consent_pass.attempt.outcome}",
+        )
     result.observation = {
         "browser": obs_to_dict(after),
         "consent_pass": consent_pass.to_dict(),

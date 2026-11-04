@@ -16,14 +16,17 @@ from ..config import UA
 
 
 class RobotsCache:
-    def __init__(self, ua: str = UA) -> None:
+    def __init__(self, ua: str = UA, proxy: str | None = None) -> None:
         self._ua = ua
+        self._proxy = proxy  # the egress proxy, in API mode: redirects are vetted per hop
         self._by_origin: dict[str, RobotFileParser | None] = {}
 
     def _fetch(self, scheme: str, host: str) -> RobotFileParser | None:
         url = f"{scheme}://{host}/robots.txt"
         try:
-            r = httpx.get(url, timeout=10.0, headers={"User-Agent": self._ua}, follow_redirects=True)
+            r = httpx.get(
+                url, timeout=10.0, headers={"User-Agent": self._ua}, follow_redirects=True, proxy=self._proxy
+            )
         except httpx.HTTPError:
             return None
         if r.status_code >= 400:

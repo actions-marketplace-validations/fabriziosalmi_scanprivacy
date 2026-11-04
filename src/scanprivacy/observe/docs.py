@@ -14,12 +14,15 @@ import html
 import re
 from dataclasses import dataclass, field
 from typing import Any
+from urllib.parse import urlsplit
 
 from playwright.async_api import Browser
 
 from ..config import DEFAULTS, UA, Settings
 from ..knowledge.registry import Vendor, aliases_for, all_vendors
+from .browser import new_context
 from .discover import looks_like
+from .rate import PerHostLimiter
 
 # GDPR Art. 13 elements, as surface-detectable text. Bilingual IT/EN: the
 # Italian expressions come first because they are the primary market.
@@ -149,9 +152,64 @@ COOKIE_ELEMENTS: dict[str, re.Pattern[str]] = {
     ),
 }
 
-_TAG_RE = re.compile(r"<(script|style)[^>]*>.*?</\1>", re.S | re.I)
-_HTML_RE = re.compile(r"<[^>]+>")
+_BLOCK_OPEN = re.compile(r"<(script|style)(?=[\s>/])", re.I)
 _WS_RE = re.compile(r"\s+")
+
+
+def _strip_blocks(text: str) -> str:
+    """Remove <script> and <style> blocks in linear time.
+
+    This used to be `<(script|style)[^>]*>.*?</\\1>`, which rescans to the end of
+    the document from every opener that never closes: 160 KB of repeated
+    `<script>` took 13 s, on the event loop, before the size cap was applied.
+    A tag that has no closer here has none later either, so it is looked up once.
+    """
+    low = text.lower()
+    out: list[str] = []
+    pos = 0
+    unclosed: set[str] = set()
+    for opener in _BLOCK_OPEN.finditer(text):
+        start = opener.start()
+        if start < pos:
+            continue
+        name = opener.group(1).lower()
+        if name in unclosed:
+            continue
+        gt = text.find(">", opener.end())
+        if gt == -1:
+            break
+        close = low.find(f"</{name}", gt)
+        end = text.find(">", close) if close != -1 else -1
+        if close == -1 or end == -1:
+            unclosed.add(name)
+            continue
+        out.append(text[pos:start])
+        out.append(" ")
+        pos = end + 1
+    out.append(text[pos:])
+    return "".join(out)
+
+
+def _strip_tags(text: str) -> str:
+    """Replace every `<...>` with a space, in linear time (was `<[^>]+>`, which
+    rescans to the end from every `<` that has no `>` after it)."""
+    out: list[str] = []
+    pos = 0
+    while True:
+        lt = text.find("<", pos)
+        if lt == -1:
+            break
+        gt = text.find(">", lt + 1)
+        if gt == -1:
+            break  # no `>` after this `<` means none after any later one
+        if gt == lt + 1:  # "<>" is text
+            out.append(text[pos : gt + 1])
+        else:
+            out.append(text[pos:lt])
+            out.append(" ")
+        pos = gt + 1
+    out.append(text[pos:])
+    return "".join(out)
 
 
 @dataclass(slots=True)
@@ -210,8 +268,8 @@ CF_EMAIL_MARKER = " cf-protected-email "
 
 def _to_text(html_source: str) -> str:
     txt = _CF_EMAIL.sub(CF_EMAIL_MARKER, html_source)
-    txt = _TAG_RE.sub(" ", txt)
-    txt = _HTML_RE.sub(" ", txt)
+    txt = _strip_blocks(txt)
+    txt = _strip_tags(txt)
     # entities must be resolved before matching: a notice written with &amp;
     # or &egrave; would otherwise be read differently from how it displays.
     txt = html.unescape(txt)
@@ -278,13 +336,21 @@ async def fetch_document(
     settings: Settings = DEFAULTS,
     user_agent: str | None = None,
     discovery: str = "",
+    limiter: PerHostLimiter | None = None,
 ) -> DocumentEvidence:
-    """Open one legal document the same way a visitor would, and read it."""
+    """Open one legal document the same way a visitor would, and read it.
+
+    `limiter` is the scan's per-host budget. A document is a page load like any
+    other, so it waits its turn: the promise is one load per second per host,
+    not one load per second except for the legal documents.
+    """
 
     ev = DocumentEvidence(kind=kind, url=url, status=None, ok=False, discovery=discovery)
-    context = await browser.new_context(user_agent=user_agent or UA, locale="it-IT")
+    context = await new_context(browser, user_agent or UA, settings)
     page = await context.new_page()
     try:
+        if limiter is not None:
+            await limiter.wait(urlsplit(url).netloc)
         resp = await page.goto(url, wait_until="domcontentloaded", timeout=settings.nav_timeout_ms)
         ev.status = resp.status if resp else None
         await page.wait_for_timeout(700)
@@ -337,12 +403,15 @@ async def fetch_documents(
     links: list[tuple[str, str, str]],
     settings: Settings = DEFAULTS,
     user_agent: str | None = None,
+    limiter: PerHostLimiter | None = None,
 ) -> list[DocumentEvidence]:
     """`links` is a list of (kind, url, discovery), already prioritised."""
 
     out: list[DocumentEvidence] = []
     for kind, url, why in links[: settings.max_documents]:
-        out.append(await fetch_document(browser, url, kind, settings, user_agent, discovery=why))
+        out.append(
+            await fetch_document(browser, url, kind, settings, user_agent, discovery=why, limiter=limiter)
+        )
     return out
 
 

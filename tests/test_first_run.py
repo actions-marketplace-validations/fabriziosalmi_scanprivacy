@@ -47,7 +47,8 @@ def _playwright_error(message: str) -> Exception:
     "message",
     [
         "BrowserType.launch: Executable doesn't exist at /home/x/.cache/ms-playwright/chromium/headless_shell",
-        "Looks like Playwright was just installed or updated.\nPlease run the following command to download new browsers:\n    playwright install",
+        "Looks like Playwright was just installed or updated.\n"
+        "Please run the following command to download new browsers:\n    playwright install",
     ],
 )
 def test_a_missing_browser_becomes_an_instruction(message):

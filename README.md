@@ -38,7 +38,7 @@ third-party sites **in your name**, and the site owner receiving them has no
 way to tell you did not send them.
 
 So `scanprivacy serve` refuses to start on any bind other than loopback without a
-key, and exits 3:
+key, and exits 2:
 
 ```bash
 export SCANPRIVACY_API_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(32))')
@@ -59,13 +59,19 @@ which submissions get `429` with `retry-after` rather than an id they can
 poll), and `SCANPRIVACY_SCAN_RETENTION` (200 results kept in memory; older ones are
 read from disk, and an entry that failed to persist is never evicted).
 
-Targets are checked twice. Before the fetch, the hostname is resolved and every
-address behind it must be public — a name whose A record points at
-`169.254.169.254` is the technique, not an edge case. After the fetch, the
-addresses Chromium reports having *actually reached* are checked again, which
-catches a record that changed in between and a redirect that moved the
-destination entirely. A result that touched a private address is discarded
+Targets are checked three times. Before the fetch, the hostname is resolved and
+every address behind it must be public — a name whose A record points at the
+cloud metadata address is the technique, not an edge case. While the scan runs,
+the browser, the robots.txt reader and the TLS probe can only reach the network
+through a local egress proxy that resolves each name itself, requires every
+address to be public, and connects to the address it checked, so a redirect, a
+sub-resource, a WebSocket or a rebound name never gets a connection to a private
+address in the first place. After the scan, the addresses actually reached are
+checked once more, and a result that touched a private address is discarded
 rather than returned.
+
+The proxy is a second line, not a substitute for network policy: run the
+container with egress to private ranges denied (see `docs/deploy.md`).
 
 The command line has no such check, deliberately: there the operator chose the
 target, and refusing `http://localhost:8000` would break the ordinary act of
@@ -343,7 +349,7 @@ SVG is generated locally, committed, and loads nothing.
 core/        enums.py (canonical vocabularies) · models.py (language-neutral) · graph.py
 i18n/        translator.py · locales/{en,it}/
 knowledge/   registry.py · vendors.yml · platforms.yml · frameworks.yml
-rules/       21 logic-only rules (see rules/README.md)
+rules/       31 logic-only rules: 27 passive, 4 in the refusal pass (see rules/README.md)
 observe/     browser.py · discover.py (which link is really the notice) · docs.py · tls.py · robots.py
 analyze/     context.py (facts) → subjects.py · predicates.py · engine.py → graph.py · verdict.py · diff.py
 report/      render.py (facts → sentences, once) · markdown.py · pdf.py · record.py · templates/
@@ -383,7 +389,7 @@ Every request carries a User-Agent naming the software, the purpose, and a
 contact address for **the instance that sent it**:
 
 ```
-scanprivacy/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: fabrizio.salmi@gmail.com)
+scanprivacy/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: abuse@scanprivacy.org)
 ```
 
 ### Where the scan was run from
@@ -436,7 +442,7 @@ python3.12 -m venv .venv && ./.venv/bin/pip install -e '.[dev]'
 ./.venv/bin/python -m pytest tests -q
 ```
 
-`requirements.lock` pins the exact resolution — 49 packages with sha256 hashes,
+`requirements.lock` (with the development tools) and `requirements.runtime.lock` (what the image and the Action install) pin the exact resolution, every package with its sha256 hashes,
 generated with `uv pip compile --generate-hashes`. Use it when the versions
 matter, which for this engine is more often than usual: the reports carry
 configuration digests and signed attestations asserting that two scans are the

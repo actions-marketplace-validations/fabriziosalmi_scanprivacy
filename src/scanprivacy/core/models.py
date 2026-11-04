@@ -136,6 +136,12 @@ class Verdict:
     note_key: str = ""
 
 
+SCHEMA_VERSION = 1
+"""Version of the stored scan JSON. Not covered by the evidence or findings
+digests, so adding it did not change any published digest. A file without the
+key was written before it existed and is read as version 1."""
+
+
 @dataclass(slots=True)
 class ScanResult:
     scan_id: str
@@ -167,6 +173,7 @@ class ScanResult:
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "schema_version": SCHEMA_VERSION,
             "scan_id": self.scan_id,
             "url": self.url,
             "final_url": self.final_url,
@@ -186,7 +193,7 @@ class ScanResult:
         }
 
 
-from .graph import Edge, Graph, Node  # noqa: E402  (cycle-free: Graph does not import models)
+from .graph import Graph  # noqa: E402  (cycle-free: Graph does not import models)
 
 
 # --------------------------------------------------------------- rehydration
@@ -201,12 +208,24 @@ def _enum(cls, value, default):
         return default
 
 
+def _severity(value) -> Severity:
+    """Strict, unlike the other enums here: a severity this build does not know
+    must not be quietly read as INFO, which would turn a stored critical finding
+    into a footnote in every report derived from it."""
+    if isinstance(value, Severity):
+        return value
+    try:
+        return Severity(value)
+    except (ValueError, TypeError):
+        raise ValueError(f"unknown severity {value!r}: this file was written by a newer version") from None
+
+
 def finding_from_dict(data: dict[str, Any]) -> Finding:
     remediation = data.get("remediation")
     return Finding(
         id=data["id"],
         rule_id=data["rule_id"],
-        severity=_enum(Severity, data.get("severity"), Severity.INFO),
+        severity=_severity(data.get("severity")),
         confidence=_enum(Confidence, data.get("confidence"), Confidence.PROBABLE),
         subject_kind=_enum(SubjectKind, data.get("subject_kind"), SubjectKind.SITE),
         subject_node=data.get("subject_node", ""),
@@ -253,6 +272,11 @@ def scan_from_dict(data: dict[str, Any]) -> ScanResult:
     alone. If a consumer had to re-scan to produce them, the digests would stop
     meaning anything.
     """
+    version = data.get("schema_version", 1)
+    if not isinstance(version, int) or version > SCHEMA_VERSION:
+        raise ValueError(
+            f"scan JSON has schema_version {version!r}; this build reads up to {SCHEMA_VERSION}"
+        )
     verdict_data = data.get("verdict")
     graph = Graph()
     for node in (data.get("graph") or {}).get("nodes", []):

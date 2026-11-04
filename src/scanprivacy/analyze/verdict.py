@@ -14,7 +14,12 @@ from ..core.enums import Grade, Severity
 from ..core.models import Finding, Verdict
 
 
-def grade(findings: Iterable[Finding], observed_ok: bool, note_key: str = "") -> Verdict:
+def grade(
+    findings: Iterable[Finding],
+    observed_ok: bool,
+    note_key: str = "",
+    blocking_key: str = "verdict.inconclusive_blocking",
+) -> Verdict:
     findings = list(findings)
     counts = Counter(f.severity.value for f in findings)
     counted = {severity.value: counts.get(severity.value, 0) for severity in Severity}
@@ -24,7 +29,7 @@ def grade(findings: Iterable[Finding], observed_ok: bool, note_key: str = "") ->
             conformant=False,
             grade=Grade.INCONCLUSIVE,
             counts=counted,
-            blocking=("verdict.inconclusive_blocking",),
+            blocking=(blocking_key,),
             note_key=note_key or "verdict.inconclusive_note",
         )
 

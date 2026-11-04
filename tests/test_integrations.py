@@ -19,7 +19,7 @@ from scanprivacy.analyze.context import build_context
 from scanprivacy.analyze.engine import evaluate, load_rules
 from scanprivacy.analyze.graph import build_graph
 from scanprivacy.analyze.verdict import grade
-from scanprivacy.core.enums import Grade, ScanStatus, Severity
+from scanprivacy.core.enums import Grade, ScanStatus
 from scanprivacy.core.models import ScanResult, scan_from_dict
 from scanprivacy.observe.browser import CookieSet, Observation, Request
 from scanprivacy.report.anchor import SourceIndex

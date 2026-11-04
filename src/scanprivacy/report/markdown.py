@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from ..core.models import ScanResult
 from ..i18n.translator import DEFAULT_LOCALE, Translator
-from .render import RenderedScan, scan_posture_rows, render_scan
+from .render import scan_posture_rows, render_scan
 
 _ICON = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🔵", "info": "⚪️"}
 
@@ -37,7 +37,7 @@ def render(result: ScanResult, locale: str = DEFAULT_LOCALE, include_graph: bool
         add("")
 
     if scan.mode == "refusal_pass" and scan.refusal:
-        add(f"| | |")
+        add("| | |")
         add("|---|---|")
         add(f"| {t.t('consent_pass.labels.outcome')} | {scan.refusal.get('outcome_display')} |")
         if scan.refusal.get("platform_name"):
@@ -217,7 +217,8 @@ def render(result: ScanResult, locale: str = DEFAULT_LOCALE, include_graph: bool
     # A partial observation that presents itself as complete is the failure
     # this engine exists to avoid. If a read did not finish, the reader is told
     # which one, rather than being handed a silence that looks like an answer.
-    probes = sorted({f for page in ((result.observation or {}).get("pages") or []) for f in (page.get("probe_failures") or [])})
+    pages = (result.observation or {}).get("pages") or []
+    probes = sorted({f for page in pages for f in (page.get("probe_failures") or [])})
     if probes:
         add("")
         add(t.t("report.limits.partial", probes=", ".join(probes)))

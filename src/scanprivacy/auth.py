@@ -25,7 +25,7 @@ import ipaddress
 import os
 from typing import Any
 
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Request
 
 __all__ = ["api_key_configured", "require_api_key", "assert_bind_is_safe", "UnsafeBind"]
 
@@ -83,13 +83,26 @@ def assert_bind_is_safe(host: str) -> None:
 
 
 async def require_api_key(
+    request: Request,
     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
     authorization: str | None = Header(default=None),
 ) -> None:
-    """FastAPI dependency. No key configured means no check — which is only
-    reachable on loopback, because `assert_bind_is_safe` refused otherwise."""
+    """FastAPI dependency.
+
+    No key configured: only callers on this machine are accepted. `serve`
+    already refuses a non-loopback bind without a key, but the app can be
+    started by other means (`uvicorn scanprivacy.api:app --host 0.0.0.0`), and a
+    guard that exists in one launcher is a guard the others skip. Checking the
+    caller here closes that, whatever started the process.
+    """
     expected = api_key_configured()
     if expected is None:
+        caller = request.client.host if request.client else ""
+        if not _is_loopback(caller):
+            raise HTTPException(
+                status_code=403,
+                detail=f"no {ENV_VAR} is configured: only callers on this machine are accepted",
+            )
         return
 
     presented = x_api_key

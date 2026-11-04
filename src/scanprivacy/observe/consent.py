@@ -34,11 +34,13 @@ import logging
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 import yaml
 
 from ..config import DEFAULTS, KNOWLEDGE_DIR, UA, Settings
 from .browser import Observation, new_context, observe_in_context
+from .rate import PerHostLimiter
 
 logger = logging.getLogger("scanprivacy.consent")
 
@@ -212,6 +214,7 @@ async def run_refusal_pass(
     url: str,
     settings: Settings = DEFAULTS,
     user_agent: str | None = None,
+    limiter: PerHostLimiter | None = None,
 ) -> ConsentPass:
     """Observe, refuse, reload in the same context, observe again.
 
@@ -220,8 +223,17 @@ async def run_refusal_pass(
     not the ones the site chooses to run for someone who said no.
     """
     platforms = load_catalogue()
-    context = await new_context(browser, user_agent or UA)
+    host = urlsplit(url).netloc
+
+    async def take_turn() -> None:
+        # The pass loads the page three times. Each is a page load, so each
+        # waits for the host's budget like any other.
+        if limiter is not None:
+            await limiter.wait(host)
+
+    context = await new_context(browser, user_agent or UA, settings)
     try:
+        await take_turn()
         before = await observe_in_context(context, url, settings)
         markers = list(before.cmp_detected) + (["TCF API"] if before.tcf_api_present else [])
 
@@ -234,6 +246,7 @@ async def run_refusal_pass(
 
         page = await context.new_page()
         try:
+            await take_turn()
             await page.goto(url, wait_until="domcontentloaded", timeout=settings.nav_timeout_ms)
             await page.wait_for_timeout(settings.wait_after_load_ms)
             platform = await _identify(page, platforms)
@@ -253,6 +266,7 @@ async def run_refusal_pass(
             return ConsentPass(before, None, attempt)
 
         # the choice must survive a reload, or it was not a choice
+        await take_turn()
         after = await observe_in_context(context, url, settings)
         return ConsentPass(before, after, attempt)
     finally:

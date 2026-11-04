@@ -109,7 +109,6 @@ def _synthetic_result():
     appear as ⟦ui.something⟧ in a client's PDF — which is exactly how the
     YAML-boolean trap (`yes:` parsed as True) reached a rendered report.
     """
-    import asyncio
     from datetime import datetime, timezone
 
     from scanprivacy.analyze.context import build_context
@@ -125,9 +124,18 @@ def _synthetic_result():
     obs.response_headers = {"server": "cloudflare", "cf-ray": "abc", "content-type": "text/html"}
     obs.requests = [
         Request("https://x.it/", "x.it", "GET", "/", 200, "text/html", "document", t_ms=10),
-        Request("https://fonts.googleapis.com/css2", "fonts.googleapis.com", "GET", "/css2", 200, "text/css", "stylesheet", t_ms=120),
-        Request("https://widgets.sociablekit.com/a.js", "widgets.sociablekit.com", "GET", "/a.js", 200, "application/javascript", "script", t_ms=200),
-        Request("https://data.unknown-vendor.example/x", "data.unknown-vendor.example", "GET", "/x", 200, None, "xhr", t_ms=240),
+        Request(
+            "https://fonts.googleapis.com/css2", "fonts.googleapis.com", "GET", "/css2",
+            200, "text/css", "stylesheet", t_ms=120,
+        ),
+        Request(
+            "https://widgets.sociablekit.com/a.js", "widgets.sociablekit.com", "GET", "/a.js",
+            200, "application/javascript", "script", t_ms=200,
+        ),
+        Request(
+            "https://data.unknown-vendor.example/x", "data.unknown-vendor.example", "GET", "/x",
+            200, None, "xhr", t_ms=240,
+        ),
     ]
     obs.cookies = [
         CookieSet("_ga", ".x.it", "/", True, False, "Lax", 1.0, False),
@@ -150,7 +158,11 @@ def _synthetic_result():
     result.findings = findings
     result.graph = build_graph(ctx, findings)
     result.verdict = grade(findings, observed_ok=True)
-    result.observation = {"browser": {"requests": [], "cookies": [], "storage": [], "response_headers": {}}, "documents": [], "tls": None}
+    result.observation = {
+        "browser": {"requests": [], "cookies": [], "storage": [], "response_headers": {}},
+        "documents": [],
+        "tls": None,
+    }
     result.inventory = [
         {
             "vendor": f.vendor.vendor, "vendor_key": f.vendor.vendor_key, "product": f.vendor.product,

@@ -15,7 +15,7 @@ import logging
 import re
 from typing import Any, Callable
 
-from ..core.enums import ConsentClass, DataClass, TransferScope
+from ..core.enums import DataClass, TransferScope
 from ..knowledge.registry import is_first_party
 from .context import Context, CookieFact, StorageFact, VendorFact
 from .subjects import Subject
@@ -370,7 +370,9 @@ def evaluate_condition(ctx: Context, subject: Subject, condition: dict[str, Any]
     That is the failure mode this project keeps meeting: something breaks and
     the report reads as clean.
 
-    So: still no fire, and now a warning naming the rule and the predicate.
+    So: still no fire, a warning naming the predicate, and the predicate is
+    recorded on the context. The scanner turns a non-empty record into an
+    INCONCLUSIVE verdict, so the grade can never be cleaner than the evaluation.
     """
     for name, arg in condition.items():
         fn = REGISTRY.get(name)
@@ -378,13 +380,15 @@ def evaluate_condition(ctx: Context, subject: Subject, condition: dict[str, Any]
             logger.warning(
                 "unknown predicate %r on subject %s — rule does not fire", name, subject.slug or subject.kind
             )
+            ctx.rule_errors.append(f"{name}: unknown predicate")
             return False
         try:
             if not fn(ctx, subject, arg):
                 return False
-        except Exception:
+        except Exception as exc:
             logger.exception(
                 "predicate %r raised on subject %s — rule does not fire", name, subject.slug or subject.kind
             )
+            ctx.rule_errors.append(f"{name}: {type(exc).__name__}")
             return False
     return True

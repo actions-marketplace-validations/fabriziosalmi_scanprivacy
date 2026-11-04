@@ -92,7 +92,11 @@ class Graph:
         }
 
 
-def to_mermaid(graph: Graph, labels: dict[str, str] | None = None, max_nodes: int = 60) -> str:
+MERMAID_MAX_NODES = 60
+MERMAID_LABEL_CHARS = 60
+
+
+def to_mermaid(graph: Graph, labels: dict[str, str] | None = None, max_nodes: int = MERMAID_MAX_NODES) -> str:
     """A readable projection for humans; the JSON stays the source of truth.
 
     `labels` overrides neutral node labels with rendered ones (finding titles in
@@ -118,7 +122,7 @@ def to_mermaid(graph: Graph, labels: dict[str, str] | None = None, max_nodes: in
     for i, node in enumerate(kept):
         ids[node.id] = f"n{i}"
         open_, close = shapes.get(node.type, ("[", "]"))
-        label = labels.get(node.id, node.label).replace('"', "'")[:60]
+        label = labels.get(node.id, node.label).replace('"', "'")[:MERMAID_LABEL_CHARS]
         lines.append(f'  {ids[node.id]}{open_}"{label}"{close}')
     for edge in graph.edges:
         if edge.src in keep_ids and edge.dst in keep_ids:

@@ -7,7 +7,7 @@ whatever language the report is asked for.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -42,9 +42,26 @@ class Rule:
     does."""
 
 
+_RULES_CACHE: dict[tuple, tuple[Rule, ...]] = {}
+
+
 def load_rules(directory: Path = RULES_DIR, pass_: str = "passive") -> list[Rule]:
+    """The rules in `directory` for one pass.
+
+    Parsed once per distinct state of the files: this ran on every scan and on
+    every unauthenticated `/healthz` probe. The key includes each file's mtime,
+    so editing a rule is still picked up. A fresh list is returned each time.
+    """
+    files = sorted(directory.glob("PM-*.yml"))
+    key = (str(directory), pass_, tuple((p.name, p.stat().st_mtime_ns) for p in files))
+    if key not in _RULES_CACHE:
+        _RULES_CACHE[key] = tuple(_parse_rules(files, pass_))
+    return list(_RULES_CACHE[key])
+
+
+def _parse_rules(files: list[Path], pass_: str) -> list[Rule]:
     rules: list[Rule] = []
-    for path in sorted(directory.glob("PM-*.yml")):
+    for path in files:
         body = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
         if body.get("pass", "passive") != pass_:
             continue

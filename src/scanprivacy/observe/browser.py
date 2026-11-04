@@ -8,7 +8,6 @@ has not yet expressed anything.
 
 from __future__ import annotations
 
-import asyncio
 import re
 import time
 from dataclasses import asdict, dataclass, field
@@ -18,6 +17,7 @@ from urllib.parse import urljoin, urlsplit
 from playwright.async_api import Browser, Page, Response, async_playwright
 
 from ..config import DEFAULTS, UA, Settings
+from .guard import RequestGuard, blocked_requests, egress_of
 
 # Link text / href patterns for the documents that carry legal obligations.
 # Italian first (primary market), then EN/DE/FR/ES so the engine generalises.
@@ -219,6 +219,9 @@ class Observation:
     ai_markers: list[str] = field(default_factory=list)
     html_len: int = 0
     html: str = field(default="", repr=False)
+    blocked_requests: list[dict[str, str]] = field(default_factory=list)
+    """Requests the context refused to send because their host did not resolve to
+    public addresses only. Empty unless `Settings.guard_requests` is on."""
     probe_failures: list[str] = field(default_factory=list)
     """Which reads of the page did not complete, and why.
 
@@ -234,6 +237,8 @@ class Observation:
     def host(self) -> str:
         return urlsplit(self.final_url or self.url).netloc
 
+
+_MS_PER_SECOND = 1000
 
 _STORAGE_JS = """() => {
   const out = [];
@@ -273,13 +278,25 @@ _FORMS_JS = """() => {
 }"""
 
 
-async def new_context(browser: Browser, user_agent: str | None = None):
-    """A browsing context with no stored state: every scan is a first visit."""
-    return await browser.new_context(
+async def new_context(
+    browser: Browser, user_agent: str | None = None, settings: Settings | None = None
+):
+    """A browsing context with no stored state: every scan is a first visit.
+
+    When `settings.guard_requests` is set, every request the context makes is
+    vetted before it is sent; see `observe/guard.py`.
+    """
+    context = await browser.new_context(
         user_agent=user_agent or UA,
         locale="it-IT",
         ignore_https_errors=False,
     )
+    if settings is not None and settings.guard_requests:
+        egress = getattr(browser, "_scanprivacy_egress", None)
+        # One policy: the request guard judges with the same rule the proxy does.
+        await (RequestGuard(check=egress.policy) if egress is not None else RequestGuard()).install(context)
+        context._scanprivacy_egress = egress
+    return context
 
 
 async def observe_url(
@@ -289,7 +306,7 @@ async def observe_url(
     user_agent: str | None = None,
 ) -> Observation:
     """Load `url` in a clean context and return everything observed."""
-    context = await new_context(browser, user_agent)
+    context = await new_context(browser, user_agent, settings)
     try:
         return await observe_in_context(context, url, settings)
     finally:
@@ -362,7 +379,7 @@ async def observe_in_context(context, url: str, settings: Settings = DEFAULTS) -
                 resource_type=rtype,
                 failed=failed,
                 peer_ip=peer,
-                t_ms=int((time.monotonic() - t0) * 1000),
+                t_ms=int((time.monotonic() - t0) * _MS_PER_SECOND),
                 frame_depth=frame_depth,
                 frame_url=frame_url,
             )
@@ -371,10 +388,20 @@ async def observe_in_context(context, url: str, settings: Settings = DEFAULTS) -
     async def on_response(resp: Response) -> None:
         try:
             try:
-                addr = await resp.server_addr()
-                peer = (addr or {}).get("ipAddress")
-            except Exception:
+                egress = egress_of(page.context)
+                if egress is not None:
+                    # Behind the egress proxy the browser's peer is the proxy
+                    # itself; the address that matters is the one it connected to.
+                    peer = egress.public_peer(resp.url)
+                else:
+                    addr = await resp.server_addr()
+                    peer = (addr or {}).get("ipAddress")
+            except Exception as exc:
+                # An address that could not be read is not an address that was
+                # public. Say so in the observation instead of dropping it.
                 peer = None
+                if "server_addr" not in " ".join(listener_failures):
+                    listener_failures.append(f"server_addr: {type(exc).__name__}")
             depth, frame_url = _frame_origin(resp.request)
             _record(
                 resp.url,
@@ -551,6 +578,7 @@ async def observe_in_context(context, url: str, settings: Settings = DEFAULTS) -
     finally:
         obs.probe_failures.extend(listener_failures)
         await page.close()
+    obs.blocked_requests = blocked_requests(page.context)
     return obs
 
 
@@ -567,4 +595,6 @@ def obs_to_dict(obs: Observation, include_html: bool = False) -> dict[str, Any]:
     d = asdict(obs)
     if not include_html:
         d.pop("html", None)
+    if not d.get("blocked_requests"):
+        d.pop("blocked_requests", None)  # keeps the evidence shape of every unguarded scan
     return d

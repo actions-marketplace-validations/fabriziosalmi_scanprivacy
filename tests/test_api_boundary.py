@@ -9,15 +9,12 @@ locale is not a fallback but a destination.
 
 from __future__ import annotations
 
-import json
 
 import pytest
 from fastapi.testclient import TestClient
 
 from scanprivacy.api import _SCANS, app
 from scanprivacy.config import SCANS_DIR
-from scanprivacy.core.models import ScanResult
-from scanprivacy.core.enums import ScanStatus
 
 
 @pytest.fixture

@@ -46,3 +46,6 @@ data/baseline/*/
 data/fleet*
 !data/fleet-targets.txt.example
 
+
+# requirements.lock is the pinned resolution (hashes); uv.lock is a local convenience
+uv.lock

@@ -83,6 +83,18 @@ def write_artefacts(result, args: argparse.Namespace) -> list[Path]:
     return written
 
 
+def _within_budget(coroutine, settings):
+    """Run one scan under the same ceiling the API and `batch` apply.
+
+    `per_scan_budget_s` is documented as a hard ceiling; it was enforced only on
+    those two paths, so a hung page could keep a command-line scan (and a CI job
+    running the Action) alive indefinitely.
+    """
+    return asyncio.run(
+        asyncio.wait_for(coroutine, timeout=settings.per_scan_budget_s * max(1, settings.max_pages))
+    )
+
+
 def _cmd_scan(args: argparse.Namespace) -> int:
     from dataclasses import replace
 
@@ -91,7 +103,7 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         max_pages=max(1, args.pages),
         ua_fallback_on_block=args.ua_fallback,
     )
-    result = asyncio.run(scan(args.url, settings, read_documents=not args.no_documents))
+    result = _within_budget(scan(args.url, settings, read_documents=not args.no_documents), settings)
     t = Translator.for_locale(args.lang)
 
     write_artefacts(result, args)
@@ -181,6 +193,10 @@ def _cmd_batch(args: argparse.Namespace) -> int:
         render_fleet_pdf(summary, Path(args.pdf), args.lang)
     print()
     print(report)
+    failed = [r for r in results if r.get("status") != "ok"]
+    if failed:
+        print(f"{len(failed)} of {len(results)} targets did not produce a result", file=sys.stderr)
+        return 1
     return 0
 
 
@@ -191,7 +207,7 @@ def _cmd_consent_pass(args: argparse.Namespace) -> int:
     separate declared method, and the passive report never changes because of it.
     """
     t = Translator.for_locale(args.lang)
-    result = asyncio.run(refusal_scan(args.url, DEFAULTS))
+    result = _within_budget(refusal_scan(args.url, DEFAULTS), DEFAULTS)
     attempt = (result.record.get("posture") or {}).get("refusal") or {}
 
     if args.json:
@@ -226,6 +242,15 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     import uvicorn
 
     from .auth import UnsafeBind, api_key_configured, assert_bind_is_safe
+    from .config import ConfigError
+
+    # Importing the app reads its limits; a bad value is reported here, by name,
+    # and not as a traceback from inside the server.
+    try:
+        import scanprivacy.api  # noqa: F401
+    except ConfigError as bad:
+        print(f"scanprivacy serve: {bad}", file=sys.stderr)
+        return 2
 
     # Checked before the server starts, not on the first request: a service
     # that accepted one request it should not have accepted has already failed.
@@ -234,6 +259,18 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     except UnsafeBind as unsafe:
         print(f"scanprivacy serve: {unsafe}", file=sys.stderr)
         return 2
+
+    # Without this the service logs nothing the operator can tune: the module
+    # loggers have no handler, so warnings (a refused target, a scan over its
+    # budget) go nowhere. SCANPRIVACY_LOG_LEVEL picks the level.
+    import logging
+    import os
+
+    level = os.environ.get("SCANPRIVACY_LOG_LEVEL", "INFO").upper()
+    if level not in logging.getLevelNamesMapping():
+        print(f"scanprivacy serve: SCANPRIVACY_LOG_LEVEL={level!r} is not a log level", file=sys.stderr)
+        return 2
+    logging.basicConfig(level=level, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
     print(
         f"scanprivacy serve: {args.host}:{args.port} · authentication: "
@@ -374,7 +411,7 @@ def _cmd_verify_attestation(args: argparse.Namespace) -> int:
         certificate_oidc_issuer=args.oidc_issuer,
         public_key=Path(args.public_key) if args.public_key else None,
     )
-    print(f"statement          : {'valid' if checked.statement_valid else 'NOT A PRIVACYMATE STATEMENT'}")
+    print(f"statement          : {'valid' if checked.statement_valid else 'NOT A SCANPRIVACY STATEMENT'}")
     print(f"artefacts matching : {checked.subjects_matching}/{checked.subjects_checked}")
     for name in checked.mismatched:
         print(f"  ALTERED  {name}")
@@ -383,7 +420,8 @@ def _cmd_verify_attestation(args: argparse.Namespace) -> int:
     if checked.signature_verified is None:
         print(f"signature          : NOT VERIFIED — {checked.signature_detail}")
     else:
-        print(f"signature          : {'verified' if checked.signature_verified else 'INVALID'} ({checked.signature_mode})")
+        signature = "verified" if checked.signature_verified else "INVALID"
+        print(f"signature          : {signature} ({checked.signature_mode})")
     # fail-closed: anything short of a verified signature over matching
     # artefacts is a failure, because that is what a recipient is relying on
     return 0 if checked.ok else 1
@@ -449,6 +487,13 @@ def _run(func, args: argparse.Namespace) -> int:
     except BrowserUnavailable as unavailable:
         print(f"scanprivacy: {unavailable}", file=sys.stderr)
         return 3
+    except TimeoutError:
+        print(
+            f"scanprivacy: the scan did not finish within its budget of {DEFAULTS.per_scan_budget_s:.0f}s "
+            "per page and was stopped",
+            file=sys.stderr,
+        )
+        return 4
 
 
 def build_parser() -> argparse.ArgumentParser:

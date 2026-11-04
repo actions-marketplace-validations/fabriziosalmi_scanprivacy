@@ -1,0 +1,15 @@
+name: Rule or vendor proposal
+description: A new check, a wrong finding (false positive), or a vendor missing from the registry
+labels: [rules]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What should be reported, or what was reported wrongly
+    validations: {required: true}
+  - type: textarea
+    id: basis
+    attributes:
+      label: Legal or technical basis
+      description: Article, EDPB/Garante guideline, or the vendor documentation
+    validations: {required: true}
