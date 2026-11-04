@@ -14,12 +14,15 @@ import html
 import re
 from dataclasses import dataclass, field
 from typing import Any
+from urllib.parse import urlsplit
 
 from playwright.async_api import Browser
 
 from ..config import DEFAULTS, UA, Settings
 from ..knowledge.registry import Vendor, aliases_for, all_vendors
+from .browser import new_context
 from .discover import looks_like
+from .rate import PerHostLimiter
 
 # GDPR Art. 13 elements, as surface-detectable text. Bilingual IT/EN: the
 # Italian expressions come first because they are the primary market.
@@ -278,13 +281,21 @@ async def fetch_document(
     settings: Settings = DEFAULTS,
     user_agent: str | None = None,
     discovery: str = "",
+    limiter: PerHostLimiter | None = None,
 ) -> DocumentEvidence:
-    """Open one legal document the same way a visitor would, and read it."""
+    """Open one legal document the same way a visitor would, and read it.
+
+    `limiter` is the scan's per-host budget. A document is a page load like any
+    other, so it waits its turn: the promise is one load per second per host,
+    not one load per second except for the legal documents.
+    """
 
     ev = DocumentEvidence(kind=kind, url=url, status=None, ok=False, discovery=discovery)
-    context = await browser.new_context(user_agent=user_agent or UA, locale="it-IT")
+    context = await new_context(browser, user_agent or UA, settings)
     page = await context.new_page()
     try:
+        if limiter is not None:
+            await limiter.wait(urlsplit(url).netloc)
         resp = await page.goto(url, wait_until="domcontentloaded", timeout=settings.nav_timeout_ms)
         ev.status = resp.status if resp else None
         await page.wait_for_timeout(700)
@@ -337,12 +348,15 @@ async def fetch_documents(
     links: list[tuple[str, str, str]],
     settings: Settings = DEFAULTS,
     user_agent: str | None = None,
+    limiter: PerHostLimiter | None = None,
 ) -> list[DocumentEvidence]:
     """`links` is a list of (kind, url, discovery), already prioritised."""
 
     out: list[DocumentEvidence] = []
     for kind, url, why in links[: settings.max_documents]:
-        out.append(await fetch_document(browser, url, kind, settings, user_agent, discovery=why))
+        out.append(
+            await fetch_document(browser, url, kind, settings, user_agent, discovery=why, limiter=limiter)
+        )
     return out
 
 

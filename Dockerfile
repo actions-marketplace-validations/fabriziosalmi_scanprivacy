@@ -22,9 +22,16 @@ RUN pip install --require-hashes --no-deps -r requirements.lock \
  && python -m playwright install --with-deps chromium \
  && rm -rf /var/lib/apt/lists/*
 
-RUN useradd --create-home --uid 10001 scanprivacy
+RUN useradd --create-home --uid 10001 scanprivacy \
+ && mkdir -p /home/scanprivacy/data \
+ && chown scanprivacy /home/scanprivacy/data
 USER scanprivacy
 WORKDIR /home/scanprivacy
+
+# Results are written under ./data. Without a volume they live in the
+# container's writable layer and go with it, while the API keeps telling
+# callers a scan id is valid.
+VOLUME /home/scanprivacy/data
 
 EXPOSE 8099
 ENTRYPOINT ["scanprivacy"]

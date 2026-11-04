@@ -208,6 +208,9 @@ class Context:
     refusal: Any | None = None
     """What the engine did to the consent mechanism, when the refusal pass ran.
     `None` in every passive scan, which is every scan by default."""
+    rule_errors: list[str] = field(default_factory=list)
+    """Predicates that raised or were unknown while rules were evaluated. A rule
+    that could not run has not found nothing, and the verdict says so."""
     before: "Context | None" = None
     """Facts observed before the refusal, so a finding can say a vendor was
     present before *and* survived the refusal."""

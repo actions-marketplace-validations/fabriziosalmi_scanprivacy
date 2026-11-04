@@ -59,13 +59,19 @@ which submissions get `429` with `retry-after` rather than an id they can
 poll), and `SCANPRIVACY_SCAN_RETENTION` (200 results kept in memory; older ones are
 read from disk, and an entry that failed to persist is never evicted).
 
-Targets are checked twice. Before the fetch, the hostname is resolved and every
-address behind it must be public — a name whose A record points at
-the cloud metadata address is the technique, not an edge case. After the fetch, the
-addresses Chromium reports having *actually reached* are checked again, which
-catches a record that changed in between and a redirect that moved the
-destination entirely. A result that touched a private address is discarded
+Targets are checked three times. Before the fetch, the hostname is resolved and
+every address behind it must be public — a name whose A record points at the
+cloud metadata address is the technique, not an edge case. While the scan runs,
+the browser, the robots.txt reader and the TLS probe can only reach the network
+through a local egress proxy that resolves each name itself, requires every
+address to be public, and connects to the address it checked, so a redirect, a
+sub-resource, a WebSocket or a rebound name never gets a connection to a private
+address in the first place. After the scan, the addresses actually reached are
+checked once more, and a result that touched a private address is discarded
 rather than returned.
+
+The proxy is a second line, not a substitute for network policy: run the
+container with egress to private ranges denied (see `docs/deploy.md`).
 
 The command line has no such check, deliberately: there the operator chose the
 target, and refusing `http://localhost:8000` would break the ordinary act of
@@ -383,7 +389,7 @@ Every request carries a User-Agent naming the software, the purpose, and a
 contact address for **the instance that sent it**:
 
 ```
-scanprivacy/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: fabrizio.salmi@gmail.com)
+scanprivacy/0.1 (+passive EU privacy conformance observation; independent research, good faith; contact: abuse@scanprivacy.org)
 ```
 
 ### Where the scan was run from

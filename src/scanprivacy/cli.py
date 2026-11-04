@@ -181,6 +181,10 @@ def _cmd_batch(args: argparse.Namespace) -> int:
         render_fleet_pdf(summary, Path(args.pdf), args.lang)
     print()
     print(report)
+    failed = [r for r in results if r.get("status") != "ok"]
+    if failed:
+        print(f"{len(failed)} of {len(results)} targets did not produce a result", file=sys.stderr)
+        return 1
     return 0
 
 

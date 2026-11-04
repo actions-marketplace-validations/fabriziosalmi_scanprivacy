@@ -54,6 +54,21 @@ def _slug(url: str) -> str:
     return f"{parts.netloc}{'-' + path if path else ''}".replace(":", "_")
 
 
+def _is_finished_scan_of(payload: Any, url: str) -> bool:
+    """A cache hit is a scan that finished, of this target.
+
+    The runner writes its own error payload to the same file, and parsing as
+    JSON says nothing about what the JSON is. Treating that payload as a result
+    reported failed targets as cached and never tried them again.
+    """
+    return (
+        isinstance(payload, dict)
+        and payload.get("status") == ScanStatus.OK.value
+        and payload.get("url") == url
+        and payload.get("verdict") is not None
+    )
+
+
 async def run_batch(
     targets: list[str],
     out_dir: Path,
@@ -73,12 +88,14 @@ async def run_batch(
         path = out_dir / f"{_slug(url)}.json"
         if resume and path.is_file():
             try:
-                results[url] = json.loads(path.read_text(encoding="utf-8"))
+                cached = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                cached = None  # unreadable cache is not a reason to skip the target
+            if _is_finished_scan_of(cached, url):
+                results[url] = cached
                 if on_result:
                     on_result(url, None, "cached")
                 return
-            except (OSError, json.JSONDecodeError):
-                pass  # unreadable cache is not a reason to skip the target
 
         async with gate:
             try:

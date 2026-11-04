@@ -96,25 +96,17 @@ def test_an_empty_contact_falls_back_rather_than_shipping_a_blank_one(monkeypatc
 
 
 def test_the_default_contact_is_an_address_and_not_a_placeholder():
-    """A role address is what this should eventually be — `abuse@` on the
-    project's own domain, so that a public file does not conscript one person
-    into answering for deployments they never saw, and does not hand harvesters
-    a working mailbox.
-
-    That mailbox does not exist yet, and an address that bounces is worse than a
-    personal one that works: it claims accountability without offering it. So
-    while the repository is private the default is a real inbox, and what is
-    enforced here is only that it *is* one.
-
-    The stronger rule cannot be tested, because nothing in the source can see
-    the day the repository is made public. It is stated in `config.py`, next to
-    the line that has to change.
+    """The default is the project's role address, `abuse@` on its own domain, so
+    that a public file does not conscript one person into answering for
+    deployments they never saw. What is enforced here is that it is an address
+    and not a placeholder, and that it is not a personal mailbox.
     """
     local, at, domain = config.UA_CONTACT_DEFAULT.partition("@")
     assert at and local and "." in domain, (
         f"{config.UA_CONTACT_DEFAULT!r} is not an email address"
     )
     assert "example" not in domain, "the default must be a mailbox somebody reads"
+    assert local in {"abuse", "security", "contact"}, "the default must be a role address, not a person"
 
 
 def test_the_engine_and_the_documents_promise_the_same_address():

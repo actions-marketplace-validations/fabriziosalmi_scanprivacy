@@ -521,6 +521,8 @@ verdict:
   not_conformant_note: There are findings that require action before the site can be considered conformant.
   inconclusive_note: "The site was not loaded: this outcome is not a favourable one."
   inconclusive_blocking: observation failed — no finding can be ruled out
+  rule_error_note: "Some rules could not be evaluated, so this outcome is not a favourable one."
+  rule_error_blocking: "a rule could not be evaluated — the findings below may be incomplete"
   robots_skip: the site's robots.txt does not allow the declared user agent to read this URL
 
 cli:

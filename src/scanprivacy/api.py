@@ -22,8 +22,10 @@ import asyncio
 import json
 import logging
 import os
+import re
 import uuid
 from collections import OrderedDict
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import urlsplit
@@ -37,7 +39,7 @@ from .auth import posture as auth_posture, require_api_key
 from . import __version__
 from .config import DEFAULTS, LICENCE, SCANS_DIR, SOURCE_URL
 from .core.graph import to_mermaid
-from .core.models import ScanResult
+from .core.models import ScanResult, scan_from_dict
 from .core.target import TargetRefused, check_observed_peers, check_public_target, peers_of
 from .i18n.translator import DEFAULT_LOCALE, Translator, available_locales
 from .knowledge.registry import all_vendors
@@ -62,6 +64,10 @@ MAX_SCANS_IN_FLIGHT = int(os.environ.get("SCANPRIVACY_MAX_SCANS_IN_FLIGHT", "50"
 SCAN_RETENTION = int(os.environ.get("SCANPRIVACY_SCAN_RETENTION", "200"))
 
 logger = logging.getLogger("scanprivacy.api")
+
+# Across this boundary a stranger chooses the target, so every request the
+# browser makes is vetted before it is sent. The command line does not do this.
+API_SETTINGS = replace(DEFAULTS, guard_requests=True)
 
 _SCAN_SLOTS = asyncio.Semaphore(MAX_CONCURRENT_SCANS)
 
@@ -131,7 +137,7 @@ async def _observe(scan_id: str, request: ScanRequest) -> None:
         result = await asyncio.wait_for(
             scan(
                 request.url,
-                DEFAULTS,
+                API_SETTINGS,
                 scan_id=scan_id,
                 read_documents=request.read_documents,
                 context=request.context,
@@ -178,8 +184,41 @@ async def _observe(scan_id: str, request: ScanRequest) -> None:
         _evict_if_needed()
 
 
+_SCAN_ID = re.compile(r"[0-9a-f]{12}")
+
+
+def _from_disk(scan_id: str) -> dict[str, Any] | None:
+    """A result that left memory, or that predates this process.
+
+    Eviction and restarts drop the in-memory entry on the grounds that the
+    result is on disk; this is the half that reads it back. The id is matched
+    against the shape the service itself issues before it reaches a path.
+    """
+    if not _SCAN_ID.fullmatch(scan_id):
+        return None
+    path = SCANS_DIR / f"{scan_id}.json"
+    if not path.is_file():
+        return None
+    try:
+        result = scan_from_dict(json.loads(path.read_text(encoding="utf-8")))
+    except (OSError, ValueError, KeyError, TypeError):
+        # Not "unknown": the result exists and cannot be read, and saying 404
+        # would tell the caller the scan never happened.
+        logger.exception("stored result for scan %s is unreadable", scan_id)
+        raise HTTPException(status_code=500, detail="stored result is unreadable") from None
+    return {
+        "status": "done",
+        "url": result.url,
+        "result": result,
+        "persisted": True,
+        "error": None,
+    }
+
+
 def _get(scan_id: str) -> dict[str, Any]:
     entry = _SCANS.get(scan_id)
+    if entry is None:
+        entry = _from_disk(scan_id)
     if entry is None:
         raise HTTPException(status_code=404, detail="unknown scan_id")
     return entry
@@ -208,13 +247,27 @@ def _locale(lang: str) -> str:
     return lang
 
 
+def _storage_writable() -> bool:
+    try:
+        SCANS_DIR.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return False
+    return os.access(SCANS_DIR, os.W_OK)
+
+
 @app.get("/healthz")
-async def healthz() -> dict[str, Any]:
+async def healthz() -> JSONResponse:
     """Deliberately unauthenticated. A liveness probe that needs a credential
     stops working the day the credential rotates, and it discloses nothing a
-    caller could not learn by reading the package."""
-    return {
-        "ok": True,
+    caller could not learn by reading the package.
+
+    `ok` is false, with a 503, when results cannot be stored: the service would
+    accept scans whose evidence it then loses.
+    """
+    storage_ok = _storage_writable()
+    return JSONResponse(status_code=200 if storage_ok else 503, content={
+        "ok": storage_ok,
+        "storage_writable": storage_ok,
         "version": __version__,
         # AGPL section 13: whoever reaches this instance over a network is owed
         # its source. An unauthenticated liveness probe is the one place every
@@ -226,7 +279,7 @@ async def healthz() -> dict[str, Any]:
         "vendors": len(all_vendors()),
         "locales": available_locales(),
         **auth_posture(),
-    }
+    })
 
 
 @app.get("/v1/locales", dependencies=[Depends(require_api_key)])
