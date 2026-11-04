@@ -38,7 +38,7 @@ third-party sites **in your name**, and the site owner receiving them has no
 way to tell you did not send them.
 
 So `scanprivacy serve` refuses to start on any bind other than loopback without a
-key, and exits 3:
+key, and exits 2:
 
 ```bash
 export SCANPRIVACY_API_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(32))')
