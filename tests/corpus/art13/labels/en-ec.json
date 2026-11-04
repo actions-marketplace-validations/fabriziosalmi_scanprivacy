@@ -1,0 +1,54 @@
+{
+ "id": "en-ec",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "an operational controller ensures conformity with the specific privacy statement in place for each e-service"
+  },
+  "contact": {
+   "present": false,
+   "quote": null
+  },
+  "dpo": {
+   "present": true,
+   "quote": "the Data Protection Officer ensures in an independent manner the internal application of the Regulation in the Commission, and advises operational controllers on their data protection obligations"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "Europa Analytics is the corporate service that measures the effectiveness and efficiency of the European Commission's websites on Europa."
+  },
+  "legal_basis": {
+   "present": false,
+   "quote": null
+  },
+  "recipients": {
+   "present": true,
+   "quote": "The Commission’s contractors are bound by a specific contractual clause for any processing operations of your data on behalf of the Commission"
+  },
+  "transfers": {
+   "present": false,
+   "quote": null
+  },
+  "retention": {
+   "present": true,
+   "quote": "The European Commission only keeps this information for the time necessary to fulfil the request, namely for the duration of the browsing session."
+  },
+  "rights": {
+   "present": true,
+   "quote": "You have the right to obtain access to the personal data held by the Commission about you and to request its rectification or erasure, or restriction of processing or, where applicable, the right to object to processing or the right to data portability."
+  },
+  "complaint": {
+   "present": false,
+   "quote": null
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": false,
+   "quote": null
+  }
+ },
+ "notes": "Controller is only a role (operational controller); no contact details, no email/postal. Complaint: EDPS only named as supervisory authority, no explicit right to lodge a complaint (false). Legal basis only cites Regulation 2018/1725, not a basis (false). Recipients borderline (contractors only). Purposes borderline (analytics). No date."
+}

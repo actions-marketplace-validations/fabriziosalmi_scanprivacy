@@ -1,0 +1,54 @@
+{
+ "id": "en-atlassian",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Your information is controlled by Atlassian Pty Ltd and Atlassian, Inc."
+  },
+  "contact": {
+   "present": true,
+   "quote": "Atlassian Pty Ltd c/o Atlassian US, Inc. 350 Bush Street, Floor 13 San Francisco, CA 94104 E-Mail: privacy@atlassian.com"
+  },
+  "dpo": {
+   "present": false,
+   "quote": null
+  },
+  "purposes": {
+   "present": true,
+   "quote": "We use information for the following purposes: To provide the Services and personalize your experience:"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "Legitimate interests (Article 6(1)(f) GDPR)"
+  },
+  "recipients": {
+   "present": true,
+   "quote": "Service Providers: We work with third-party service providers to provide website and application development, hosting, maintenance, backup, storage, virtual infrastructure, payment processing, analysis, marketing, and other services for us"
+  },
+  "transfers": {
+   "present": true,
+   "quote": "we make use of the Data Privacy Framework to receive personal data transfers from the European Union/European Economic Area to the U.S."
+  },
+  "retention": {
+   "present": true,
+   "quote": "How long we keep information we collect about you depends on the type of information, the purposes for which it was collected, applicable legal or regulatory requirements, and user expectations and preferences."
+  },
+  "rights": {
+   "present": true,
+   "quote": "To request access to and/or a copy of certain information we hold about you (including in a portable and/or machine-readable format); To object to how we process your personal information;"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "To lodge a complaint with the relevant supervisory authority."
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Effective starting: August 17, 2026"
+  }
+ },
+ "notes": "No DPO named (only EU/UK representatives). No explicit statement on automated decision-making/profiling (targeted advertising and AI use mentioned but no Art. 22 statement)."
+}

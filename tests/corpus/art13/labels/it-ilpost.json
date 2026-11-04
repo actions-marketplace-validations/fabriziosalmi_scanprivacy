@@ -1,0 +1,54 @@
+{
+ "id": "it-ilpost",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Il Titolare del Trattamento dei dati personali è la società Il Post con sede legale in via Olivetani 10/12, Milano, e-mail: redazione@ilpost.it"
+  },
+  "contact": {
+   "present": true,
+   "quote": "Il Titolare del Trattamento dei dati personali è la società Il Post con sede legale in via Olivetani 10/12, Milano, e-mail: redazione@ilpost.it"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "dotato di responsabile per la protezione dei dati (“RPD” o “DPO”) contattabile all’indirizzo e-mail: redazione@ilpost.it"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "I dati personali forniti dall’utente sono raccolti e utilizzati per la corretta gestione delle seguenti finalità: a. per la registrazione dell’utente finalizzata alla creazione del proprio account nonché per la gestione dello stesso;"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "La base giuridica del trattamento per le finalità di cui ai punti a), b) ed e) rientra nella presenza di un contratto tra l’interessato ed il Titolare del Trattamento."
+  },
+  "recipients": {
+   "present": true,
+   "quote": "I dati personali dell’utente possono essere comunicati a soggetti determinati, incaricati dal Titolare della fornitura di servizi strumentali o necessari all’esecuzione delle obbligazioni connesse alla registrazione al Sito"
+  },
+  "transfers": {
+   "present": true,
+   "quote": "Alcuni fornitori, tra cui quelli dei servizi di analisi e pubblicità indicati nella cookie policy, possono trattare i dati negli Stati Uniti."
+  },
+  "retention": {
+   "present": true,
+   "quote": "i dati dell’account sono conservati fino alla sua cancellazione;"
+  },
+  "rights": {
+   "present": true,
+   "quote": "L’interessato ha il diritto a richiedere al Titolare l’accesso ai Suoi dati, la rettifica o la cancellazione degli stessi, la limitazione del trattamento o la possibilità di opporsi al trattamento, di richiedere la portabilità dei dati"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "ha il diritto di presentare reclamo presso il Garante per la protezione dei dati personali (www.garanteprivacy.it)"
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": false,
+   "quote": null
+  }
+ },
+ "notes": "DPO email is the same generic redazione@ilpost.it as the controller; accepted as stated DPO contact. No update date, no profiling statement in the notice body (cookie banner mentions profiling cookies only)."
+}

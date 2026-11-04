@@ -1,0 +1,54 @@
+{
+ "id": "it-regione-lombardia",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Acconsento al trattamento dei miei dati di contatto da parte di Regione Lombardia"
+  },
+  "contact": {
+   "present": false,
+   "quote": null
+  },
+  "dpo": {
+   "present": false,
+   "quote": null
+  },
+  "purposes": {
+   "present": true,
+   "quote": "per ricevere comunicazioni relative alle tematiche selezionate"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "Acconsento al trattamento dei miei dati di contatto da parte di Regione Lombardia"
+  },
+  "recipients": {
+   "present": false,
+   "quote": null
+  },
+  "transfers": {
+   "present": false,
+   "quote": null
+  },
+  "retention": {
+   "present": false,
+   "quote": null
+  },
+  "rights": {
+   "present": false,
+   "quote": null
+  },
+  "complaint": {
+   "present": false,
+   "quote": null
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": false,
+   "quote": null
+  }
+ },
+ "notes": "Homepage, not a privacy notice; only a newsletter consent checkbox line gives controller, purpose and consent basis (borderline). Right to revoke consent mentioned but no rights list. Footer address and cookie banner not counted as contact/purposes."
+}

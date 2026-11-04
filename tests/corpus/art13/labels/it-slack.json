@@ -1,0 +1,54 @@
+{
+ "id": "it-slack",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Slack Technologies Limited , una società irlandese con sede a Dublino, Irlanda, è titolare del trattamento delle Altre informazioni"
+  },
+  "contact": {
+   "present": true,
+   "quote": "Contattare Slack all’indirizzo e-mail privacy@slack.com oppure all’indirizzo postale indicato di seguito."
+  },
+  "dpo": {
+   "present": true,
+   "quote": "Per comunicare con il responsabile della protezione dei dati, inviare un’e-mail all’indirizzo dpo@slack.com ."
+  },
+  "purposes": {
+   "present": true,
+   "quote": "Slack usa le Altre informazioni per gestire i Servizi, i Siti web e l’attività. Più specificamente, Slack utilizza le Altre informazioni per i seguenti scopi:"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "Slack si basa prevalentemente sui propri interessi legittimi, descritti sopra, per il trattamento di tali Dati personali."
+  },
+  "recipients": {
+   "present": true,
+   "quote": "Slack può avvalersi di società o individui di terze parti come provider di servizi o partner commerciali per elaborare le Informazioni e supportare la propria attività."
+  },
+  "transfers": {
+   "present": true,
+   "quote": "Slack usa le Clausole contrattuali standard approvate dalla Commissione Europea (e le clausole contrattuali standard equivalenti per il Regno Unito quando appropriato) per i trasferimenti in, tra altri, Australia, Canada, India, Giappone, Corea del Sud e Stati Uniti."
+  },
+  "retention": {
+   "present": true,
+   "quote": "Slack può conservare Altre informazioni relative all’utente per il tempo necessario agli scopi descritti in questa Informativa sulla privacy"
+  },
+  "rights": {
+   "present": true,
+   "quote": "l’utente ha il diritto di richiedere l’accesso alle proprie informazioni personali, nonché di aggiornarle, eliminarle o correggerle."
+  },
+  "complaint": {
+   "present": true,
+   "quote": "l’utente ha anche il diritto di (i) limitare l’uso da parte di Slack di Altre informazioni che costituiscono i Dati personali dell’utente e (ii) presentare un reclamo all’autorità locale per la protezione dei dati."
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "In vigore dal: 5 luglio 2023"
+  }
+ },
+ "notes": "Document is Italian despite id. Profiling: no statement either way. Retention is criteria-based and vague."
+}

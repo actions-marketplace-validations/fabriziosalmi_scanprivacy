@@ -1,0 +1,54 @@
+{
+ "id": "en-automattic",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Different Automattic companies are the controller (or co-controller) of personal information, which means that they are the company responsible for processing that information"
+  },
+  "contact": {
+   "present": true,
+   "quote": "please contact us through our web form or via email . These are the fastest ways to get a response to your inquiry, but you can also contact us by telephone at 1-877-273-3049."
+  },
+  "dpo": {
+   "present": false,
+   "quote": null
+  },
+  "purposes": {
+   "present": true,
+   "quote": "To provide our Services. For example, to set up and maintain your account, host your website, backup and restore your website, provide customer service, process payments and orders, and verify user information."
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "(1) The use is necessary in order to fulfill our commitments to you under the applicable terms of service or other agreements with you"
+  },
+  "recipients": {
+   "present": true,
+   "quote": "We may share information about you with third-party vendors who need the information in order to provide their services to us, or to provide their services to you or your site."
+  },
+  "transfers": {
+   "present": true,
+   "quote": "These measures include entering into European Commission or UK government approved standard contractual arrangements with entities based in countries outside the EEA or the UK."
+  },
+  "retention": {
+   "present": true,
+   "quote": "We generally discard information about you when it’s no longer needed for the purposes for which we collect and use it"
+  },
+  "rights": {
+   "present": true,
+   "quote": "Request access to your personal data; Request correction or deletion of your personal data; Object to our use and processing of your personal data; Request that we limit our use and processing of your personal data; and Request portability of your personal data."
+  },
+  "complaint": {
+   "present": true,
+   "quote": "You also have the right to make a complaint to a government supervisory authority."
+  },
+  "profiling": {
+   "present": true,
+   "quote": "screening their applications using automated or partially automated tools (which are subject to human review at every stage of the process)"
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Change log December 11, 2025: Updated some product names as well as the US Privacy Laws section to include an additional right."
+  }
+ },
+ "notes": "No DPO named. Profiling is weak: only job-applicant screening with human review is stated; no explicit statement about automated decision-making in general (marked present, borderline). Withdraw-consent right not stated."
+}

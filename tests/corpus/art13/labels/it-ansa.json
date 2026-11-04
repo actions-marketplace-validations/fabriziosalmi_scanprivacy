@@ -1,0 +1,54 @@
+{
+ "id": "it-ansa",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "significa che ANSA decide “ perché ” e “ come ” trattare i tuoi Dati quando utilizzi il portale www.ansa.it"
+  },
+  "contact": {
+   "present": true,
+   "quote": "indirizzo di posta elettronica aziendale : agenziaansa@ansa.it"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "Il RPD-DPO dell’Agenzia Ansa, nella persona dell’Avv. Daniela Cavallaro, è contattabile all’indirizzo di posta elettronica certificata rpd@pec.ansa.it"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "newsletter – se decidi di ricevere la nostra newsletter, ti invieremo un’email periodica con le notizie ANSA in linea con le tue preferenze."
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "Base giuridica : esecuzione del contratto (articolo 6.1.b. GDPR); adempimento di obblighi di legge (articolo 6.1.c. GDPR)."
+  },
+  "recipients": {
+   "present": true,
+   "quote": "I tuoi Dati possono essere comunicati e condivisi con soggetti esterni (persone, aziende, enti pubblici e Autorità), tra i quali, a titolo meramente esemplificativo:"
+  },
+  "transfers": {
+   "present": true,
+   "quote": "Il trasferimento dei dati negli Stati Uniti è garantito dalle clausole contrattuali tipo approvate dalla Commissione europea (art. 46, par. 2, lett. c), GDPR)"
+  },
+  "retention": {
+   "present": true,
+   "quote": "i log di navigazione sono conservati per 12 mesi dalla registrazione;"
+  },
+  "rights": {
+   "present": true,
+   "quote": "diritto di accesso – ti consente di chiedere informazioni su quali dati personali sono oggetto di trattamento da parte del titolare e di ottenerne l’accesso; diritto di rettifica"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "puoi formulare un reclamo o una segnalazione all’autorità nazionale che vigila sul rispetto della normativa . In Italia è l’Autorità Garante per la protezione dei dati personali"
+  },
+  "profiling": {
+   "present": true,
+   "quote": "La profilazione segue metodi statistici e probabilistici di analisi dei Dati ed è effettuata con il supporto tecnico di un fornitore di servizi esterno"
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Versione 26 ottobre 2026 INFORMATIVA ARCHIVIO Cookie Policy SCARICA LA VERSIONE PDF (ver.13 del 26.10.2026)"
+  }
+ },
+ "notes": "profiling marked present because the notice says profiling takes place (with consent); no explicit 'no solely automated decisions' statement."
+}

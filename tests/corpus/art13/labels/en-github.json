@@ -1,0 +1,54 @@
+{
+ "id": "en-github",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "It applies to the Personal Data that GitHub, Inc. or GitHub B.V., processes as the “Data Controller”"
+  },
+  "contact": {
+   "present": true,
+   "quote": "Contact us via our contact form or by emailing our Data Protection Officer at dpo[at]github[dot]com. Our addresses are: GitHub B.V. Prins Bernhardplein 200, Amsterdam 1097JB"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "Please contact our Data Protection Officer at dpo[at]github[dot]com"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "Business Operations: We use Personal Data for activities like billing, accounting, and compensation. This includes creating aggregated statistical data for internal reporting, financial reporting, revenue planning, capacity planning, and forecast modeling (including product strategy)."
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "Contractual Necessity: Processing is required to fulfill our contractual duties to you, in accordance with the GitHub Terms of Service."
+  },
+  "recipients": {
+   "present": true,
+   "quote": "We may share Personal Data with the following recipients: Abuse and Fraud Prevention Entities: We may disclose Personal Data based on a good faith belief it is needed to prevent fraud, abuse, or attacks on our Services"
+  },
+  "transfers": {
+   "present": true,
+   "quote": "We transfer Personal Data from the European Union, the United Kingdom, and Switzerland to countries that the European Commission has not recognized as having an adequate level of data protection."
+  },
+  "retention": {
+   "present": true,
+   "quote": "retain your Personal Data as long as your account is active and as needed to fulfill contractual obligations, comply with legal requirements, resolve disputes, and enforce agreements."
+  },
+  "rights": {
+   "present": true,
+   "quote": "The right to access the data collected about you The right to request detailed information about the specific types of Personal Data we've collected over the past 12 months, including data disclosed for business purposes The right to rectify or update inaccurate or incomplete Personal Data"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "you have the right to complain to your local Data Protection Authority."
+  },
+  "profiling": {
+   "present": true,
+   "quote": "GitHub does not engage in such profiling as defined by Colorado law, so there’s no need to opt out."
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Effective date: April 27, 2026"
+  }
+ },
+ "notes": "Profiling: statement only for Colorado law ('does not engage in such profiling'), not GDPR Art 22 specifically; marked present as a denial. Retention is criteria-based only."
+}

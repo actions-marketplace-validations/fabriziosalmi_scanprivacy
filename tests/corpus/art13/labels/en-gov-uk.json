@@ -1,0 +1,54 @@
+{
+ "id": "en-gov-uk",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "GOV.UK (or www.gov.uk) is provided by the Government Digital Service ( GDS ), part of the Department for Science, Innovation & Technology ( DSIT ). DSIT and other government departments, agencies and organisations are joint controllers for pages that start ‘www.gov.uk’."
+  },
+  "contact": {
+   "present": true,
+   "quote": "Privacy Team gds.data.protection@dsit.gov.uk You can also contact our Data Protection Officer ( DPO ): DSIT Data Protection Officer Department for Science, Innovation and Technology 22-26 Whitehall London SW1A 2EG dataprotection@dsit.gov.uk"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "You can also contact our Data Protection Officer ( DPO ): DSIT Data Protection Officer Department for Science, Innovation and Technology 22-26 Whitehall London SW1A 2EG dataprotection@dsit.gov.uk"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "We collect your personal data in order to: gather feedback to improve our services"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "The legal basis for processing data collected with Google Analytics and SpeedCurve RUM on GOV.UK and other government digital services is your consent."
+  },
+  "recipients": {
+   "present": true,
+   "quote": "The data we collect may be shared with other government departments, agencies and organisations. It may also be shared with our technology suppliers, for example our hosting provider."
+  },
+  "transfers": {
+   "present": true,
+   "quote": "Data collected by Google Analytics and SpeedCurve RUM may be transferred outside the EEA for processing. Where data processing happens in the US"
+  },
+  "retention": {
+   "present": true,
+   "quote": "We will: keep your email data until you unsubscribe keep your feedback data for 2 years delete access log data which contain your IP address after 120 days"
+  },
+  "rights": {
+   "present": true,
+   "quote": "You have the right to request: information about how your personal data is processed a copy of that personal data that anything inaccurate in your personal data is corrected immediately"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "You can also make a complaint to the Information Commissioner, who is an independent regulator."
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Last updated: 1 June 2025"
+  }
+ },
+ "notes": "No statement on automated decision-making or profiling in the notice (Google Ad personalisation mention is not an ADM statement)."
+}

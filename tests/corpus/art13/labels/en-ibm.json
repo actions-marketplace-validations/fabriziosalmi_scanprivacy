@@ -1,0 +1,54 @@
+{
+ "id": "en-ibm",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "the Controller of your personal information is IBM’s main subsidiary in your country or region, unless International Business Machines Corporation (IBM Corp.) or another IBM subsidiary identifies itself as the Controller"
+  },
+  "contact": {
+   "present": true,
+   "quote": "International Business Machines Corporation, 1, North Castle Drive, Armonk, New York, United States of America."
+  },
+  "dpo": {
+   "present": false,
+   "quote": null
+  },
+  "purposes": {
+   "present": true,
+   "quote": "We collect and use information to improve our business operations, systems, and processes."
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "Necessary for the performance of a contract with you We rely on this legal basis when we need to process certain personal information"
+  },
+  "recipients": {
+   "present": true,
+   "quote": "We may share your personal information internally and externally with suppliers, advisors, or Business Partners for IBM’s legitimate business purposes, and only on a need-to-know basis."
+  },
+  "transfers": {
+   "present": true,
+   "quote": "Your personal information may be transferred to or accessed by IBM subsidiaries and third parties globally."
+  },
+  "retention": {
+   "present": true,
+   "quote": "We only retain personal information as long as necessary to fulfill the purposes for which it is processed, or to comply with legal and regulatory retention requirements."
+  },
+  "rights": {
+   "present": true,
+   "quote": "request access to the personal information that we have on you, or have it updated or corrected."
+  },
+  "complaint": {
+   "present": true,
+   "quote": "You may also have the right to complain to the competent supervisory authority."
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "This privacy statement is effective as of 25 August 2026"
+  }
+ },
+ "notes": "DPO: contact form is forwarded to 'responsible Data Protection Officers' but no DPO contact details or named role, so false. No ADM/profiling statement (only targeted advertising). Rights list is partial (access, correct, portability, delete, opt-out)."
+}

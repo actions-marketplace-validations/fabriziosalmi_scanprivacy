@@ -1,0 +1,54 @@
+{
+ "id": "it-agenziaentrate",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Titolare del trattamento dei dati personali è l’Agenzia delle Entrate, con sede in via Giorgione, 106 – 00147 - Roma."
+  },
+  "contact": {
+   "present": true,
+   "quote": "la posta elettronica certificata all’indirizzo eserciziodiritti@pec.agenziaentrate.it."
+  },
+  "dpo": {
+   "present": true,
+   "quote": "Il dato di contatto del Responsabile della Protezione dei Dati Personali è l'indirizzo di posta elettronica: entrate.dpo@agenziaentrate.it"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "correlati alle finalità di controllo del corretto funzionamento dei siti e delle app, all’elaborazione in forma anonima di informazioni statistiche sull’uso dei siti e delle app"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "I dati personali indicati in questa pagina sono trattati dall’Agenzia nell'esecuzione dei propri compiti di interesse pubblico o comunque connessi all'esercizio dei propri pubblici poteri, ai sensi dell’art. 6, par. 1, lett. e) del GDPR"
+  },
+  "recipients": {
+   "present": true,
+   "quote": "potranno essere comunicati e trattati, nel rispetto della normativa vigente, a società esterne incaricate da Agenzia delle Entrate al fine di svolgere servizi di varia natura relativamente ai propri siti e app"
+  },
+  "transfers": {
+   "present": true,
+   "quote": "Alcuni di questi fornitori potrebbero, nell’ambito di ordinarie attività di supporto e manutenzione, trasferire ed elaborare i dati personali in regioni esterne allo Spazio Economico Europeo sulla base di decisioni di adeguatezza della Commissione UE"
+  },
+  "retention": {
+   "present": true,
+   "quote": "verranno conservati per il tempo strettamente necessario a fornire i servizi richiesti e a svolgere le correlate operazioni tecniche e di sicurezza"
+  },
+  "rights": {
+   "present": true,
+   "quote": "Ha inoltre il diritto di chiedere, nelle forme previste dall’ordinamento, la rettifica dei dati personali inesatti e l’integrazione di quelli incompleti e di esercitare ogni altro diritto ai sensi degli articoli da 18 a 22 del Regolamento"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "Lei potrà inoltre rivolgersi all’Autorità di controllo, ai sensi dell’art. 77 del medesimo Regolamento."
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Ultimo aggiornamento: aprile 2024"
+  }
+ },
+ "notes": "Profiling labelled false: only says cookies are not used for user profiling, not a statement on automated decision-making. Rights list is partial (access, rectification, arts 18-22 by reference)."
+}

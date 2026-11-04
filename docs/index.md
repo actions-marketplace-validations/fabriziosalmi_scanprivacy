@@ -4,6 +4,7 @@
 - [Rule catalogue](rules.md): every check the engine can emit
 - [HTTP API](api.md): endpoints and the limits that protect the host
 - [Deployment](deploy.md): Docker, authentication, running it as a service
+- [Art. 13 detectors, measured](art13-measurement.md): precision and recall on 21 labelled notices, and what is still missed
 - [Hosting platforms](platforms.md): which platforms cannot close a header finding, and how that is established
 - The [README](../README.md) is the long form: method, scope, reproducibility, attestation, known limits
 

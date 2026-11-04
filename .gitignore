@@ -49,3 +49,6 @@ data/fleet*
 
 # requirements.lock is the pinned resolution (hashes); uv.lock is a local convenience
 uv.lock
+
+# downloaded corpus texts (other people's documents; see tools/art13)
+.cache/

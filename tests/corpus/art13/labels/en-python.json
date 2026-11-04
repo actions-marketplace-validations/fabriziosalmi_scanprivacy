@@ -1,0 +1,54 @@
+{
+ "id": "en-python",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "This privacy notice describes what personal information the Python Software Foundation (“PSF”) collects from users, when and how we share that information, and why."
+  },
+  "contact": {
+   "present": false,
+   "quote": null
+  },
+  "dpo": {
+   "present": false,
+   "quote": null
+  },
+  "purposes": {
+   "present": true,
+   "quote": "We use the information you provide in the following ways, in addition to the uses described in the PSF Privacy Notice: To provide the website to you"
+  },
+  "legal_basis": {
+   "present": false,
+   "quote": null
+  },
+  "recipients": {
+   "present": true,
+   "quote": "Amazon Web Services (AWS) to host the PyCon US website. We store your registration information on AWS servers."
+  },
+  "transfers": {
+   "present": false,
+   "quote": null
+  },
+  "retention": {
+   "present": false,
+   "quote": null
+  },
+  "rights": {
+   "present": false,
+   "quote": null
+  },
+  "complaint": {
+   "present": false,
+   "quote": null
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Last updated February 10, 2026"
+  }
+ },
+ "notes": "Controller only implied (PSF collects); no explicit controller wording. Rights, retention, transfers, contact, legal basis are in the separate PSF Privacy Notice, not in this text."
+}
