@@ -152,9 +152,64 @@ COOKIE_ELEMENTS: dict[str, re.Pattern[str]] = {
     ),
 }
 
-_TAG_RE = re.compile(r"<(script|style)[^>]*>.*?</\1>", re.S | re.I)
-_HTML_RE = re.compile(r"<[^>]+>")
+_BLOCK_OPEN = re.compile(r"<(script|style)(?=[\s>/])", re.I)
 _WS_RE = re.compile(r"\s+")
+
+
+def _strip_blocks(text: str) -> str:
+    """Remove <script> and <style> blocks in linear time.
+
+    This used to be `<(script|style)[^>]*>.*?</\\1>`, which rescans to the end of
+    the document from every opener that never closes: 160 KB of repeated
+    `<script>` took 13 s, on the event loop, before the size cap was applied.
+    A tag that has no closer here has none later either, so it is looked up once.
+    """
+    low = text.lower()
+    out: list[str] = []
+    pos = 0
+    unclosed: set[str] = set()
+    for opener in _BLOCK_OPEN.finditer(text):
+        start = opener.start()
+        if start < pos:
+            continue
+        name = opener.group(1).lower()
+        if name in unclosed:
+            continue
+        gt = text.find(">", opener.end())
+        if gt == -1:
+            break
+        close = low.find(f"</{name}", gt)
+        end = text.find(">", close) if close != -1 else -1
+        if close == -1 or end == -1:
+            unclosed.add(name)
+            continue
+        out.append(text[pos:start])
+        out.append(" ")
+        pos = end + 1
+    out.append(text[pos:])
+    return "".join(out)
+
+
+def _strip_tags(text: str) -> str:
+    """Replace every `<...>` with a space, in linear time (was `<[^>]+>`, which
+    rescans to the end from every `<` that has no `>` after it)."""
+    out: list[str] = []
+    pos = 0
+    while True:
+        lt = text.find("<", pos)
+        if lt == -1:
+            break
+        gt = text.find(">", lt + 1)
+        if gt == -1:
+            break  # no `>` after this `<` means none after any later one
+        if gt == lt + 1:  # "<>" is text
+            out.append(text[pos : gt + 1])
+        else:
+            out.append(text[pos:lt])
+            out.append(" ")
+        pos = gt + 1
+    out.append(text[pos:])
+    return "".join(out)
 
 
 @dataclass(slots=True)
@@ -213,8 +268,8 @@ CF_EMAIL_MARKER = " cf-protected-email "
 
 def _to_text(html_source: str) -> str:
     txt = _CF_EMAIL.sub(CF_EMAIL_MARKER, html_source)
-    txt = _TAG_RE.sub(" ", txt)
-    txt = _HTML_RE.sub(" ", txt)
+    txt = _strip_blocks(txt)
+    txt = _strip_tags(txt)
     # entities must be resolved before matching: a notice written with &amp;
     # or &egrave; would otherwise be read differently from how it displays.
     txt = html.unescape(txt)

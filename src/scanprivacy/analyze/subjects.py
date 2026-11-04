@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from ..core.enums import SubjectKind
-from .context import Context, CookieFact, StorageFact, VendorFact
+from .context import Context
 
 
 def key(catalogue_key: str) -> dict[str, str]:

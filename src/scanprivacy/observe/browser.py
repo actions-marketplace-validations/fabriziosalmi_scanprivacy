@@ -8,7 +8,6 @@ has not yet expressed anything.
 
 from __future__ import annotations
 
-import asyncio
 import re
 import time
 from dataclasses import asdict, dataclass, field
@@ -397,8 +396,12 @@ async def observe_in_context(context, url: str, settings: Settings = DEFAULTS) -
                 else:
                     addr = await resp.server_addr()
                     peer = (addr or {}).get("ipAddress")
-            except Exception:
+            except Exception as exc:
+                # An address that could not be read is not an address that was
+                # public. Say so in the observation instead of dropping it.
                 peer = None
+                if "server_addr" not in " ".join(listener_failures):
+                    listener_failures.append(f"server_addr: {type(exc).__name__}")
             depth, frame_url = _frame_origin(resp.request)
             _record(
                 resp.url,

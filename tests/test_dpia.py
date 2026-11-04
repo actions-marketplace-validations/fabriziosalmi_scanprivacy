@@ -10,7 +10,7 @@ from __future__ import annotations
 from scanprivacy.analyze.context import build_context
 from scanprivacy.analyze.dpia import CRITERIA, screen, transfer_assessments
 from scanprivacy.analyze.engine import evaluate, load_rules
-from scanprivacy.observe.browser import CookieSet, Observation, Request
+from scanprivacy.observe.browser import Observation, Request
 
 
 def _page(url: str = "https://x.it/") -> Observation:

@@ -22,7 +22,7 @@ from pathlib import Path
 import pytest
 
 from scanprivacy.cli import _gate, build_parser, main, write_artefacts
-from scanprivacy.core.enums import Grade, ScanStatus, Severity
+from scanprivacy.core.enums import Grade, ScanStatus
 from scanprivacy.core.models import ScanResult, Verdict
 
 

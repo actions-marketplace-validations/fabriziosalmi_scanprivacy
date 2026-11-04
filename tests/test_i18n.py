@@ -109,7 +109,6 @@ def _synthetic_result():
     appear as ⟦ui.something⟧ in a client's PDF — which is exactly how the
     YAML-boolean trap (`yes:` parsed as True) reached a rendered report.
     """
-    import asyncio
     from datetime import datetime, timezone
 
     from scanprivacy.analyze.context import build_context

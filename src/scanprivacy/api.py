@@ -25,6 +25,7 @@ import os
 import re
 import uuid
 from collections import OrderedDict
+from contextlib import asynccontextmanager
 from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any
@@ -37,7 +38,7 @@ from pydantic import BaseModel, Field
 from .analyze.engine import load_rules
 from .auth import posture as auth_posture, require_api_key
 from . import __version__
-from .config import DEFAULTS, LICENCE, SCANS_DIR, SOURCE_URL
+from .config import DEFAULTS, LICENCE, SCANS_DIR, SOURCE_URL, env_int
 from .core.graph import to_mermaid
 from .core.models import ScanResult, scan_from_dict
 from .core.target import TargetRefused, check_observed_peers, check_public_target, peers_of
@@ -45,11 +46,26 @@ from .i18n.translator import DEFAULT_LOCALE, Translator, available_locales
 from .knowledge.registry import all_vendors
 from .knowledge.remediation import catalogue as remediation_catalogue, entry_for
 from .report.markdown import render
+from .observe.rate import PerHostLimiter
 from .scanner import scan
 
+@asynccontextmanager
+async def _lifespan(_: FastAPI):
+    yield
+    # Scans run as background tasks of this process; stopping it ends them. Say
+    # so, and mark them, rather than leaving callers polling an id that will never
+    # finish. (Finished results are on disk and survive; see _from_disk.)
+    lost = [sid for sid, e in _SCANS.items() if e.get("status") in ("queued", "running")]
+    for sid in lost:
+        _SCANS[sid].update(status="error", error="the service stopped before this scan finished", error_ref=sid)
+    if lost:
+        logger.warning("shutdown interrupted %d scans: %s", len(lost), ", ".join(lost))
+
+
 app = FastAPI(
+    lifespan=_lifespan,
     title="scanprivacy",
-    version="0.1.0",
+    version=__version__,
     description="Passive privacy conformance observation: URL in, findings graph and remediation out.",
 )
 
@@ -59,15 +75,20 @@ app = FastAPI(
 # many as the caller cares to ask for, and the store below keeps every result —
 # observation included — for the lifetime of the process. Neither needed an
 # attacker: a well-meaning script with a list of domains would do it.
-MAX_CONCURRENT_SCANS = int(os.environ.get("SCANPRIVACY_MAX_CONCURRENT_SCANS", "3"))
-MAX_SCANS_IN_FLIGHT = int(os.environ.get("SCANPRIVACY_MAX_SCANS_IN_FLIGHT", "50"))
-SCAN_RETENTION = int(os.environ.get("SCANPRIVACY_SCAN_RETENTION", "200"))
+MAX_CONCURRENT_SCANS = env_int("SCANPRIVACY_MAX_CONCURRENT_SCANS", 3)
+MAX_SCANS_IN_FLIGHT = env_int("SCANPRIVACY_MAX_SCANS_IN_FLIGHT", 50)
+SCAN_RETENTION = env_int("SCANPRIVACY_SCAN_RETENTION", 200)
 
 logger = logging.getLogger("scanprivacy.api")
 
 # Across this boundary a stranger chooses the target, so every request the
 # browser makes is vetted before it is sent. The command line does not do this.
 API_SETTINGS = replace(DEFAULTS, guard_requests=True)
+
+# One per-host budget for every scan this process runs. A limiter per scan kept
+# "one page load per second per host" true inside a scan and false across the
+# scans of a service that two callers can point at the same site.
+_HOST_LIMITER = PerHostLimiter(API_SETTINGS.per_host_rps)
 
 _SCAN_SLOTS = asyncio.Semaphore(MAX_CONCURRENT_SCANS)
 
@@ -78,18 +99,21 @@ _SCANS: "OrderedDict[str, dict[str, Any]]" = OrderedDict()
 
 
 def _evict_if_needed() -> None:
-    while len(_SCANS) > SCAN_RETENTION:
-        scan_id, entry = next(iter(_SCANS.items()))
+    for scan_id, entry in list(_SCANS.items()):
+        if len(_SCANS) <= SCAN_RETENTION:
+            break
         if entry.get("status") in ("queued", "running"):
             # Never evict work that has not finished: the caller is still
             # holding an id we told them to poll.
-            break
+            continue
         if entry.get("status") == "done" and not entry.get("persisted", False):
             # Eviction is only safe because the result is on disk. If the write
-            # failed, dropping the entry destroys the only copy — so keep it and
-            # let the store exceed its bound rather than lose evidence.
+            # failed, dropping the entry destroys the only copy, so it stays; the
+            # entries behind it are still evictable, and new scans are refused
+            # while results cannot be stored (see create_scan) so the store
+            # cannot grow without bound.
             logger.warning("scan %s was never persisted; keeping it in memory", scan_id)
-            break
+            continue
         _SCANS.pop(scan_id, None)
 
 
@@ -141,8 +165,9 @@ async def _observe(scan_id: str, request: ScanRequest) -> None:
                 scan_id=scan_id,
                 read_documents=request.read_documents,
                 context=request.context,
+                limiter=_HOST_LIMITER,
             ),
-            timeout=DEFAULTS.per_scan_budget_s,
+            timeout=API_SETTINGS.per_scan_budget_s,
         )
         # The pre-flight check resolved a name and decided; this checks where
         # the browser actually went. Between the two, a record can change and a
@@ -167,7 +192,8 @@ async def _observe(scan_id: str, request: ScanRequest) -> None:
         persisted = _persist(result)  # on disk before the entry can ever be evicted
         _SCANS[scan_id].update(status="done", result=result, persisted=persisted)
     except asyncio.TimeoutError:
-        _SCANS[scan_id].update(status="error", error="scan budget exceeded")
+        logger.warning("scan %s exceeded its budget of %ss", scan_id, API_SETTINGS.per_scan_budget_s)
+        _SCANS[scan_id].update(status="error", error="scan budget exceeded", error_ref=scan_id)
     except Exception as exc:
         # The client is told a scan failed and is given a reference; the cause
         # goes to the log. An exception's text carries filesystem paths, module
@@ -303,6 +329,12 @@ async def create_scan(request: ScanRequest, background: BackgroundTasks) -> dict
             detail=f"target refused: {refused.reason}"
             + (f" ({refused.detail})" if refused.detail else ""),
         ) from None
+    if not _storage_writable():
+        raise HTTPException(
+            status_code=503,
+            detail="results cannot be stored right now; retry later",
+            headers={"retry-after": "60"},
+        )
     in_flight = sum(1 for e in _SCANS.values() if e.get("status") in ("queued", "running"))
     if in_flight >= MAX_SCANS_IN_FLIGHT:
         raise HTTPException(

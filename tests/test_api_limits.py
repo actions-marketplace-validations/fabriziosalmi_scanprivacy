@@ -95,6 +95,30 @@ def test_the_concurrency_ceiling_is_a_real_semaphore():
     assert api.MAX_CONCURRENT_SCANS >= 1
 
 
+def test_no_more_scans_run_at_once_than_the_ceiling_allows(monkeypatch):
+    """The behaviour, not the type: with a ceiling of 2, six queued scans never
+    overlap by more than two."""
+    import asyncio
+
+    running = {"now": 0, "peak": 0}
+
+    async def fake_observe(scan_id, request):
+        running["now"] += 1
+        running["peak"] = max(running["peak"], running["now"])
+        await asyncio.sleep(0.02)
+        running["now"] -= 1
+
+    async def go():
+        monkeypatch.setattr(api, "_SCAN_SLOTS", asyncio.Semaphore(2))
+        monkeypatch.setattr(api, "_observe", fake_observe)
+        for i in range(6):
+            api._SCANS[f"s{i}"] = _entry("queued")
+        await asyncio.gather(*(api._run(f"s{i}", None) for i in range(6)))
+
+    asyncio.run(go())
+    assert running["peak"] == 2
+
+
 def test_a_result_that_was_never_written_is_not_evicted(monkeypatch):
     """Eviction trades memory for disk. If the write failed, dropping the entry
     destroys the only copy — so the store is allowed to exceed its bound rather

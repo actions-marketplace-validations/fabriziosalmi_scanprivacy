@@ -15,7 +15,7 @@ import logging
 import re
 from typing import Any, Callable
 
-from ..core.enums import ConsentClass, DataClass, TransferScope
+from ..core.enums import DataClass, TransferScope
 from ..knowledge.registry import is_first_party
 from .context import Context, CookieFact, StorageFact, VendorFact
 from .subjects import Subject

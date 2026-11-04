@@ -26,6 +26,20 @@ from scanprivacy.analyze.diff import diff
 from scanprivacy.i18n import Translator
 
 
+@pytest.fixture(autouse=True)
+def _restore_modules(monkeypatch):
+    """These tests reload `config` and `vantage` under a patched environment.
+    Put the environment back first, then reload once more, so no later test
+    sees the last test's configuration."""
+    yield
+    monkeypatch.undo()
+    from scanprivacy import config
+    from scanprivacy.observe import vantage
+
+    importlib.reload(config)
+    importlib.reload(vantage)
+
+
 def _reload(monkeypatch, **env):
     for key in ("SCANPRIVACY_VANTAGE", "SCANPRIVACY_VANTAGE_LOOKUP"):
         monkeypatch.delenv(key, raising=False)

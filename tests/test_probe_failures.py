@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from scanprivacy.core.models import ScanResult
 from scanprivacy.core.enums import ScanStatus
-from scanprivacy.i18n.translator import Translator
 from scanprivacy.observe.browser import Observation
 from scanprivacy.report.markdown import render
 

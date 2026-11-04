@@ -9,7 +9,6 @@ the grade looking clean, and a rate limit that did not cover every request.
 from __future__ import annotations
 
 import asyncio
-import importlib
 import json
 from pathlib import Path
 
@@ -19,7 +18,6 @@ from fastapi.testclient import TestClient
 from scanprivacy import api, batch
 from scanprivacy.analyze import predicates
 from scanprivacy.analyze.context import Context
-from scanprivacy.analyze.engine import evaluate
 from scanprivacy.analyze.verdict import grade
 from scanprivacy.core.enums import Grade, ScanStatus
 from scanprivacy.core.models import ScanResult
@@ -244,3 +242,198 @@ def test_the_refusal_pass_waits_before_each_of_its_page_loads(monkeypatch):
             consent.run_refusal_pass(_Browser(events), "https://example.org/", limiter=_SpyLimiter(events))
         )
     assert events[:3] == ["wait:example.org", "observe:https://example.org/", "wait:example.org"]
+
+
+# ------------------------------------------------- limits, limiter, rules cache
+
+
+def test_a_limit_below_its_minimum_is_refused_by_name(monkeypatch):
+    from scanprivacy.config import ConfigError, env_int
+
+    monkeypatch.setenv("SCANPRIVACY_MAX_CONCURRENT_SCANS", "0")
+    with pytest.raises(ConfigError, match="SCANPRIVACY_MAX_CONCURRENT_SCANS=0"):
+        env_int("SCANPRIVACY_MAX_CONCURRENT_SCANS", 3)
+    monkeypatch.setenv("SCANPRIVACY_MAX_CONCURRENT_SCANS", "many")
+    with pytest.raises(ConfigError, match="not an integer"):
+        env_int("SCANPRIVACY_MAX_CONCURRENT_SCANS", 3)
+    monkeypatch.delenv("SCANPRIVACY_MAX_CONCURRENT_SCANS")
+    assert env_int("SCANPRIVACY_MAX_CONCURRENT_SCANS", 3) == 3
+
+
+def test_serve_reports_a_bad_limit_by_name_and_exits(monkeypatch, capsys):
+    import sys
+
+    import scanprivacy
+    from scanprivacy import cli
+
+    # Importing the app is what reads the limits, so it has to be imported afresh;
+    # monkeypatch puts the original module back, and a second copy left in
+    # sys.modules would make later tests talk to a different `api`.
+    monkeypatch.setattr(scanprivacy, "api", api)
+    monkeypatch.delitem(sys.modules, "scanprivacy.api")
+    monkeypatch.setenv("SCANPRIVACY_MAX_SCANS_IN_FLIGHT", "0")
+    args = type("A", (), {"host": "127.0.0.1", "port": 1})()
+    assert cli._cmd_serve(args) == 2
+    assert "SCANPRIVACY_MAX_SCANS_IN_FLIGHT=0" in capsys.readouterr().err
+
+
+def test_a_wait_on_one_host_does_not_hold_up_another():
+    async def go():
+        limiter = PerHostLimiter(2.0)  # 0.5 s between requests to one host
+        await limiter.wait("slow.example")
+        started = asyncio.get_running_loop().time()
+        slow = asyncio.create_task(limiter.wait("slow.example"))  # must wait ~0.5 s
+        await asyncio.sleep(0)
+        await limiter.wait("other.example")  # a different host: immediate
+        elapsed_other = asyncio.get_running_loop().time() - started
+        await slow
+        return elapsed_other
+
+    assert asyncio.run(go()) < 0.2
+
+
+def test_the_same_host_is_still_spaced():
+    async def go():
+        limiter = PerHostLimiter(10.0)
+        loop = asyncio.get_running_loop()
+        times = []
+        for _ in range(3):
+            await limiter.wait("a.example")
+            times.append(loop.time())
+        return times
+
+    t = asyncio.run(go())
+    assert t[1] - t[0] >= 0.09 and t[2] - t[1] >= 0.09
+
+
+def test_the_rules_are_parsed_once_and_an_edit_is_still_seen(tmp_path):
+    from scanprivacy.analyze import engine
+
+    body = "id: PM-X-01\nseverity: low\nsubject: site\ncondition: {a: 1}\n"
+    (tmp_path / "PM-X-01.yml").write_text(body, encoding="utf-8")
+    first = engine.load_rules(tmp_path)
+    assert engine.load_rules(tmp_path)[0] is first[0], "parsed again instead of cached"
+    (tmp_path / "PM-X-01.yml").write_text(body.replace("low", "high"), encoding="utf-8")
+    assert engine.load_rules(tmp_path)[0].severity.value == "high"
+
+
+def test_unpersisted_results_stay_but_do_not_block_eviction_of_the_rest(monkeypatch):
+    monkeypatch.setattr(api, "SCAN_RETENTION", 2)
+    monkeypatch.setattr(api, "_SCANS", api.OrderedDict())
+    api._SCANS["a"] = {"status": "done", "persisted": False}
+    for name in "bcd":
+        api._SCANS[name] = {"status": "done", "persisted": True}
+    api._evict_if_needed()
+    assert list(api._SCANS) == ["a", "d"]
+
+
+def test_new_scans_are_refused_while_results_cannot_be_stored(scans_dir, monkeypatch):
+    monkeypatch.setattr(api, "_storage_writable", lambda: False)
+    monkeypatch.setattr(api, "check_public_target", lambda url: None)
+    response = TestClient(api.app).post("/v1/scans", json={"url": "https://example.org/"})
+    assert response.status_code == 503
+
+
+def test_a_budget_timeout_is_logged_and_carries_a_reference(scans_dir, monkeypatch, caplog):
+    async def slow_scan(*args, **kwargs):
+        await asyncio.sleep(5)
+
+    monkeypatch.setattr(api, "scan", slow_scan)
+    monkeypatch.setattr(api, "API_SETTINGS", api.replace(api.API_SETTINGS, per_scan_budget_s=0.05))
+    monkeypatch.setattr(api, "DEFAULTS", api.replace(api.DEFAULTS, per_scan_budget_s=0.05))
+    api._SCANS["abcdef000001"] = {"status": "running", "url": "https://example.org/"}
+    with caplog.at_level("WARNING", logger="scanprivacy.api"):
+        asyncio.run(api._observe("abcdef000001", api.ScanRequest(url="https://example.org/")))
+    entry = api._SCANS["abcdef000001"]
+    assert entry["status"] == "error" and entry["error_ref"] == "abcdef000001"
+    assert "exceeded its budget" in caplog.text
+
+
+# ------------------------------------------------------------ stored scan JSON
+
+
+def test_stored_scans_carry_a_schema_version_and_old_ones_still_load():
+    from scanprivacy.core.models import SCHEMA_VERSION, scan_from_dict
+
+    result = ScanResult(
+        scan_id="abcdef012345", url="https://e.org/", final_url="https://e.org/",
+        started_at="t0", finished_at="t1", status=ScanStatus.OK, verdict=grade([], observed_ok=True),
+    )
+    data = result.to_dict()
+    assert data["schema_version"] == SCHEMA_VERSION
+    legacy = {k: v for k, v in data.items() if k != "schema_version"}
+    assert scan_from_dict(legacy).scan_id == "abcdef012345"
+
+
+def test_a_file_from_a_newer_version_is_refused_not_misread():
+    from scanprivacy.core.models import scan_from_dict
+
+    result = ScanResult(
+        scan_id="abcdef012345", url="https://e.org/", final_url="https://e.org/",
+        started_at="t0", finished_at="t1", status=ScanStatus.OK, verdict=grade([], observed_ok=True),
+    )
+    data = {**result.to_dict(), "schema_version": 999}
+    with pytest.raises(ValueError, match="schema_version"):
+        scan_from_dict(data)
+
+
+def test_an_unknown_severity_is_not_read_as_info():
+    from scanprivacy.core.models import finding_from_dict
+
+    with pytest.raises(ValueError, match="unknown severity"):
+        finding_from_dict({"id": "x", "rule_id": "PM-X-01", "severity": "catastrophic"})
+
+
+def test_a_scan_that_outlives_its_budget_stops_the_command(monkeypatch, capsys):
+    from dataclasses import replace
+
+    from scanprivacy import cli
+
+    async def never(*args, **kwargs):
+        await asyncio.sleep(30)
+
+    settings = replace(cli.DEFAULTS, per_scan_budget_s=0.05, max_pages=1)
+    with pytest.raises(TimeoutError):
+        cli._within_budget(never(), settings)
+    monkeypatch.setattr(cli, "_cmd_scan", lambda args: cli._within_budget(never(), settings))
+    assert cli._run(cli._cmd_scan, object()) == 4
+    assert "budget" in capsys.readouterr().err
+
+
+def test_shutdown_marks_scans_that_were_still_running(scans_dir):
+    api._SCANS["abcdef000002"] = {"status": "running", "url": "https://example.org/"}
+    with TestClient(api.app):
+        pass  # entering and leaving runs the lifespan
+    assert api._SCANS["abcdef000002"]["status"] == "error"
+    assert api._SCANS["abcdef000002"]["error_ref"] == "abcdef000002"
+
+
+def test_the_data_directory_can_be_named(tmp_path):
+    from scanprivacy.config import data_dir_from
+
+    assert data_dir_from({"SCANPRIVACY_DATA_DIR": str(tmp_path / "results")}) == tmp_path / "results"
+    assert data_dir_from({"SCANPRIVACY_DATA_DIR": "  "}) == Path.cwd() / "data"
+    assert data_dir_from({}) == Path.cwd() / "data"
+
+
+def test_every_api_scan_shares_one_host_limiter(scans_dir, monkeypatch):
+    seen: list = []
+
+    async def fake_scan(url, settings, **kwargs):
+        seen.append(kwargs.get("limiter"))
+        raise RuntimeError("stop here")
+
+    monkeypatch.setattr(api, "scan", fake_scan)
+    for n in ("abcdef000010", "abcdef000011"):
+        api._SCANS[n] = {"status": "running", "url": "https://example.org/"}
+        asyncio.run(api._observe(n, api.ScanRequest(url="https://example.org/")))
+    assert seen == [api._HOST_LIMITER, api._HOST_LIMITER]
+
+
+def test_serve_refuses_an_unknown_log_level(monkeypatch, capsys):
+    from scanprivacy import cli
+
+    monkeypatch.setenv("SCANPRIVACY_LOG_LEVEL", "LOUD")
+    args = type("A", (), {"host": "127.0.0.1", "port": 1})()
+    assert cli._cmd_serve(args) == 2
+    assert "SCANPRIVACY_LOG_LEVEL" in capsys.readouterr().err

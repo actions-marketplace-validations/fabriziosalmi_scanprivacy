@@ -20,8 +20,36 @@ ROOT = PACKAGE_DIR.parents[1]
 RULES_DIR = PACKAGE_DIR / "rules"
 KNOWLEDGE_DIR = PACKAGE_DIR / "knowledge"
 
-# Written output stays outside the package, next to the working directory.
-DATA_DIR = Path.cwd() / "data"
+class ConfigError(ValueError):
+    """An environment variable has a value the service cannot run with."""
+
+
+def env_int(name: str, default: int, minimum: int = 1) -> int:
+    """An integer setting, or a clear refusal.
+
+    `int()` alone accepts `0` (a semaphore of zero leaves every scan queued
+    forever while the API keeps answering 202) and a bad value crashed the import
+    with a traceback that did not name the variable.
+    """
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        raise ConfigError(f"{name}={raw!r} is not an integer") from None
+    if value < minimum:
+        raise ConfigError(f"{name}={value} is below the minimum of {minimum}")
+    return value
+
+
+# Written output stays outside the package. `SCANPRIVACY_DATA_DIR` names where;
+# without it, `data/` next to the working directory.
+def data_dir_from(environ) -> Path:
+    return Path((environ.get("SCANPRIVACY_DATA_DIR") or "").strip() or Path.cwd() / "data")
+
+
+DATA_DIR = data_dir_from(os.environ)
 SCANS_DIR = DATA_DIR / "scans"
 
 # AGPL section 13. Someone who reaches this engine over a network is entitled to

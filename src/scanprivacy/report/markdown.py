@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from ..core.models import ScanResult
 from ..i18n.translator import DEFAULT_LOCALE, Translator
-from .render import RenderedScan, scan_posture_rows, render_scan
+from .render import scan_posture_rows, render_scan
 
 _ICON = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🔵", "info": "⚪️"}
 
@@ -37,7 +37,7 @@ def render(result: ScanResult, locale: str = DEFAULT_LOCALE, include_graph: bool
         add("")
 
     if scan.mode == "refusal_pass" and scan.refusal:
-        add(f"| | |")
+        add("| | |")
         add("|---|---|")
         add(f"| {t.t('consent_pass.labels.outcome')} | {scan.refusal.get('outcome_display')} |")
         if scan.refusal.get("platform_name"):
