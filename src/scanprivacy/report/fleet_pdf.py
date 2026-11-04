@@ -74,7 +74,11 @@ def render_fleet_html(summary: FleetSummary, locale: str = DEFAULT_LOCALE) -> st
 def render_fleet_pdf(summary: FleetSummary, out: Path, locale: str = DEFAULT_LOCALE) -> Path:
     from weasyprint import HTML
 
+    from .pdf import local_only_fetcher
+
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    HTML(string=render_fleet_html(summary, locale), base_url=str(TEMPLATES)).write_pdf(str(out))
+    HTML(
+        string=render_fleet_html(summary, locale), base_url=str(TEMPLATES), url_fetcher=local_only_fetcher()
+    ).write_pdf(str(out))
     return out
