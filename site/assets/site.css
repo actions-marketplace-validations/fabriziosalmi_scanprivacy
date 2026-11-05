@@ -107,7 +107,7 @@ pre code { font-size: 0.875rem; background: none; border: 0; padding: 0; }
 .copy:hover { color: var(--ink); border-color: var(--ink); }
 
 /* ---------- landing ---------- */
-.hero { padding-block: clamp(3rem, 2rem + 5vw, 6rem) clamp(2.5rem, 2rem + 3vw, 4.5rem); display: grid; gap: clamp(2rem, 1rem + 4vw, 4.5rem); align-items: start; }
+.hero { padding-block: clamp(3rem, 2rem + 5vw, 6rem) clamp(2.5rem, 2rem + 3vw, 4.5rem); display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(2rem, 1rem + 4vw, 4.5rem); align-items: start; }
 .hero h1 { max-width: 18ch; margin-bottom: 1.5rem; }
 .hero .install { margin-top: 2rem; max-width: 42rem; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: center; margin-top: 1.5rem; }
@@ -143,13 +143,13 @@ pre code { font-size: 0.875rem; background: none; border: 0; padding: 0; }
 .sev-low { color: var(--sev-low); } .sev-info { color: var(--sev-info); }
 
 .section { padding-block: clamp(2.5rem, 2rem + 2vw, 4rem); border-top: 1px solid var(--rule); }
-.section-grid { display: grid; gap: 1.5rem 3rem; }
+.section-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem 3rem; }
 @media (min-width: 52rem) {
   .section-grid { grid-template-columns: 15rem minmax(0, 1fr); }
   .section-grid > h2 { position: sticky; top: 1.5rem; align-self: start; }
 }
-.facts { display: grid; gap: 2rem 3rem; margin: 0; }
-@media (min-width: 40rem) { .facts { grid-template-columns: 1fr 1fr; } }
+.facts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem 3rem; margin: 0; }
+@media (min-width: 40rem) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .facts dt { font-weight: 600; color: var(--ink); margin-bottom: 0.35rem; }
 .facts dd { margin: 0; }
 .plain-list { margin: 0 0 1rem; padding-left: 1.25rem; display: grid; gap: 0.6rem; max-width: var(--measure); }
@@ -167,9 +167,17 @@ th { font-weight: 600; color: var(--ink); background: var(--wash); font-size: 0.
 tbody tr:last-child td { border-bottom: 0; }
 td code { white-space: nowrap; }
 .prose td:first-child { white-space: nowrap; }
+@media (max-width: 40rem) {
+  /* On a phone let cells wrap so a three column table fits; wider ones still scroll in their frame. */
+  table { min-width: 0; font-size: 0.875rem; }
+  th, td { padding: 0.55rem 0.65rem; }
+  th { white-space: normal; }
+  td code { white-space: normal; overflow-wrap: anywhere; }
+  .prose td:first-child { white-space: normal; }
+}
 
 /* ---------- docs ---------- */
-.docs { display: grid; gap: 1.5rem 3rem; padding-block: 2.5rem 0; }
+.docs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem 3rem; padding-block: 2.5rem 0; }
 .docs-nav { font-size: 0.9375rem; }
 .docs-nav h2 { font-size: 0.8125rem; font-weight: 600; color: var(--muted); letter-spacing: 0; margin: 0 0 0.5rem; }
 .docs-nav ul { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.15rem 1.25rem; }
