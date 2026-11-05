@@ -105,6 +105,12 @@ pre code { font-size: 0.875rem; background: none; border: 0; padding: 0; }
   background: var(--paper); border: 1px solid var(--control); border-radius: 3px; padding: 0.4rem 0.65rem; cursor: pointer;
 }
 .copy:hover { color: var(--ink); border-color: var(--ink); }
+@media (max-width: 40rem) {
+  /* The button sits above the block, not over its first line. */
+  .copyable { display: flex; flex-direction: column; }
+  .copy { position: static; order: -1; align-self: flex-end; margin-bottom: 0.4rem; }
+  .copyable pre { padding-right: 1.125rem; }
+}
 
 /* ---------- landing ---------- */
 .hero { padding-block: clamp(3rem, 2rem + 5vw, 6rem) clamp(2.5rem, 2rem + 3vw, 4.5rem); display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(2rem, 1rem + 4vw, 4.5rem); align-items: start; }
