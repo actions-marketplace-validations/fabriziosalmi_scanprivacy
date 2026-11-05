@@ -27,8 +27,9 @@ SOURCE = "https://github.com/fabriziosalmi/scanprivacy"
 SITE = "https://scanprivacy.org"
 FONTS = ROOT / "src" / "scanprivacy" / "report" / "templates" / "fonts"
 
-DOC_ORDER = ["index", "quickstart", "api", "deploy", "rules"]
-DOC_LABELS = {"index": "Overview", "quickstart": "Quickstart", "api": "HTTP API", "deploy": "Deployment", "rules": "Rules"}
+DOC_ORDER = ["index", "quickstart", "api", "deploy", "rules", "platforms"]
+DOC_LABELS = {"index": "Overview", "quickstart": "Quickstart", "api": "HTTP API", "deploy": "Deployment", "rules": "Rules",
+              "platforms": "Hosting platforms"}
 SEVERITIES = ["critical", "high", "medium", "low", "info"]
 DESCRIPTION = (
     "scanprivacy loads a page the way a first-time visitor would, records every request, cookie and storage "

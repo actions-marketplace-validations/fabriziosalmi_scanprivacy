@@ -485,7 +485,7 @@ completeness of every locale.
   where it knows. GitHub Pages serves a fixed set of response headers and
   permits none, so `PM-SEC-01` (HSTS) is true there and cannot be closed in
   place; the finding stays, states the constraint, and names a fix that can
-  actually be performed. The catalogue of such platforms is one vendor long.
+  actually be performed. The catalogue of such platforms is one vendor long on purpose: a platform is added only when it was measured not to send the header, its vendor states that owners cannot set it, and the engine can recognise it. Eleven platforms were measured on 2026-11-04; the method, the results and the one candidate left out are in [docs/platforms.md](docs/platforms.md).
 - Art. 13 elements are recognised from text: an unusual wording can escape
   detection, which is why documentary findings carry `probable` confidence.
 - Infrastructure providers are inferred from response headers: this covers the
