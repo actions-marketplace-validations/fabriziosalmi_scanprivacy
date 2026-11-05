@@ -1,0 +1,9 @@
+# The only value gitleaks flags in this repository is the placeholder key in the auth tests
+# (a counting sequence, not a credential). Everything else is scanned.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "placeholder API key in tests/test_auth.py"
+paths = ['''tests/test_auth\.py''']
+regexes = ['''GOOD_KEY\s*=\s*"0123456789''']

@@ -316,6 +316,10 @@ def _summary(result: ScanResult, t: Translator) -> list[str]:
     undeclared = sum(1 for v in inventory if not v.get("declared"))
     consent_required = sum(1 for v in inventory if v.get("consent_class") == "required")
 
+    # A page that never loaded has no requests and no storage to report: saying "none observed"
+    # would read as a clean result, so the two "none" sentences are left out.
+    observed = site.get("pages_observed", 1) != 0
+
     out: list[str] = []
     if third_parties:
         sentence = t.t("report.summary.third_parties", n=third_parties)
@@ -329,7 +333,7 @@ def _summary(result: ScanResult, t: Translator) -> list[str]:
         if undeclared:
             sentence += t.t("report.summary.third_parties_undeclared", n=undeclared)
         out.append(sentence.strip() + ".")
-    else:
+    elif observed:
         out.append(t.t("report.summary.third_parties_none"))
 
     tracking = sum(1 for f in result.findings if f.rule_id in ("PM-COK-01", "PM-STO-01"))
@@ -344,7 +348,7 @@ def _summary(result: ScanResult, t: Translator) -> list[str]:
         if tracking:
             sentence += t.plural("report.summary.storage_tracking", tracking)
         out.append(sentence.strip() + ".")
-    else:
+    elif observed:
         out.append(t.t("report.summary.storage_none"))
 
     cmp_list = site.get("cmp") or []
