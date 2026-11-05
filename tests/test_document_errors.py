@@ -108,3 +108,46 @@ def test_the_scorer_emits_keys_and_never_prose():
     assert appended, "no reasons found — the test would pass vacuously"
     for reason in appended:
         assert reason.startswith("discovery."), f"a sentence, not a key: {reason!r}"
+
+
+def test_how_a_document_was_found_is_always_catalogue_keys_never_prose():
+    """The report translates each comma-separated part. A sentence here reached the
+    reader as `[ui.percorso convenzionale]` in an English report, and a
+    "link (score 11: ..." wrapper did the same to the keys inside it."""
+    from scanprivacy.observe.discover import Candidate, fallback_candidates, linked_why
+
+    reasons = [c.why for c in fallback_candidates("https://example.org/", "privacy")]
+    reasons.append(linked_why(Candidate(kind="privacy", url="https://example.org/p", score=11,
+                                         why="discovery.path_is_a_document,discovery.link_text_exact")))
+    assert reasons
+    for reason in reasons:
+        for part in reason.split(","):
+            assert part.startswith("discovery."), f"not a catalogue key: {part!r} in {reason!r}"
+
+    from scanprivacy.i18n.translator import Translator, available_locales
+
+    for locale in available_locales():
+        t = Translator.for_locale(locale)
+        for reason in reasons:
+            text = ", ".join(t.t(k) for k in reason.split(",") if k)
+            assert "⟦" not in text and "discovery." not in text, f"{locale}: {text!r}"
+
+
+def test_evidence_stored_by_an_earlier_build_still_renders_without_placeholders():
+    from scanprivacy.i18n.translator import Translator
+    from scanprivacy.report.pdf import discovery_text
+
+    legacy = [
+        "link (score 11: discovery.path_is_a_document,discovery.link_text_exact)",
+        "percorso convenzionale, nessun link trovato",
+        "something nobody planned",
+    ]
+    for locale in ("en", "it"):
+        t = Translator.for_locale(locale)
+        for raw in legacy:
+            text = discovery_text(raw, t)
+            assert "⟦" not in text and "discovery." not in text, f"{locale}: {raw!r} -> {text!r}"
+    en = Translator.for_locale("en")
+    assert discovery_text(legacy[0], en) == "linked from the page, the path names a document, the link text matches exactly"
+    assert discovery_text(legacy[1], en) == "a conventional path, no link to it was found"
+    assert discovery_text(legacy[2], en) == "something nobody planned"

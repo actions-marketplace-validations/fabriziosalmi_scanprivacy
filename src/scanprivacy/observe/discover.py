@@ -167,9 +167,20 @@ def pick_documents(obs, kinds: tuple[str, ...] = ("privacy", "cookie", "terms", 
     return [best[k] for k in kinds if k in best]
 
 
+# `why` is a comma-separated list of catalogue keys, never prose: the report
+# translates each one, and a literal sentence here reached the reader as
+# "[ui.percorso convenzionale]" in an English report.
+FALLBACK_WHY = "discovery.conventional_path,discovery.no_link_found"
+
+
+def linked_why(candidate: "Candidate") -> str:
+    """Why a document was chosen from the links on the page, as catalogue keys."""
+    return ",".join(k for k in ("discovery.linked", candidate.why) if k)
+
+
 def fallback_candidates(base_url: str, kind: str, limit: int = 3) -> list[Candidate]:
     return [
-        Candidate(kind=kind, url=urljoin(base_url, p), score=0, why="percorso convenzionale, nessun link trovato")
+        Candidate(kind=kind, url=urljoin(base_url, p), score=0, why=FALLBACK_WHY)
         for p in FALLBACK_PATHS.get(kind, ())[:limit]
     ]
 

@@ -25,8 +25,8 @@ it saw. Anything that breaks either half of that sentence is in scope:
   address it checked; the addresses actually reached are then checked a last
   time. A request that reaches a non-public address by any route (a redirect, a
   sub-resource, a WebSocket, a rebound name, a document or robots.txt URL taken
-  from the page) turns an instance into an SSRF proxy against its own network —
-  this is the most serious class of bug in the project.
+  from the page) turns an instance into an SSRF proxy against its own network.
+  This is the most serious class of bug in the project.
 - **Bypassing `SCANPRIVACY_API_KEY`**, or reaching a `/v1` route without one.
 - **Escaping the bind guard**, so that `scanprivacy serve` listens on a non-loopback
   interface with no key configured.
@@ -68,8 +68,8 @@ Two things are true and worth stating plainly.
 
 **You can stop it, and it will stay stopped.** The engine reads `robots.txt`
 before every URL it requests, documents included, and a disallow is honoured
-rather than noted. A rule for `scanprivacy` — or a blanket `User-Agent: *`
-disallow — is enough; nothing needs to be negotiated with anybody.
+rather than noted. A rule for `scanprivacy`, or a blanket `User-Agent: *`
+disallow, is enough; nothing needs to be negotiated with anybody.
 
 **You can ask.** Write to the contact address in the User-Agent you received.
 Whoever runs that instance is answerable for it. If it was this project's own

@@ -102,9 +102,7 @@ def _documents(observation: dict[str, Any], t: Translator) -> tuple[list[dict], 
         # How this URL was chosen: a comma-separated list of catalogue keys.
         # A reader uses it to check the engine picked the document they would
         # have picked, so it has to be in their language to be checkable.
-        row["discovery"] = ", ".join(
-            t.t(k) for k in (doc.get("discovery") or "").split(",") if k
-        )
+        row["discovery"] = discovery_text(doc.get("discovery") or "", t)
         row["elements_present"] = [
             t.t(f"art13.{k}") for k, present in (doc.get("elements") or {}).items() if present
         ]
@@ -227,6 +225,29 @@ def check_resource(url: str) -> None:
     )
     if not allowed:
         raise ValueError(f"refusing to fetch {url!r}: a report loads no remote resources")
+
+
+_LEGACY_LINK = re.compile(r"^link \(score \d+:\s*(.*?)\)?$")
+_LEGACY_PROSE = {"percorso convenzionale": "discovery.conventional_path", "nessun link trovato": "discovery.no_link_found"}
+
+
+def discovery_text(raw: str, t) -> str:
+    """How a document was found, in the reader's language.
+
+    The value is a comma-separated list of catalogue keys. Evidence stored by an
+    earlier build holds prose instead (`link (score 11: discovery.x,discovery.y)`,
+    or an Italian sentence), and a report regenerated from that file must not show
+    a missing-key placeholder: legacy forms are mapped, and anything else is shown
+    as it was recorded.
+    """
+    legacy = _LEGACY_LINK.match(raw.strip())
+    if legacy:
+        raw = f"discovery.linked,{legacy.group(1)}"
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    return ", ".join(
+        t.t(_LEGACY_PROSE.get(part, part)) if _LEGACY_PROSE.get(part, part).startswith("discovery.") else part
+        for part in parts
+    )
 
 
 def local_only_fetcher():

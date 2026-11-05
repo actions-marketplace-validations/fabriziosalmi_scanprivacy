@@ -1,206 +1,328 @@
-/* Stampa: A4, registro sobrio. Il documento deve poter essere allegato a una
-   comunicazione formale senza sembrare l'output di uno scanner. */
+/* Report PDF, A4. A document that can be attached to formal correspondence:
+   set in type, not boxed like a dashboard.
+
+   Palette and typefaces are the site's (site/assets/site.css), light values
+   only; tests/test_design_tokens.py keeps the two in step. The fonts are bundled
+   (templates/fonts/) so the report looks the same on every machine. */
+
+@font-face { font-family: "Inter"; font-weight: 400; font-style: normal; src: url("fonts/inter-400.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 500; font-style: normal; src: url("fonts/inter-500.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-style: normal; src: url("fonts/inter-600.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 700; font-style: normal; src: url("fonts/inter-700.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 400; font-style: italic; src: url("fonts/inter-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 400; font-style: normal; src: url("fonts/jetbrains-mono-400.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 500; font-style: normal; src: url("fonts/jetbrains-mono-500.woff2") format("woff2"); }
+
+:root {
+  --paper: #ffffff;
+  --wash: #f5f6f8;
+  --ink: #0f141a;
+  --text: #1d2430;
+  --muted: #566171;
+  --rule: #d8dde4;
+  --control: #7a8594;
+  --accent: #0b57a4;
+
+  --sev-critical: #a4191f;
+  --sev-high: #b4440e;
+  --sev-medium: #8a6100;
+  --sev-low: #1b6a9c;
+  --sev-info: #566171;
+
+  --grade-a: #1a7f4b;
+  --grade-b: #3f7d1f;
+  --grade-c: #8a6100;
+  --grade-d: #b4440e;
+  --grade-f: #a4191f;
+}
+
+/* ------------------------------------------------------------------ page */
 
 @page {
   size: A4;
-  margin: 20mm 16mm 18mm 16mm;
-  @top-center {
+  margin: 24mm 18mm 22mm 18mm;
+  /* Two boxes of half the width each, so the hairline reads as one rule. */
+  @top-left {
+    content: "scanprivacy";
+    width: 50%;
+    font: 600 7.5pt "Inter", sans-serif;
+    color: #0f141a;
+    vertical-align: bottom;
+    padding-bottom: 6pt;
+    border-bottom: 0.5pt solid #d8dde4;
+  }
+  @top-right {
     content: string(doctitle);
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 7.5pt;
-    color: #7a7a7a;
+    width: 50%;
+    text-align: right;
+    font: 400 7.5pt "Inter", sans-serif;
+    color: #566171;
+    vertical-align: bottom;
+    padding-bottom: 6pt;
+    border-bottom: 0.5pt solid #d8dde4;
   }
   /* The footer text is a sentence, so it is set from the template with the
-     translated string — CSS cannot reach the locale catalogue. */
+     translated string: CSS cannot reach the locale catalogue. */
   @bottom-left {
     content: string(footer);
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 7pt;
-    color: #9a9a9a;
+    width: 80%;
+    font: 400 7pt "Inter", sans-serif;
+    color: #566171;
+    vertical-align: top;
+    padding-top: 6pt;
+    border-top: 0.5pt solid #d8dde4;
   }
   @bottom-right {
     content: counter(page) " / " counter(pages);
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 7.5pt;
-    color: #7a7a7a;
+    width: 20%;
+    text-align: right;
+    font: 400 7pt "Inter", sans-serif;
+    font-variant-numeric: tabular-nums;
+    color: #566171;
+    vertical-align: top;
+    padding-top: 6pt;
+    border-top: 0.5pt solid #d8dde4;
   }
 }
 
 @page :first {
-  @top-center { content: none; }
+  margin-top: 20mm;
+  @top-left { content: none; border: 0; }
+  @top-right { content: none; border: 0; }
 }
 
-html { font-size: 10pt; }
+/* ------------------------------------------------------------------ type */
+
+html { font-size: 9.5pt; }
 
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #1c1c1c;
-  line-height: 1.45;
-  hyphens: auto;
+  margin: 0;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  line-height: 1.5;
+  hyphens: manual;
+  orphans: 3;
+  widows: 3;
 }
 
 code, .mono {
-  font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 8.2pt;
+  font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 0.84em;
   /* anywhere, not break-all: long URLs wrap, ordinary tokens stay whole */
   overflow-wrap: anywhere;
   hyphens: none;
 }
 
-a { color: #14406b; text-decoration: none; border-bottom: 0.4pt solid #b9c9da; }
+a { color: var(--accent); text-decoration: none; }
 a.mono { border-bottom: none; }
 
-.occhiello {
-  font-size: 8pt;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+h1 {
+  font-size: 27pt;
+  line-height: 1.12;
   font-weight: 700;
-  color: #8a1017;
-  margin: 0 0 7pt;
+  letter-spacing: -0.022em;
+  color: var(--ink);
+  margin: 0 0 12pt;
+  string-set: doctitle content();
 }
-h1 { font-size: 24pt; line-height: 1.12; letter-spacing: -0.012em; margin: 0 0 5pt; string-set: doctitle content(); }
 h2 {
-  font-size: 13pt;
-  margin: 22pt 0 8pt;
-  padding-bottom: 3pt;
-  border-bottom: 0.6pt solid #d8d8dc;
+  font-size: 14pt;
+  line-height: 1.25;
+  font-weight: 650;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  margin: 26pt 0 9pt;
+  padding-top: 11pt;
+  border-top: 0.5pt solid var(--rule);
   break-after: avoid;
 }
-h3 { font-size: 10.5pt; margin: 14pt 0 4pt; break-after: avoid; }
-p { margin: 0 0 6pt; text-align: justify; }
+h3 { font-size: 10.5pt; font-weight: 650; color: var(--ink); margin: 15pt 0 4pt; break-after: avoid; }
+p { margin: 0 0 6pt; text-align: left; }
+strong { font-weight: 600; color: var(--ink); }
+
+.occhiello {
+  font-size: 7.8pt;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  margin: 0 0 26pt;
+}
+
+/* ----------------------------------------------------------------- cover */
 
 /* The first page carries the verdict, the summary and the evidence digests:
-   what a reader who reads nothing else has to see. Letting the next section
-   start three lines from its foot buys nothing and costs the page its
-   composure. */
-.copertina { margin-bottom: 18pt; break-after: page; }
-.sottotitolo { color: #666; font-size: 10pt; margin-bottom: 14pt; }
+   what a reader who reads nothing else has to see. */
+.copertina { margin-bottom: 0; break-after: page; }
+.sottotitolo { color: var(--muted); font-size: 8.8pt; line-height: 1.6; margin: 0 0 22pt; }
+.sottotitolo .mono { color: var(--text); }
 
-/* The verdict is the first thing read, so it is set rather than boxed. A tinted
-   panel with a coloured bar is how a dashboard shows a status; a document that
-   may be attached to formal correspondence says it in type. */
 .esito {
-  display: block;
-  margin: 14pt 0 10pt;
-  padding: 7pt 0;
-  border-top: 1.2pt solid #1c1c1c;
-  border-bottom: 0.4pt solid #d8d8dc;
+  display: flex;
+  align-items: center;
+  gap: 16pt;
+  margin: 0 0 18pt;
+  padding: 14pt 0;
+  border-top: 0.5pt solid var(--rule);
+  border-bottom: 0.5pt solid var(--rule);
 }
-.esito .grado { font-size: 26pt; font-weight: 700; letter-spacing: -0.02em; }
-.esito.F .grado, .esito.D .grado { color: #a3001b; }
-.esito.C .grado { color: #9a6100; }
-.esito.A .grado, .esito.B .grado { color: #17632c; }
-.esito.INCONCLUSIVE .grado { color: #555; }
+.esito .grado {
+  flex: none;
+  width: 50pt;
+  height: 50pt;
+  box-sizing: border-box;
+  border: 2pt solid currentColor;
+  border-radius: 3pt;
+  text-align: center;
+  font-size: 31pt;
+  font-weight: 700;
+  line-height: 46pt;
+  letter-spacing: -0.02em;
+}
+.esito.A .grado { color: var(--grade-a); }
+.esito.B .grado { color: var(--grade-b); }
+.esito.C .grado { color: var(--grade-c); }
+.esito.D .grado { color: var(--grade-d); }
+.esito.F .grado { color: var(--grade-f); }
+.esito.INCONCLUSIVE .grado { color: var(--muted); font-size: 11pt; }
+.esito .verdetto { flex: 1; }
+.esito .frase { margin: 0 0 3pt; font-size: 12.5pt; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.esito .nota-esito { margin: 0; font-size: 8.4pt; color: var(--muted); }
 
-table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 8.4pt; }
+.sommario { margin: 0 0 18pt; max-width: 150mm; }
+.sommario p { margin-bottom: 5pt; font-size: 10pt; line-height: 1.55; }
+
+/* Severity counts as one row of figures: the number is what is scanned. */
+.kpi { display: flex; margin: 0 0 4pt; border-top: 0.5pt solid var(--rule); border-bottom: 0.5pt solid var(--rule); }
+.kpi .cella { flex: 1; padding: 8pt 0 7pt; text-align: center; border-left: 0.5pt solid var(--rule); }
+.kpi .cella:first-child { border-left: 0; }
+.kpi .n { display: block; font-size: 19pt; font-weight: 650; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi .l { display: block; margin-top: 2pt; font-size: 7.2pt; color: var(--muted); }
+.kpi .cella.zero .n { color: var(--control); font-weight: 500; }
+.prio { display: flex; gap: 14pt; margin: 6pt 0 10pt; font-size: 7.8pt; color: var(--muted); }
+.prio .et { color: var(--ink); font-weight: 600; }
+.prio b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.legenda { font-size: 7.4pt; color: var(--muted); margin: 0 0 12pt; line-height: 1.45; }
+
+/* -------------------------------------------------------------- tables */
+
+table { width: 100%; border-collapse: collapse; margin: 6pt 0 12pt; font-size: 8.3pt; line-height: 1.4; }
 /* No hyphenation inside tables: narrow columns were producing "neces-sario"
    and "DICHIARA-TO", which reads as a typo in a document meant to be formal. */
 th, td {
   text-align: left;
-  padding: 3.5pt 5pt;
-  border-bottom: 0.4pt solid #e2e2e6;
+  padding: 4pt 6pt 4pt 0;
+  border-bottom: 0.4pt solid var(--rule);
   vertical-align: top;
   hyphens: none;
   overflow-wrap: break-word;
 }
 th {
-  font-weight: 700;
-  font-size: 7.6pt;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #55565c;
-  border-bottom: 0.8pt solid #1c1c1c;
+  font-weight: 600;
+  font-size: 7.4pt;
+  color: var(--muted);
+  border-bottom: 0.8pt solid var(--ink);
+  white-space: nowrap;
 }
-/* A `th` in the body is a row label, not a column heading. Nine consecutive
-   uppercase labels down the left of the metadata table shout at a reader who
-   is only looking for a value, and the heavy rule under a column heading makes
-   no sense repeated on every row. */
+/* A `th` in the body is a row label, not a column heading. */
 tbody th {
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 8.4pt;
-  color: #1c1c1c;
-  border-bottom: 0.4pt solid #e2e2e6;
+  font-size: 8.3pt;
+  color: var(--muted);
+  font-weight: 500;
+  border-bottom: 0.4pt solid var(--rule);
+  white-space: normal;
 }
-td.num { text-align: right; font-variant-numeric: tabular-nums; }
+tbody th, td:last-child { padding-right: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; padding-right: 8pt; }
+td.num:last-child, th.num:last-child { padding-right: 0; }
 /* A row must never be split across pages: the label stays with its value. */
 tr { break-inside: avoid; }
 thead { display: table-header-group; }
 
-/* The finding itself may break across pages — otherwise every finding shorter
-   than a page leaves a half-empty page behind, and a 30-finding report becomes
-   60 pages of white. The inner blocks stay whole. */
-.rilievo { break-inside: auto; margin: 0 0 14pt; padding-bottom: 8pt; border-bottom: 0.4pt solid #e2e2e6; }
-.rilievo .blocco, .rilievo .etichette, .rilievo .riferimenti { break-inside: avoid; }
-.rilievo h3 { break-after: avoid; }
-.rilievo .intestazione { display: block; margin-bottom: 4pt; }
-.rilievo h3 { margin: 0; }
+/* --------------------------------------------------------------- findings */
 
-/* One quiet line, not a row of coloured pills.
-   Seven rounded chips per finding — one of them green next to a red one — is
-   how a dashboard shows status, and it competes with the finding title for the
-   reader's eye while carrying less. The same facts, set as text and separated
-   by middots, read faster and photocopy. Severity keeps its colour because it
-   is the one value a reader scans for; the rest are grey. */
-.etichette { margin: 2pt 0 7pt; font-size: 8pt; color: #55565c; }
+/* A finding may break across pages: otherwise every finding shorter than a page
+   leaves a half-empty page behind. The heading and its first lines stay
+   together, and the inner blocks stay whole. */
+.rilievo { break-inside: auto; margin: 0 0 22pt; padding-top: 12pt; border-top: 0.5pt solid var(--rule); }
+.rilievo:first-of-type { border-top: 0; padding-top: 0; }
+.rilievo h3 { margin: 0; font-size: 11.5pt; line-height: 1.3; break-after: avoid; }
+.rilievo .etichette, .rilievo .blocco, .rilievo .riferimenti { break-inside: avoid; }
+.rilievo .etichette { break-after: avoid; }
+
+/* One quiet line. Severity is the one value a reader scans for, so it alone is a
+   pill and carries colour; the rest is grey text separated by middots. */
+.etichette { margin: 5pt 0 8pt; font-size: 7.8pt; color: var(--muted); line-height: 1.9; }
 .tag { display: inline; padding: 0; margin: 0; background: none; color: inherit; }
-.tag + .tag::before { content: " · "; color: #b0b0b6; }
-.tag.critical, .tag.high { color: #8a1017; font-weight: 700; }
-.tag.medium { color: #7a5600; font-weight: 700; }
-.tag.low, .tag.info { color: #55565c; }
-.tag.quickwin { color: #1c1c1c; }
-.tag.mono { color: #55565c; }
-
-/* Three tinted panels per finding — grey evidence, green verification, blue
-   remediation — put a colour code on the page that means nothing to a reader
-   who has not been told it, and large fills band badly on a laser printer. A
-   rule and a small-caps label separate a section just as clearly. */
-.blocco { margin: 7pt 0; padding: 5pt 0 0; border-top: 0.4pt solid #d8d8dc; }
-.blocco .titolo {
-  font-size: 7.4pt;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: 700;
-  color: #55565c;
-  margin-bottom: 3pt;
+.tag + .tag::before { content: "  \00b7  "; color: var(--control); }
+.tag:first-child {
+  border: 0.6pt solid currentColor;
+  border-radius: 2pt;
+  padding: 0.5pt 4pt;
+  font-weight: 600;
 }
-.blocco ol, .blocco ul { margin: 0; padding-left: 13pt; }
-.blocco li { margin-bottom: 2.5pt; }
+.tag:first-child { margin-right: 6pt; }
+.tag:first-child + .tag::before { content: none; }
+.tag.critical { color: var(--sev-critical); }
+.tag.high { color: var(--sev-high); }
+.tag.medium { color: var(--sev-medium); }
+.tag.low { color: var(--sev-low); }
+.tag.info { color: var(--sev-info); }
+.tag.quickwin { color: var(--ink); }
+.tag.mono { display: block; margin-top: 1pt; white-space: nowrap; font-size: 0.92em; }
+.tag.mono::before { content: none !important; }
 
-.riferimenti { font-size: 8pt; color: #444; margin: 3pt 0; }
-.riferimenti strong { color: #222; }
+.blocco { margin: 9pt 0; padding: 7pt 0 0; border-top: 0.4pt solid var(--rule); }
+.blocco .titolo { font-size: 7.6pt; font-weight: 650; color: var(--ink); margin-bottom: 4pt; }
+.blocco ol, .blocco ul { margin: 0; padding-left: 14pt; }
+.blocco li { margin-bottom: 3pt; padding-left: 2pt; }
+.blocco li::marker { color: var(--muted); }
 
-.evidenza { font-size: 8pt; }
-.evidenza dt { font-weight: 600; margin-top: 3pt; }
-.evidenza dd { margin: 0 0 0 10pt; }
+.riferimenti { font-size: 7.6pt; color: var(--muted); margin: 3pt 0; line-height: 1.5; }
+.riferimenti strong { color: var(--text); font-weight: 600; }
 
-.nota { font-size: 8pt; color: #55565c; border-left: 1.5pt solid #d8d8dc; padding: 1pt 0 1pt 7pt; margin: 8pt 0; }
-.impronta { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 7.4pt; word-break: break-all; color: #333; }
+.evidenza { margin: 0; font-size: 8pt; display: block; }
+.evidenza dt { font-weight: 500; color: var(--muted); margin-top: 4pt; font-size: 7.6pt; }
+.evidenza dd { margin: 0 0 0 0; }
+
+.nota {
+  font-size: 8pt;
+  color: var(--muted);
+  border-left: 1.5pt solid var(--rule);
+  padding: 1pt 0 1pt 9pt;
+  margin: 10pt 0;
+  line-height: 1.5;
+}
+.nota strong { color: var(--ink); }
+.impronta {
+  font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 6.9pt;
+  word-break: break-all;
+  color: var(--text);
+}
 
 .pagina-nuova { break-before: page; }
-.piccolo { font-size: 7.8pt; color: #555; }
+h2.pagina-nuova { margin-top: 0; border-top: 0; padding-top: 0; }
+.piccolo { font-size: 7.8pt; color: var(--muted); line-height: 1.5; }
+/* A note that introduces a table or a list stays with it. */
+p.piccolo, p.legenda { break-after: avoid; }
 
-/* --- sintesi direzionale -------------------------------------------------- */
-.sommario { margin: 10pt 0 14pt; }
-.sommario p { margin-bottom: 4pt; }
-.sommario p:last-child { margin-bottom: 0; }
+/* ---------------------------------------------------------- summary tables */
 
-.due-colonne { display: flex; gap: 10pt; }
+.due-colonne { display: flex; gap: 14pt; }
 .due-colonne > * { flex: 1; }
 
-.legenda { font-size: 7.4pt; color: #666; margin: -4pt 0 10pt; }
-
-/* indice dei rilievi: deve stare in una pagina anche con 30 righe */
-table.indice { font-size: 7.6pt; }
-table.indice td, table.indice th { padding: 2.2pt 4pt; }
+/* index of findings: fits on one page even with 30 rows */
+table.indice { font-size: 7.8pt; }
+table.indice td, table.indice th { padding: 3pt 5pt 3pt 0; }
 table.indice td.sev { white-space: nowrap; }
-.sev-critical { color: #7d0014; font-weight: 700; }
-.sev-high { color: #b03a00; font-weight: 700; }
-.sev-medium { color: #8a6d00; }
-.sev-low { color: #1f4f7a; }
-.sev-info { color: #55565c; }
-.no { color: #7d0014; font-weight: 700; }
-.si { color: #17632c; }
+.sev-critical { color: var(--sev-critical); font-weight: 650; }
+.sev-high { color: var(--sev-high); font-weight: 650; }
+.sev-medium { color: var(--sev-medium); font-weight: 600; }
+.sev-low { color: var(--sev-low); font-weight: 600; }
+.sev-info { color: var(--sev-info); }
+.no { color: var(--sev-critical); font-weight: 650; }
+.si { color: var(--grade-a); font-weight: 600; }
 
 /* Carries the translated footer into the page margin without printing it in
    the body flow. */
@@ -211,11 +333,14 @@ table.indice td.sev { white-space: nowrap; }
   height: 0;
 }
 
-/* The requests table has one wide column (path) and several narrow ones. Left
-   to itself the layout squeezes the host until it breaks mid-domain, which
+/* The requests table has one wide column (path) and several narrow ones, and a
+   hundred rows: set small and tight so it runs a few pages, not a dozen. The
+   layout is fixed, or it squeezes the host until it breaks mid-domain, which
    reads as corrupted evidence. */
-table.richieste { table-layout: fixed; }
+table.richieste { table-layout: fixed; font-size: 7.2pt; line-height: 1.3; }
+table.richieste th, table.richieste td { padding: 1.8pt 5pt 1.8pt 0; }
 table.richieste th:nth-child(1), table.richieste td:nth-child(1) { width: 8%; }
-table.richieste th:nth-child(2), table.richieste td:nth-child(2) { width: 26%; }
-table.richieste th:nth-child(3), table.richieste td:nth-child(3) { width: 13%; }
-table.richieste th:nth-child(4), table.richieste td:nth-child(4) { width: 8%; }
+table.richieste th:nth-child(2), table.richieste td:nth-child(2) { width: 22%; }
+table.richieste th:nth-child(3), table.richieste td:nth-child(3) { width: 11%; }
+table.richieste th:nth-child(4), table.richieste td:nth-child(4) { width: 7%; }
+table.richieste td.mono { font-size: 6.8pt; }

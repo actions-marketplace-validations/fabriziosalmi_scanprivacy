@@ -60,7 +60,7 @@ poll), and `SCANPRIVACY_SCAN_RETENTION` (200 results kept in memory; older ones 
 read from disk, and an entry that failed to persist is never evicted).
 
 Targets are checked three times. Before the fetch, the hostname is resolved and
-every address behind it must be public — a name whose A record points at the
+every address behind it must be public: a name whose A record points at the
 cloud metadata address is the technique, not an edge case. While the scan runs,
 the browser, the robots.txt reader and the TLS probe can only reach the network
 through a local egress proxy that resolves each name itself, requires every
@@ -81,14 +81,14 @@ checking a site before deploying it.
 
 This is the deterministic core extracted from three strands of work:
 
-- **privacy-pa** — passive observation, declarative rules, citable evidence, the
+- **privacy-pa**: passive observation, declarative rules, citable evidence, the
   register a public body can act on. The method survives here, generalised
   beyond Italian municipalities.
-- **agssh / AGSSH-STD-001** — fail-closed posture, severities, verdicts:
+- **agssh / AGSSH-STD-001**: fail-closed posture, severities, verdicts:
   *nothing is green unless it was observed to be green*. An unreachable site is
   `INCONCLUSIVE`, never conformant.
 - **a week of `privacy:` commits** across the author's repositories (Art. 13
-  notice, footer link, meta-CSP, processor lists) — the catalogue of fixes,
+  notice, footer link, meta-CSP, processor lists): the catalogue of fixes,
   reported here next to each finding.
 
 ## What makes it different
@@ -97,7 +97,7 @@ This is the deterministic core extracted from three strands of work:
 so every new tracker meant a new rule. Here a rule says *"a third party with
 terminal access was contacted before consent"* and the facts about each vendor
 live in [`knowledge/vendors.yml`](src/scanprivacy/knowledge/vendors.yml). Adding a
-vendor is a data change — never code, never a rule.
+vendor is a data change, never code, never a rule.
 
 **It reads the site's own documents.** The engine compares what a site
 *declares* with what it *does*. That gap (`PM-DIS-01`) is the finding an
@@ -106,7 +106,7 @@ recipient, or it does not.
 
 **Findings carry no sentences.** A scan result holds canonical values, catalogue
 keys and parameters. Sentences are assembled at render time, so the same scan
-produces an English and an Italian report — with the same evidence digest —
+produces an English and an Italian report, with the same evidence digest,
 without observing the site twice.
 
 ## More than one page
@@ -118,19 +118,19 @@ scanprivacy scan https://example.org --pages 5
 One page is not a site. A tracker that only runs on the contact form, an embed
 that only appears on an article, a CDN pulled in by a single template: a
 single-page scan does not know they exist. On the pilot site, moving from one
-page to five surfaced `cdnjs.cloudflare.com` — loaded only on `/chi-siamo` —
+page to five surfaced `cdnjs.cloudflare.com` (loaded only on `/chi-siamo`)
 and with it two findings that had been invisible.
 
 Selection is **deterministic**: one page per kind (contact, form, services,
 about, article…), then a leaf page, then the main navigation, ordered by kind,
 depth and URL. The same site yields the same pages on every run, which is what
-keeps `scanprivacy diff` honest — otherwise it would report churn that never happened.
+keeps `scanprivacy diff` honest, because otherwise it would report churn that never happened.
 
 The engine follows links **from the entry page only**. A conformance check is
 not a crawl, and a crawl needs a conversation with the site owner that a scan
 does not have. Downloads, feeds, pagination, legal documents (they have their
-own reader) and anything that changes state — `/logout`, `/checkout`, `/wp-admin`
-— are never requested. At most one page load per second per host.
+own reader) and anything that changes state (`/logout`, `/checkout`, `/wp-admin`)
+are never requested. At most one page load per second per host.
 
 Each finding says which pages produced it: "on every page" and "only on the
 contact form" are different problems with different fixes.
@@ -145,7 +145,7 @@ scanprivacy consent-pass https://example.org --pdf refusal.pdf
 Everything else in this engine observes a visitor who has not decided and never
 touches the page. This one mode does: it refuses the consent the site itself
 offers, reloads, and compares. It is a **separate command producing a separate
-document with a separate declared method** — the standard report does not gain a
+document with a separate declared method**. The standard report does not gain a
 word because this exists, and never claims to cover it.
 
 **Why refusal rather than acceptance.** What happens after "Accept" is roughly
@@ -157,7 +157,7 @@ was ignored" look identical.
 **The engine never guesses.** It interacts only with consent platforms listed in
 [`knowledge/consent.yml`](src/scanprivacy/knowledge/consent.yml), only through the
 refusal path their own vendor documents, and only after the platform's own
-readiness check passes. One action — one documented call, or one click on the
+readiness check passes. One action: one documented call, or one click on the
 single control the vendor publishes. No searching for a button whose text
 resembles "Reject", no second attempt with a different method, no navigation.
 Clicking blindly on somebody else's site is how a scanner empties a cart or logs
@@ -177,7 +177,7 @@ says so.
 
 ## Identity surface
 
-The same scan that a DPO asked for also answers questions an access team owns —
+The same scan that a DPO asked for also answers questions an access team owns,
 without a second tool and without a second visit. Passively observable, and
 therefore covered:
 
@@ -185,16 +185,16 @@ therefore covered:
   Google or Apple, SPID, Keycloak). An IdP receives *who the user is*, not merely
   that a visitor arrived, so it is a recipient like any other: the transfer and
   disclosure rules already reach it. Adding them was a data change, not a rule.
-- **Session cookie hygiene** — a session identifier without `HttpOnly` is
+- **Session cookie hygiene**: a session identifier without `HttpOnly` is
   readable by every third-party script on the page, and a stolen session
   identifier is a logged-in user with no password involved. Without `Secure`,
   one plain-HTTP request discloses it.
-- **Login form posture** — a password field on a page served over plain HTTP, a
+- **Login form posture**: a password field on a page served over plain HTTP, a
   form posting credentials to a third-party domain, a credential page that can
   be framed by another site.
 
-Not covered, deliberately: multi-factor policy, password rules, role models —
-none are observable from outside, and inventing them would be worse than
+Not covered, deliberately: multi-factor policy, password rules, role models.
+None are observable from outside, and inventing them would be worse than
 omitting them. No form is ever filled or submitted, nothing is authenticated,
 and no administrative path is probed: only what the page itself exposes to a
 visitor who opens it. A test asserts that guarantee against the source.
@@ -208,8 +208,8 @@ A report that cannot be re-derived is an opinion. Every scan carries:
   digests and same target means the same analysis was applied. They make two
   scans comparable, and they are what a client can pin in a contract.
 - **an evidence digest**: SHA-256 of the canonical JSON of the observation. It
-  ties the report to the attached evidence. It is *not* stable across runs —
-  sites change — which is exactly what makes it possible to prove that they did.
+  ties the report to the attached evidence. It is *not* stable across runs
+  (sites change), which is exactly what makes it possible to prove that they did.
   `scanprivacy verify` recomputes all of them.
 - **full evidence in the PDF**: every request with its time in milliseconds from
   the start of navigation, cookies with their attributes, storage, headers, the
@@ -217,7 +217,7 @@ A report that cannot be re-derived is an opinion. Every scan carries:
   its extracted text and the passages that satisfied each Art. 13 element.
 - **independent verification steps per finding**: what to do with a browser and
   `curl` to obtain the same result *without this tool*. A finding nobody can
-  check alone is worth nothing — the first thing a supplier says is "your
+  check alone is worth nothing: the first thing a supplier says is "your
   scanner is wrong".
 
 ## For whoever reads the report
@@ -276,13 +276,13 @@ A full example, with artefacts and a pull-request comment, is in
 ### SARIF, and why it is worth more than a report
 
 `scanprivacy scan --sarif out.sarif` emits SARIF 2.1.0, so findings land in GitHub's
-Security tab — the queue developers already work from — instead of a PDF someone
+Security tab (the queue developers already work from) instead of a PDF someone
 has to remember to open. Three properties do the actual work:
 
 - **Findings are anchored to the line that causes them.** In CI the repository
   is right there, so the engine looks for the observed host in the source and
   points the alert at `src/layouts/base.html:3`, not at "your website". Where
-  the line only *names* the host — an allowlist, a CSP directive, a comment —
+  the line only *names* the host (an allowlist, a CSP directive, a comment)
   the alert says so instead of pretending: a confident wrong line is worse than
   an honest "not found".
 - **Fingerprints are stable and language-independent.** An alert that persists
@@ -321,7 +321,7 @@ whoever sent you the file:
 Fail-closed here too. An unsigned statement is labelled unsigned and
 `verify-attestation` exits `1`: a statement nobody signed proves only that
 somebody wrote a file. If signing is requested and cosign is missing, the
-command fails rather than quietly producing an unsigned file — the caller finds
+command fails rather than quietly producing an unsigned file: the caller finds
 out now, not when a recipient checks.
 
 Two guarantees, deliberately distinguished: a **local key** proves the holder
@@ -337,7 +337,7 @@ scanprivacy badge scan.json --out .github/badges/privacy.svg
 ```
 
 Deliberately **not** a shields.io URL. A badge served by a third party makes
-every visitor of the README disclose their IP address to that third party —
+every visitor of the README disclose their IP address to that third party,
 which is exactly the finding `PM-TRF-01` raises against everyone else. A tool
 that breaks its own rule in its own README has no standing to raise it. So the
 SVG is generated locally, committed, and loads nothing.
@@ -408,18 +408,18 @@ Neither is set by default, and the record then says the vantage point is
 undetermined rather than leaving the field out. The lookup is opt-in on purpose:
 an engine that asks a third party where it is, on every scan, sends the
 operator's address to a company nobody chose in order to produce a privacy
-report — which is the shape of the thing it exists to report. `scanprivacy diff`
+report, which is the shape of the thing it exists to report. `scanprivacy diff`
 warns when two scans were made from different places, for the same reason it
 warns when they were made by different engine versions.
 
 Set `SCANPRIVACY_CONTACT` to your own address before running this against anything
 you do not own. The address is the only route by which the owner of an observed
-site can object, so it has to reach whoever is operating the engine — not
+site can object, so it has to reach whoever is operating the engine, not
 whoever wrote it.
 
 Some WAFs hang up on an unfamiliar User-Agent. `--ua-fallback` retries once as a
-plain browser, and is **off by default**: the retry is not a disguise — we are a
-browser either way — but it drops the contact address, which is the entire
+plain browser, and is **off by default**: the retry is not a disguise (we are a
+browser either way), but it drops the contact address, which is the entire
 accountability mechanism, so turning it on is a decision an operator makes for
 an estate they own. Whichever string actually reached the site is the one the
 report names under *posture*; the report never claims an identity that was not
@@ -428,7 +428,7 @@ used.
 ## Verdict (fail-closed)
 
 `F` with any critical finding, `D` with any high, `C` medium, `B` low, `A`
-clean; `INCONCLUSIVE` if the site could not be loaded — and, in the refusal
+clean; `INCONCLUSIVE` if the site could not be loaded, and, in the refusal
 pass, if no refusal actually happened: a pass that found no consent mechanism,
 or could not use the one it found, has not observed what survives a refusal,
 and zero findings there means "never asked" rather than "clean". `scanprivacy scan` exits `1`
@@ -467,16 +467,16 @@ completeness of every locale.
   opt-in, produces its own document, and works solely through the nine
   platforms in `knowledge/consent.yml`. Eight of those nine are implemented
   from the vendor's documentation and have not been confirmed against a live
-  installation — the catalogue now says which is which, the report states it,
+  installation. The catalogue now says which is which, the report states it,
   and findings built on an unconfirmed path are stated as indications rather
   than as facts.
 - Requests made **inside a third-party iframe** are attributed to that embed,
   not to the site. Embedding YouTube is the site's choice and is reported as
   one; the fonts YouTube then loads inside its own player are not, since the
-  operator can neither see nor prevent them. Those hosts stay in the inventory —
-  the data did reach them — marked *reached through* the embed.
+  operator can neither see nor prevent them. Those hosts stay in the inventory
+  (the data did reach them), marked *reached through* the embed.
 - A scan covers **one deployment**. Links to another host under the same domain
-  are not followed — `api.example.org` is a different codebase and usually a
+  are not followed: `api.example.org` is a different codebase and usually a
   different person, and reporting its findings under `www.example.org` sends
   the reader to the wrong repository. The apex and its `www.` count as one. Any
   sibling host the entry page links to is listed in the page plan, with the
@@ -497,7 +497,7 @@ completeness of every locale.
 
 ## Licence
 
-**GNU AGPL-3.0-only** — full text in [LICENSE](LICENSE).
+**GNU AGPL-3.0-only**, full text in [LICENSE](LICENSE).
 
 Chosen for section 13, not out of habit. The natural way to deploy this engine
 is as a network service: someone runs `scanprivacy serve` behind a domain and never

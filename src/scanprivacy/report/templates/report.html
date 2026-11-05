@@ -26,9 +26,11 @@
   </p>
 
   <div class="esito {{ scan.grade }}">
-    <span class="grado">{{ scan.grade }}</span>
-    &nbsp;{{ t.t('report.verdict_conformant') if scan.conformant else t.t('report.verdict_not_conformant') }}
-    <div class="piccolo" style="margin-top:4pt">{{ scan.verdict_note }}</div>
+    <div class="grado">{{ scan.grade }}</div>
+    <div class="verdetto">
+      <p class="frase">{{ t.t('report.verdict_conformant') if scan.conformant else t.t('report.verdict_not_conformant') }}</p>
+      <p class="nota-esito">{{ scan.verdict_note }}</p>
+    </div>
   </div>
 
   <div class="sommario">
@@ -55,27 +57,15 @@
   </table>
   {% endif %}
 
-  <div class="due-colonne">
-    <div>
-      <table>
-        <thead><tr><th>{{ t.t('report.labels.severity') }}</th><th class="num">{{ t.t('report.labels.findings_count') }}</th></tr></thead>
-        <tbody>
-        {% for label, count in scan.counts_by_severity %}
-          <tr><td>{{ label }}</td><td class="num">{{ count }}</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div>
-      <table>
-        <thead><tr><th>{{ t.t('report.labels.priority') }}</th><th class="num">{{ t.t('report.labels.findings_count') }}</th></tr></thead>
-        <tbody>
-        {% for label, count in scan.counts_by_priority %}
-          <tr><td>{{ label }}</td><td class="num">{{ count }}</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  {% set severity_keys = ['critical', 'high', 'medium', 'low', 'info'] %}
+  <div class="kpi">
+    {% for label, count in scan.counts_by_severity %}
+    <div class="cella{{ ' zero' if count == 0 }}"><span class="n{{ ' sev-' ~ severity_keys[loop.index0] if count }}">{{ count }}</span><span class="l">{{ label }}</span></div>
+    {% endfor %}
+  </div>
+  <div class="prio">
+    <span class="et">{{ t.t('report.labels.priority') }}</span>
+    {% for label, count in scan.counts_by_priority %}<span>{{ label }} <b>{{ count }}</b></span>{% endfor %}
   </div>
   <p class="legenda">{{ t.t('report.legend.severity_priority')|safe }}</p>
 
@@ -232,7 +222,7 @@
 {% endfor %}
 
 {# --------------------------------------------------------------- recipients #}
-<h2 class="pagina-nuova">{{ t.t('report.headings.inventory') }}</h2>
+<h2>{{ t.t('report.headings.inventory') }}</h2>
 <p class="piccolo">{{ t.t('report.legend.inventory') }}</p>
 <table>
   <thead>
@@ -262,7 +252,7 @@
 
 {# ----------------------------------------------------------- screening #}
 {% if screening.criteria %}
-<h2 class="pagina-nuova">{{ t.t('dpia.heading') }}</h2>
+<h2>{{ t.t('dpia.heading') }}</h2>
 <p class="piccolo">{{ t.t('dpia.legend') }}</p>
 <table>
   <thead>
@@ -376,7 +366,7 @@
       <td class="mono">{{ q.host }}</td>
       <td>{{ q.resource_type }}</td>
       <td class="num">{{ q.status or "—" }}</td>
-      <td class="mono">{{ q.path if q.path|length <= 90 else q.path[:90] ~ "…" }}</td>
+      <td class="mono">{{ q.path if q.path|length <= 72 else q.path[:72] ~ "…" }}</td>
     </tr>
   {% endfor %}
   </tbody>
