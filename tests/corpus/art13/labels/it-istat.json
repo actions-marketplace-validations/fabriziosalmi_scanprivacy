@@ -1,0 +1,54 @@
+{
+ "id": "it-istat",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Titolare del trattamento è l’Istituto nazionale di statistica, con sede in via Cesare Balbo 16, 00184 Roma"
+  },
+  "contact": {
+   "present": true,
+   "quote": "(PEC: protocollo@postacert.istat.it ; centralino: +39 06.46731)"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "Il Responsabile della Protezione dei Dati (RPD) è raggiungibile al seguente indirizzo: Istituto nazionale di statistica – Responsabile della Protezione dei dati personali, via Cesare Balbo 16, 00184 Roma, email responsabileprotezionedati@istat.it"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "Tali dati, necessari per la fruizione dei servizi web, vengono anche trattati allo scopo di: ottenere informazioni statistiche sull’uso dei servizi e i prodotti offerti"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "trattati dall’Istat nell’esecuzione dei compiti di interesse pubblico ad esso affidati (art. 15 d.lgs. n. 322/1989)"
+  },
+  "recipients": {
+   "present": false,
+   "quote": null
+  },
+  "transfers": {
+   "present": false,
+   "quote": null
+  },
+  "retention": {
+   "present": true,
+   "quote": "I dati di navigazione non persistono per più di novanta giorni."
+  },
+  "rights": {
+   "present": true,
+   "quote": "Gli interessati hanno il diritto di ottenere dall’Istituto Nazionale di Statistica, nei casi previsti, l’accesso ai propri dati personali e la rettifica o la cancellazione degli stessi"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "hanno il diritto di proporre reclamo al Garante per la protezione dei dati personali, come previsto dall’art. 77 del Regolamento"
+  },
+  "profiling": {
+   "present": true,
+   "quote": "Non viene fatto uso di cookie per la profilazione degli utenti."
+  },
+  "last_updated": {
+   "present": false,
+   "quote": null
+  }
+ },
+ "notes": "Recipients false: Matomo, Dynatrace, Cloudflare captcha are mentioned as tools, not as recipients of data. Profiling is borderline (only says no profiling cookies, not about automated decisions); labelled true. No date."
+}

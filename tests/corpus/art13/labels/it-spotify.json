@@ -1,0 +1,54 @@
+{
+ "id": "it-spotify",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Spotify AB è il titolare del trattamento dei dati personali trattati in base alla presente Informativa."
+  },
+  "contact": {
+   "present": true,
+   "quote": "Inviaci un'e-mail all'indirizzo privacy@spotify.com Scrivici all'indirizzo: Spotify AB, Regeringsgatan 19, 111 53 Stockholm, Sweden"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "contatta il responsabile della protezione dei dati di Spotify tramite uno dei seguenti metodi: Inviaci un'e-mail all'indirizzo privacy@spotify.com Scrivici all'indirizzo: Spotify AB, Regeringsgatan 19, 111 53 Stockholm, Sweden, Attn: Data Protection Officer"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "Fornire il Servizio Spotify in base al contratto con te. Ad esempio, quando Spotify utilizza i tuoi dati personali per: Configurare un account per te"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "Interesse legittimo: quando Spotify o una terza parte ha un interesse nell'utilizzo dei tuoi dati personali in un determinato modo"
+  },
+  "recipients": {
+   "present": true,
+   "quote": "Partner per i pagamenti Dati utente Dati di acquisto e pagamento Per consentire loro l'elaborazione dei pagamenti e prevenire le frodi."
+  },
+  "transfers": {
+   "present": true,
+   "quote": "I trasferimenti di dati personali ad altri Paesi al di fuori dell'UE/SSE sono protetti dalle Clausole contrattuali standard (\"SCC\") in qualità di tutela opportuna."
+  },
+  "retention": {
+   "present": true,
+   "quote": "Spotify conserva i dati personali solo per il periodo necessario a fornirti il Servizio Spotify e per le proprie finalità commerciali legittime ed essenziali"
+  },
+  "rights": {
+   "present": true,
+   "quote": "Accesso Richiedere l'accesso ai tuoi dati personali oggetto di trattamento. Per richiedere una copia dei tuoi dati personali a Spotify, puoi: Utilizzare lo strumento \"Scarica i tuoi dati\""
+  },
+  "complaint": {
+   "present": true,
+   "quote": "Presentazione di un reclamo Contattare l'Autorità svedese per la protezione della privacy o l'autorità locale competente"
+  },
+  "profiling": {
+   "present": true,
+   "quote": "Spotify non esegue tale tipo di processo decisionale automatizzato nell'ambito del Servizio Spotify."
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Valida dal 12 giugno 2026"
+  }
+ },
+ "notes": "Document is in Italian despite the id. Quotes for recipients/purposes are short table headers; table content is present nearby."
+}

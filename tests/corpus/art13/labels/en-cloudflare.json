@@ -1,0 +1,54 @@
+{
+ "id": "en-cloudflare",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Cloudflare is a data controller for the personal information collected from all categories of data subjects listed above, with the following exceptions"
+  },
+  "contact": {
+   "present": true,
+   "quote": "Cloudflare, Inc. 101 Townsend St. San Francisco, CA 94107 Attention: Data Protection Officer dpo@cloudflare.com"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "Cloudflare, Inc. 101 Townsend St. San Francisco, CA 94107 Attention: Data Protection Officer dpo@cloudflare.com"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "we may use your personal information to: Provide, operate, maintain, improve, and promote the Websites and Services for all users of the Websites and Services"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "We normally will collect personal information from you only where: (a) we have your consent to do so, (b) where we need your personal information to perform a contract with you"
+  },
+  "recipients": {
+   "present": true,
+   "quote": "Within the Cloudflare Group (defined for the purposes of this Policy as Cloudflare, Inc. (United States) and its subsidiaries listed Section 15); With our resellers and other sales partners"
+  },
+  "transfers": {
+   "present": true,
+   "quote": "When Cloudflare transfers personal data from the EEA, Switzerland, or the United Kingdom (UK) to the United States, we rely on our certifications under the EU-U.S. Data Privacy Framework"
+  },
+  "retention": {
+   "present": true,
+   "quote": "The criteria we used to determine how long we store your personal information will vary depending on several different factors."
+  },
+  "rights": {
+   "present": true,
+   "quote": "You have the right to access, correct, update, port, or delete your personal information, and to restrict or object to the processing of your personal information"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "In the EEA, the UK, and Switzerland, you also have the right to lodge a complaint with a supervisory authority."
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "This Privacy Policy is effective as of November 4th, 2025."
+  }
+ },
+ "notes": "No statement on automated decision-making/profiling in the policy body (only interest-based ads cookies and CCPA inferences), labelled false."
+}

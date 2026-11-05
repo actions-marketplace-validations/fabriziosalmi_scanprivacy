@@ -1,0 +1,54 @@
+{
+ "id": "en-mozilla",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "We care about your privacy. When Mozilla (that’s us) collects information about you, our Mozilla Privacy Policy describes how we handle that information."
+  },
+  "contact": {
+   "present": true,
+   "quote": "If you have any other questions regarding personal data or our privacy practices, please contact us at compliance@mozilla.com ."
+  },
+  "dpo": {
+   "present": false,
+   "quote": null
+  },
+  "purposes": {
+   "present": true,
+   "quote": "We use this information to process and evaluate applications and to communicate with applicants about opportunities."
+  },
+  "legal_basis": {
+   "present": false,
+   "quote": null
+  },
+  "recipients": {
+   "present": true,
+   "quote": "Our email management vendors are SalesForce , Amazon Simple Email Service , Mailchimp , SocketLabs , Campaign Monitor , or Braze"
+  },
+  "transfers": {
+   "present": false,
+   "quote": null
+  },
+  "retention": {
+   "present": true,
+   "quote": "We use Braze , Salesforce , Fundraise Up and Campaign Monitor to email receipts and store records, which are retained for 10 years from the date of last payment."
+  },
+  "rights": {
+   "present": false,
+   "quote": null
+  },
+  "complaint": {
+   "present": false,
+   "quote": null
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "November 5, 2025"
+  }
+ },
+ "notes": "controller is weak (no explicit controller term, just Mozilla as us). rights not listed (only 'data protection rights' mentioned). Retention only for donation records."
+}

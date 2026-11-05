@@ -1,0 +1,54 @@
+{
+ "id": "it-amazon",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Amazon Digital UK Limited, con sede nel Regno Unito, 1 Principal Place, Worship Street, Londra, EC2A 2FA (congiuntamente \" Amazon Europe \") sono titolari del trattamento dei dati personali raccolti e utilizzati attraverso i Servizi Amazon."
+  },
+  "contact": {
+   "present": true,
+   "quote": "ti preghiamo di contattarci all'indirizzo e-mail eu-privacy@amazon.it."
+  },
+  "dpo": {
+   "present": true,
+   "quote": "il Responsabile della protezione dei dati per i suddetti titolari del trattamento può essere contattato all'indirizzo e-mail eu-privacy@amazon.it."
+  },
+  "purposes": {
+   "present": true,
+   "quote": "Utilizziamo i tuoi dati personali per svolgere, fornire e migliorare i Servizi Amazon che offriamo ai nostri clienti. Queste finalità comprendono:"
+  },
+  "legal_basis": {
+   "present": false,
+   "quote": null
+  },
+  "recipients": {
+   "present": true,
+   "quote": "Terzi fornitori di servizi: ci serviamo di altre aziende e di persone fisiche affinché svolgano certe attività per nostro conto."
+  },
+  "transfers": {
+   "present": true,
+   "quote": "Ci basiamo sulle Decisioni di adeguatezza adottate dalla Commissione Europea oppure utilizziamo contratti che contengono misure di sicurezza adeguate elaborate dalla Commissione Europea"
+  },
+  "retention": {
+   "present": true,
+   "quote": "normalmente conserviamo i dati transazionali relativi agli ordini di prodotti e servizi, ad esempio il nome del cliente, il prodotto ordinato, la data dell'ordine, l'indirizzo di consegna, il metodo di pagamento, il prezzo e l'IVA, per 10 anni."
+  },
+  "rights": {
+   "present": true,
+   "quote": "Obiezione e restrizione. Per opporti o chiedere di limitare l'utilizzo dei tuoi dati personali, contatta il Servizio Clienti."
+  },
+  "complaint": {
+   "present": true,
+   "quote": "Puoi presentare un reclamo alla nostra principale autorità di vigilanza, la Commission Nationale pour la Protection des Données a Lussemburgo, o presso un'autorità locale."
+  },
+  "profiling": {
+   "present": true,
+   "quote": "Potremo utilizzare i tuoi dati personali per prendere decisioni interamente automatizzate che hanno effetti giuridici o comunque significativi su di te. In tal caso, te lo comunicheremo."
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "Ultimo aggiornamento: 28.10.2026"
+  }
+ },
+ "notes": "legal_basis marked false: the bases table is behind a link and not in the text; only consent and legal-obligation purposes are mentioned in passing. A lawyer might accept consent/legal obligation as stated."
+}

@@ -1,0 +1,54 @@
+{
+ "id": "it-polimi",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Titolare del Trattamento dati : Politecnico di Milano - Direttore Generale su delega del Rettore pro-tempore"
+  },
+  "contact": {
+   "present": true,
+   "quote": "contatto: dirgen@polimi.it"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "Responsabile della protezione dei dati: privacy@polimi.it , tel.: 0223999378"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "per le seguenti finalità: Trattamenti principali inerenti gli studenti Trattamento finalizzato all’orientamento"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "ai sensi dell’art. 6 lettera e) del regolamento UE 2016/679 (trattamenti per ragioni di interesse pubblico)"
+  },
+  "recipients": {
+   "present": true,
+   "quote": "I dati personali potrebbero essere comunicati anche ad altre amministrazioni pubbliche, qualora queste debbano trattare i medesimi per eventuali procedimenti di propria competenza istituzionale."
+  },
+  "transfers": {
+   "present": false,
+   "quote": null
+  },
+  "retention": {
+   "present": true,
+   "quote": "I dati raccolti saranno conservati per i tempi stabiliti dalla normativa vigente o dai regolamenti d’Ateneo."
+  },
+  "rights": {
+   "present": true,
+   "quote": "Chiedere al titolare, ai sensi degli artt. 16, 17, 18, 19 e 21 del Regolamento (UE) 2016/679, l’accesso ai propri dati personali e la rettifica o la cancellazione degli stessi"
+  },
+  "complaint": {
+   "present": true,
+   "quote": "Proporre reclamo a un’autorità di controllo."
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": false,
+   "quote": null
+  }
+ },
+ "notes": "Transfers: only 'trasferimento all’estero verso altre istituzioni universitarie' with no third-country or safeguards statement, labelled false. last_updated: only dates of second-level notices, not of this notice."
+}

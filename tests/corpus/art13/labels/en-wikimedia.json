@@ -1,0 +1,54 @@
+{
+ "id": "en-wikimedia",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "The Wikimedia Foundation, Inc. , the non-profit organization that operates the Wikimedia Sites."
+  },
+  "contact": {
+   "present": true,
+   "quote": "please email us at privacy@wikimedia.org or contact us directly."
+  },
+  "dpo": {
+   "present": false,
+   "quote": null
+  },
+  "purposes": {
+   "present": true,
+   "quote": "We and our service providers use your information for the legitimate purpose of pursuing our charitable mission, including:"
+  },
+  "legal_basis": {
+   "present": true,
+   "quote": "We engage in these activities to manage our relationship with you, because we have a legitimate interest and/or to comply with our legal obligations."
+  },
+  "recipients": {
+   "present": true,
+   "quote": "We disclose Personal Information to our third-party service providers or contractors to help run or improve the Wikimedia Sites and provide services in support of our mission."
+  },
+  "transfers": {
+   "present": true,
+   "quote": "You also understand that your information may be transferred by us from the U.S. to other countries, which may have different or less stringent data protection laws than your country"
+  },
+  "retention": {
+   "present": true,
+   "quote": "In most instances, Personal Information is deleted, aggregated or de-identified after 90 days."
+  },
+  "rights": {
+   "present": true,
+   "quote": "If you would like to request to access, update or restrict/object to the processing of Personal Information, or receive a copy of your Personal Information for purposes of transmitting it to another organization, you may Contact Us ."
+  },
+  "complaint": {
+   "present": true,
+   "quote": "Depending on your jurisdiction, you also may have the right to lodge a complaint with a supervisory authority competent for your country or region."
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": true,
+   "quote": "This version was approved by Stephen LaPorte on September 3, 2025, pursuant to the Delegation of policy-making authority by the Board, and went into effect on October 6, 2025."
+  }
+ },
+ "notes": "DPO false: only an EEA/UK representative (Bird & Bird) is given, not a DPO. Transfers: US transfer stated but no safeguards named. No profiling statement."
+}

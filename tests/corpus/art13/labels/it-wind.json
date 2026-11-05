@@ -1,0 +1,54 @@
+{
+ "id": "it-wind",
+ "elements": {
+  "controller": {
+   "present": true,
+   "quote": "Titolare del Trattamento dei dati è Wind Tre S.p.A. con sede legale in via Monte Rosa, 91 20149 Milano (MI)."
+  },
+  "contact": {
+   "present": true,
+   "quote": "scrivendo all’indirizzo ServizioClienti159@pec.windtre.it • Per il cliente WINDTRE Business"
+  },
+  "dpo": {
+   "present": true,
+   "quote": "Wind Tre S.p.A. ha provveduto a nominare un Responsabile della protezione dei dati personali, contattabile all’indirizzo di posta elettronica dataprotectionofficer@windtre.it"
+  },
+  "purposes": {
+   "present": true,
+   "quote": "Questi dati, cancellati immediatamente dopo l'elaborazione, vengono utilizzati al solo scopo di ricavare informazioni statistiche anonime sull'uso del sito e per controllarne il corretto funzionamento."
+  },
+  "legal_basis": {
+   "present": false,
+   "quote": null
+  },
+  "recipients": {
+   "present": true,
+   "quote": "I Suoi dati potranno essere comunicati a soggetti terzi in adempimento di un obbligo di legge."
+  },
+  "transfers": {
+   "present": false,
+   "quote": null
+  },
+  "retention": {
+   "present": true,
+   "quote": "I dati sui contatti web non vengono conservati per più di sette giorni, salvo eventuali reati informatici ai danni dei siti."
+  },
+  "rights": {
+   "present": true,
+   "quote": "di ottenere in qualunque momento, la conferma dell'esistenza o meno dei propri Dati Personali, di conoscerne il contenuto e l'origine, verificarne l'esattezza o chiederne l'integrazione o l'aggiornamento o la rettifica."
+  },
+  "complaint": {
+   "present": false,
+   "quote": null
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": false,
+   "quote": null
+  }
+ },
+ "notes": "No explicit legal basis for the site processing; no transfers, complaint to authority, ADM statement or dated update (only 'è stata aggiornata' with no date). Document is an aggregate of web privacy and cookie policy; many linked notices not included."
+}

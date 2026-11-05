@@ -1,0 +1,191 @@
+{
+ "it-agenziaentrate": {
+  "id": "it-agenziaentrate",
+  "lang": "it",
+  "kind": "public",
+  "url": "https://www.agenziaentrate.gov.it/portale/privacy",
+  "chars": 15296,
+  "sha256": "6b2bc0a364f744fb65ddc6b80b2609252a16c1cb7a5ac47c50b69994be6b226b",
+  "fetched_at": "2026-11-04"
+ },
+ "it-ilpost": {
+  "id": "it-ilpost",
+  "lang": "it",
+  "kind": "media",
+  "url": "https://www.ilpost.it/privacy/",
+  "chars": 15745,
+  "sha256": "93f7d588dd7a40a95cd455ee0f02bfd6cfa370c14239c5596e68b1b18351d662",
+  "fetched_at": "2026-11-04"
+ },
+ "it-polimi": {
+  "id": "it-polimi",
+  "lang": "it",
+  "kind": "public",
+  "url": "https://www.polimi.it/privacy",
+  "chars": 18864,
+  "sha256": "bc1cc71ab1b3ee53dc0a286a6db6a00ca8eaa8ca08b8a4a4730aab8d73df996a",
+  "fetched_at": "2026-11-04"
+ },
+ "it-istat": {
+  "id": "it-istat",
+  "lang": "it",
+  "kind": "public",
+  "url": "https://www.istat.it/privacy/",
+  "chars": 18682,
+  "sha256": "a7a80a9c1ad5cd3abb7aa2d2f12968dadc80065973b95a4ec9d80876a342d891",
+  "fetched_at": "2026-11-04"
+ },
+ "it-amazon": {
+  "id": "it-amazon",
+  "lang": "it",
+  "kind": "ecommerce",
+  "url": "https://www.amazon.it/gp/help/customer/display.html?nodeId=201909010",
+  "chars": 46981,
+  "sha256": "69e98516c0e8d9491728ff9fafdad28430941108e762f588b80f618a0ac2d5a8",
+  "fetched_at": "2026-11-04"
+ },
+ "it-wind": {
+  "id": "it-wind",
+  "lang": "it",
+  "kind": "telco",
+  "url": "https://www.windtre.it/privacy",
+  "chars": 22792,
+  "sha256": "18fa449c92ec08fd972814cf5b34731ae6d77fddff8712cbd510355150a3986a",
+  "fetched_at": "2026-11-04"
+ },
+ "it-ansa": {
+  "id": "it-ansa",
+  "lang": "it",
+  "kind": "media",
+  "url": "https://www.ansa.it/sito/static/privacy.html",
+  "chars": 39700,
+  "sha256": "d7bf536e3b3f0135242fcf81460bf03ffd63a7a2bf7aace65457aa864354fc09",
+  "fetched_at": "2026-11-04"
+ },
+ "it-regione-lombardia": {
+  "id": "it-regione-lombardia",
+  "lang": "it",
+  "kind": "public",
+  "url": "https://www.regione.lombardia.it/wps/portal/istituzionale/HP/privacy",
+  "chars": 15095,
+  "sha256": "c0f6398a097fa5101ee7a1afc14ff7c1dfef4cdfef2ba035af33f533995dc5d9",
+  "fetched_at": "2026-11-04"
+ },
+ "it-unibo": {
+  "id": "it-unibo",
+  "lang": "it",
+  "kind": "public",
+  "url": "https://www.unibo.it/it/privacy",
+  "chars": 6502,
+  "sha256": "14bbc389d742bb1f3be1f725129c74e7fc3ac920d4f42e263dcde8b74d05a27a",
+  "fetched_at": "2026-11-04"
+ },
+ "en-github": {
+  "id": "en-github",
+  "lang": "en",
+  "kind": "saas",
+  "url": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
+  "chars": 43717,
+  "sha256": "0dc264242d0c5f2d112a69d72e93147f0ce0a963bf8ebe402e59fcda8fb0023c",
+  "fetched_at": "2026-11-04"
+ },
+ "en-mozilla": {
+  "id": "en-mozilla",
+  "lang": "en",
+  "kind": "nonprofit",
+  "url": "https://www.mozilla.org/en-US/privacy/websites/",
+  "chars": 11921,
+  "sha256": "58b23dab4e52c8a54123f8a01fd58c37294f301a2ea07b7cafd69a9a77afccc6",
+  "fetched_at": "2026-11-04"
+ },
+ "en-wikimedia": {
+  "id": "en-wikimedia",
+  "lang": "en",
+  "kind": "nonprofit",
+  "url": "https://foundation.wikimedia.org/wiki/Policy:Privacy_policy",
+  "chars": 55173,
+  "sha256": "9d4b16ef06b5ae5d6408d8892edd11fe2e8d0c9776b77e4aa15e87895776aed5",
+  "fetched_at": "2026-11-04"
+ },
+ "en-cloudflare": {
+  "id": "en-cloudflare",
+  "lang": "en",
+  "kind": "saas",
+  "url": "https://www.cloudflare.com/privacypolicy/",
+  "chars": 52826,
+  "sha256": "c6704a4733f1e3db709e9e547c39deb483becd5a5fd3cb297c82fd166e6e88b5",
+  "fetched_at": "2026-11-04"
+ },
+ "en-atlassian": {
+  "id": "en-atlassian",
+  "lang": "en",
+  "kind": "saas",
+  "url": "https://www.atlassian.com/legal/privacy-policy",
+  "chars": 68799,
+  "sha256": "58961d60765da15f7f20daf71c2443521ca4a73c977a3e74b690f1f00ae89b7e",
+  "fetched_at": "2026-11-04"
+ },
+ "en-automattic": {
+  "id": "en-automattic",
+  "lang": "en",
+  "kind": "saas",
+  "url": "https://automattic.com/privacy/",
+  "chars": 54953,
+  "sha256": "d94985dd9a06b59054b691c5adcd120907ee146a489e5a04366396282f61744b",
+  "fetched_at": "2026-11-04"
+ },
+ "en-gov-uk": {
+  "id": "en-gov-uk",
+  "lang": "en",
+  "kind": "public",
+  "url": "https://www.gov.uk/help/privacy-notice",
+  "chars": 13238,
+  "sha256": "bfce7eb90858a8f9e88fb7f48fb0698ccbd47607d4d29a96816dd2fb1459d504",
+  "fetched_at": "2026-11-04"
+ },
+ "en-ec": {
+  "id": "en-ec",
+  "lang": "en",
+  "kind": "public",
+  "url": "https://commission.europa.eu/privacy-policy-websites-managed-european-commission_en",
+  "chars": 12588,
+  "sha256": "ea9c00b7142dc5e0cc626a79dde2322f740e324b8ef1ff30e03e9b2de057a780",
+  "fetched_at": "2026-11-04"
+ },
+ "en-python": {
+  "id": "en-python",
+  "lang": "en",
+  "kind": "nonprofit",
+  "url": "https://www.python.org/privacy/",
+  "chars": 4158,
+  "sha256": "31336b4c812367f058e3bb587706f4a6a6ac2933fa855389bbf0afa3952be9c0",
+  "fetched_at": "2026-11-04"
+ },
+ "it-spotify": {
+  "id": "it-spotify",
+  "lang": "it",
+  "kind": "consumer",
+  "url": "https://www.spotify.com/legal/privacy-policy/",
+  "chars": 68037,
+  "sha256": "64c2d03e3a5e66d442a70a21673ab0844280fea9dcc52393e58d477331b9d709",
+  "fetched_at": "2026-11-04"
+ },
+ "en-ibm": {
+  "id": "en-ibm",
+  "lang": "en",
+  "kind": "company",
+  "url": "https://www.ibm.com/privacy",
+  "chars": 41523,
+  "sha256": "7f6ab85b236f6bcc1af48fb32b2c5e580d25e313bee52df140fef6819ae2fe2b",
+  "fetched_at": "2026-11-04"
+ },
+ "it-slack": {
+  "id": "it-slack",
+  "lang": "it",
+  "kind": "saas",
+  "url": "https://slack.com/trust/privacy/privacy-policy",
+  "chars": 53432,
+  "sha256": "f6f42bc424f918cb6788bbc1d172660e8af1742481b2686c9278dc4faa0606b4",
+  "fetched_at": "2026-11-04"
+ }
+}

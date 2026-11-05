@@ -27,9 +27,17 @@ from .rate import PerHostLimiter
 # GDPR Art. 13 elements, as surface-detectable text. Bilingual IT/EN: the
 # Italian expressions come first because they are the primary market.
 ART13_ELEMENTS: dict[str, re.Pattern[str]] = {
+    # Measured against 21 labelled real notices (docs/art13-measurement.md): the
+    # singular-only form missed "sono titolari del trattamento", and the bare
+    # English word missed "are the controller" and "the Controller of your
+    # personal information". The word is taken only in the GDPR sense (data,
+    # joint, co-, "is/are the", "of your personal data"), because a notice that
+    # mentions a "game controller" has not named its controller.
     "controller": re.compile(
-        r"titolare\s+del\s+trattamento|data\s+controller|verantwortlicher|"
-        r"responsable\s+du\s+traitement|responsable\s+del\s+tratamiento",
+        r"titolar[ei]\s+del\s+trattamento|\b(?:data|joint|co-?)\s*controllers?\b|"
+        r"\bcontrollers?\s+of\s+(?:your\s+|the\s+)?(?:personal|data)|"
+        r"\b(?:is|are)\s+(?:the\s+|a\s+)?(?:co-?)?controllers?\b|"
+        r"verantwortlicher|responsable\s+du\s+traitement|responsable\s+del\s+tratamiento",
         re.I,
     ),
     # Art. 13(1)(a), the controller's contact details.
@@ -67,6 +75,8 @@ ART13_ELEMENTS: dict[str, re.Pattern[str]] = {
         r"quali\s+dati\s+[^.]{0,60}?\be\s+perch[ée]\b|"
         r"purposes?\s+of\s+(?:the\s+)?(?:processing|collection)|"
         r"what\s+we\s+(?:process|collect)|"
+        r"we\s+(?:collect\s+and\s+)?use\s+(?:this\s+|the\s+|your\s+|such\s+|that\s+)?"
+        r"(?:personal\s+)?(?:information|data)(?:\s+you\s+provide)?\s+(?:to|for|in\s+the\s+following)|"
         r"what\s+(?:personal\s+)?(?:data|information)\s+[^.]{0,60}?\band\s+why\b|"
         r"why\s+we\s+(?:process|collect|use)|"
         r"why\s+(?:it\s+is|they\s+are|(?:personal\s+)?(?:data|information)\s+(?:is|are))\s+"
@@ -81,13 +91,21 @@ ART13_ELEMENTS: dict[str, re.Pattern[str]] = {
     ),
     "recipients": re.compile(
         r"destinatari|responsabil[ei]\s+del\s+trattamento|processors?|recipients?|"
-        r"sub-?responsabili|empf[äa]nger",
+        r"sub-?responsabili|empf[äa]nger|"
+        # "service providers", "vendors" and "contractors" are how notices name
+        # recipients without the word. Bare "third party" is deliberately not
+        # here: it also means third-party cookies and links.
+        r"service\s+providers?|sub-?processors?|contractors?|vendors?|"
+        r"soggetti\s+terzi|fornitori\s+di\s+servizi|comunicat[oi]\s+a\b",
         re.I,
     ),
     "transfers": re.compile(
         r"paes[ei]\s+terz[oi]|trasferiment[oi]\s+(?:dei\s+dati\s+)?(?:all.estero|extra)|"
         r"third\s+countr|clausole\s+contrattuali\s+standard|standard\s+contractual\s+clauses|"
-        r"\bscc\b|data\s+privacy\s+framework|\bdpf\b|drittland",
+        r"\bscc\b|data\s+privacy\s+framework|\bdpf\b|drittland|"
+        r"outside\s+(?:of\s+)?the\s+(?:eea|eu|european)|spazio\s+economico\s+europeo|"
+        r"transferred\s+(?:\S+\s+){0,10}?countries|trasferi\w+\s+[^.]{0,80}(?:esterne|extra|fuori)|"
+        r"adeguatezza|adequacy\s+decision|standard\s+contractual",
         re.I,
     ),
     # Art. 13(2)(a). Two wordings defeated this and both are ordinary.
@@ -111,6 +129,10 @@ ART13_ELEMENTS: dict[str, re.Pattern[str]] = {
         r"(?:this\s+|any\s+|your\s+|such\s+|personal\s+)*(?:data|information|logs?)|"
         r"no\s+(?:personal\s+)?(?:data|information)\s+(?:is|are)\s+(?:stored|retained|kept)|"
         r"we\s+(?:keep|store|retain)\s+no\s+(?:personal\s+)?(?:data|information)|"
+        r"(?:keeps?|retains?|retained|kept)\s+(?:this\s+|the\s+|your\s+)?(?:information|data|records?)"
+        r"[^.]{0,60}?\b(?:for|until)\b|"
+        r"retained\s+for|\bthe\s+time\s+necessary|per\s+il\s+tempo\s+necessario|"
+        r"non\s+persistono|for\s+as\s+long\s+as|"
         r"speicherdauer",
         re.I,
     ),
@@ -128,7 +150,9 @@ ART13_ELEMENTS: dict[str, re.Pattern[str]] = {
         r"profilazione|profiling|decision[ei]\s+automatizzat|automated\s+decision", re.I
     ),
     "last_updated": re.compile(
-        r"ultim[oa]\s+aggiornamento|aggiornat[ao]\s+al|last\s+updated?|versione\s+del\s+\d|stand:",
+        r"ultim[oa]\s+aggiornamento|aggiornat[ao]\s+al|last\s+updated?|versione\s+del\s+\d|stand:|"
+        r"effective\s+(?:as\s+of|date|from)|went\s+into\s+effect|valid[ao]\s+dal|in\s+vigore\s+dal|"
+        r"data\s+di\s+(?:entrata\s+in\s+vigore|aggiornamento)|updated\s+on|change\s*log",
         re.I,
     ),
 }

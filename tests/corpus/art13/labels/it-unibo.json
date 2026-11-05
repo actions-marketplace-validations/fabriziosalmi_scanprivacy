@@ -1,0 +1,54 @@
+{
+ "id": "it-unibo",
+ "elements": {
+  "controller": {
+   "present": false,
+   "quote": null
+  },
+  "contact": {
+   "present": false,
+   "quote": null
+  },
+  "dpo": {
+   "present": false,
+   "quote": null
+  },
+  "purposes": {
+   "present": false,
+   "quote": null
+  },
+  "legal_basis": {
+   "present": false,
+   "quote": null
+  },
+  "recipients": {
+   "present": false,
+   "quote": null
+  },
+  "transfers": {
+   "present": false,
+   "quote": null
+  },
+  "retention": {
+   "present": false,
+   "quote": null
+  },
+  "rights": {
+   "present": false,
+   "quote": null
+  },
+  "complaint": {
+   "present": false,
+   "quote": null
+  },
+  "profiling": {
+   "present": false,
+   "quote": null
+  },
+  "last_updated": {
+   "present": false,
+   "quote": null
+  }
+ },
+ "notes": "Page is only an index of links to the real notices plus cookie banner; the Art. 13 content is in linked documents. Controller only implied (University of Bologna in link text and footer address), contact only footer postal address; labelled false."
+}
