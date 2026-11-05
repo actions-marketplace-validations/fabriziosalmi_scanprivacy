@@ -1,7 +1,6 @@
 name: scanprivacy
 description: >
   Passive privacy conformance scan (GDPR / ePrivacy / AI Act) with SARIF output
-  for code scanning, findings anchored to the source line that causes them.
 author: Fabrizio Salmi
 branding:
   icon: shield
