@@ -25,6 +25,9 @@ import markdown
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = "https://github.com/fabriziosalmi/scanprivacy"
 SITE = "https://scanprivacy.org"
+# One privacy notice, shared by every project site published from this account (same publisher,
+# same GitHub Pages hosting, no analytics, no cookies): it lives at the account's own site.
+PRIVACY_NOTICE = "https://fabriziosalmi.github.io/privacy"
 FONTS = ROOT / "src" / "scanprivacy" / "report" / "templates" / "fonts"
 
 DOC_ORDER = ["index", "quickstart", "api", "deploy", "rules", "platforms", "art13-measurement"]
@@ -89,6 +92,7 @@ FOOT = """
 <li><a href="{source}/blob/main/CHANGELOG.md">Changelog</a></li>
 <li><a href="{source}/blob/main/SECURITY.md">Security policy</a></li>
 <li><a href="{source}/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li><a href="{privacy}">Privacy &amp; legal</a></li>
 </ul>
 </div></footer>
 <script src="/assets/site.js" defer></script>
@@ -211,7 +215,7 @@ def page(
     )
     target = out / rel
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(head + body + FOOT.format(version=version, rules=rules, source=SOURCE), encoding="utf-8")
+    target.write_text(head + body + FOOT.format(version=version, rules=rules, source=SOURCE, privacy=PRIVACY_NOTICE), encoding="utf-8")
 
 
 def _docs_shell(nav_items: list[tuple[str, str, bool]], heading: str, content: str, toc_html: str, extra_nav: str = "", wide: bool = False) -> str:
