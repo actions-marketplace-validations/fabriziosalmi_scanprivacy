@@ -463,7 +463,7 @@ completeness of every locale.
 - Observes a site **once**. Several pages are visited (`--pages`), chosen
   deterministically, but a single visit is a photograph: two consecutive loads
   can differ. `scanprivacy diff` exposes that variance rather than hiding it;
-  stabilising over N repeats is on the roadmap.
+  a repeat mode that reports what is stable over N loads is tracked in [#22](https://github.com/fabriziosalmi/scanprivacy/issues/22).
 - The default pass expresses **no** consent, so what a site does after
   *acceptance* is never verified. `scanprivacy consent-pass` covers refusal only, is
   opt-in, produces its own document, and works solely through the nine
@@ -471,7 +471,7 @@ completeness of every locale.
   from the vendor's documentation and have not been confirmed against a live
   installation. The catalogue now says which is which, the report states it,
   and findings built on an unconfirmed path are stated as indications rather
-  than as facts.
+  than as facts. Confirming the other eight is tracked in [#26](https://github.com/fabriziosalmi/scanprivacy/issues/26).
 - Requests made **inside a third-party iframe** are attributed to that embed,
   not to the site. Embedding YouTube is the site's choice and is reported as
   one; the fonts YouTube then loads inside its own player are not, since the
@@ -487,14 +487,19 @@ completeness of every locale.
   where it knows. GitHub Pages serves a fixed set of response headers and
   permits none, so `PM-SEC-01` (HSTS) is true there and cannot be closed in
   place; the finding stays, states the constraint, and names a fix that can
-  actually be performed. The catalogue of such platforms is one vendor long on purpose: a platform is added only when it was measured not to send the header, its vendor states that owners cannot set it, and the engine can recognise it. Eleven platforms were measured on 2026-11-04; the method, the results and the one candidate left out are in [docs/platforms.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/platforms.md).
+  actually be performed. The catalogue of such platforms is one vendor long on purpose: a platform is added only when it was measured not to send the header, its vendor states that owners cannot set it, and the engine can recognise it. Eleven platforms were measured on 2026-11-04; the method, the results and the one candidate left out are in [docs/platforms.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/platforms.md); GitLab Pages is the open candidate ([#23](https://github.com/fabriziosalmi/scanprivacy/issues/23)).
 - Art. 13 elements are recognised from text: an unusual wording can escape
   detection, which is why documentary findings carry `probable` confidence.
   Measured on 21 labelled public notices: precision 0.93, recall 0.90 (0.98 and
   0.89 on six held out while tuning). The method, the corpus and what is still
-  missed are in [docs/art13-measurement.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/art13-measurement.md).
+  missed are in [docs/art13-measurement.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/art13-measurement.md). A second reader for the labels and more Italian public-body notices are wanted ([#24](https://github.com/fabriziosalmi/scanprivacy/issues/24)).
 - Infrastructure providers are inferred from response headers: this covers the
-  well-known CDNs and edges, not every hosting arrangement.
+  well-known CDNs and edges, not every hosting arrangement. Signatures are added one provider at a time ([#25](https://github.com/fabriziosalmi/scanprivacy/issues/25)).
+- Not planned, on purpose. What a site does **after** acceptance is not verified, because
+  accepting means clicking, and this engine does not interact with a site. Requests made inside
+  a third-party iframe are attributed to that embed, because the operator can neither see nor
+  prevent what the embed then loads. Sibling hosts are not followed, because they are usually a
+  different codebase and a different owner; `scanprivacy batch` covers them.
 - When a read of the page does not complete, the report says so under *Stated
   limits* and names the probe. An observation that could not finish is not the
   same as one that found nothing, and neither is treated as the other.
