@@ -473,6 +473,21 @@ def _cmd_rules(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_install_browser(args: argparse.Namespace) -> int:
+    """Install the Chromium build the engine drives, with the interpreter that runs this command.
+
+    `python -m playwright` would resolve to whichever Python is first on PATH, which is not the one
+    holding this package when it was installed with pipx or `uv tool`; `sys.executable` always is.
+    """
+    import subprocess
+
+    command = [sys.executable, "-m", "playwright", "install"]
+    if args.with_deps:
+        command.append("--with-deps")
+    command.append("chromium")
+    return 0 if subprocess.run(command, check=False).returncode == 0 else 1
+
+
 def _run(func, args: argparse.Namespace) -> int:
     """Run a subcommand, turning a missing browser into an instruction.
 
@@ -674,6 +689,12 @@ def build_parser() -> argparse.ArgumentParser:
     rem_cmd.add_argument("key", nargs="?", help="a rule id, a pattern name, or a vendor id")
     rem_cmd.add_argument("--json", action="store_true", help="machine-readable, for tools and agents")
     rem_cmd.set_defaults(func=_cmd_remediation)
+
+    browser_cmd = sub.add_parser("install-browser", help="install the Chromium build the engine drives")
+    browser_cmd.add_argument(
+        "--with-deps", action="store_true", help="also install the system libraries Chromium needs (Linux, needs root)"
+    )
+    browser_cmd.set_defaults(func=_cmd_install_browser)
 
     rules_cmd = sub.add_parser("rules", help="list the loaded rules")
     rules_cmd.set_defaults(func=_cmd_rules)
