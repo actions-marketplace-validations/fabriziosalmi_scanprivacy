@@ -4,7 +4,7 @@
 passive privacy conformance observation (GDPR / ePrivacy / AI Act), usable from
 the command line or as an HTTP API.
 
-![What scanprivacy does: a URL goes in, one visit as a first-time visitor, checked against GDPR, ePrivacy and the AI Act, reported as a grade with evidence and fixes.](docs/img/overview.svg)
+![What scanprivacy does: a URL goes in, one visit as a first-time visitor, checked against GDPR, ePrivacy and the AI Act, reported as a grade with evidence and fixes.](https://raw.githubusercontent.com/fabriziosalmi/scanprivacy/main/docs/img/overview.svg)
 
 ```bash
 git clone https://github.com/fabriziosalmi/scanprivacy && cd scanprivacy
@@ -99,7 +99,7 @@ This is the deterministic core extracted from three strands of work:
 **Rules are generic; facts live in data.** privacy-pa had one rule per tracker,
 so every new tracker meant a new rule. Here a rule says *"a third party with
 terminal access was contacted before consent"* and the facts about each vendor
-live in [`knowledge/vendors.yml`](src/scanprivacy/knowledge/vendors.yml). Adding a
+live in [`knowledge/vendors.yml`](https://github.com/fabriziosalmi/scanprivacy/blob/main/src/scanprivacy/knowledge/vendors.yml). Adding a
 vendor is a data change, never code, never a rule.
 
 **It reads the site's own documents.** The engine compares what a site
@@ -158,7 +158,7 @@ any choice, "tracking is running" and "tracking is running because the refusal
 was ignored" look identical.
 
 **The engine never guesses.** It interacts only with consent platforms listed in
-[`knowledge/consent.yml`](src/scanprivacy/knowledge/consent.yml), only through the
+[`knowledge/consent.yml`](https://github.com/fabriziosalmi/scanprivacy/blob/main/src/scanprivacy/knowledge/consent.yml), only through the
 refusal path their own vendor documents, and only after the platform's own
 readiness check passes. One action: one documented call, or one click on the
 single control the vendor publishes. No searching for a button whose text
@@ -231,7 +231,7 @@ it (dpo / cto / sysops / security / legal / procurement), a **priority** P1–P5
 first), a **quick win** marker, its technical **domain**, and a **control
 mapping** to GDPR, ePrivacy, the AI Act, NIS2, ISO/IEC 27001:2022, ISO/IEC
 27701, SOC 2 and AgID measures
-([frameworks.yml](src/scanprivacy/knowledge/frameworks.yml)). The mappings orient the
+([frameworks.yml](https://github.com/fabriziosalmi/scanprivacy/blob/main/src/scanprivacy/knowledge/frameworks.yml)). The mappings orient the
 work; they do not attest conformity to those schemes.
 
 ## Languages
@@ -274,7 +274,7 @@ steps:
 ```
 
 A full example, with artefacts and a pull-request comment, is in
-[examples/workflows/privacy-gate.yml](examples/workflows/privacy-gate.yml).
+[examples/workflows/privacy-gate.yml](https://github.com/fabriziosalmi/scanprivacy/blob/main/examples/workflows/privacy-gate.yml).
 
 ### SARIF, and why it is worth more than a report
 
@@ -488,12 +488,12 @@ completeness of every locale.
   where it knows. GitHub Pages serves a fixed set of response headers and
   permits none, so `PM-SEC-01` (HSTS) is true there and cannot be closed in
   place; the finding stays, states the constraint, and names a fix that can
-  actually be performed. The catalogue of such platforms is one vendor long on purpose: a platform is added only when it was measured not to send the header, its vendor states that owners cannot set it, and the engine can recognise it. Eleven platforms were measured on 2026-11-04; the method, the results and the one candidate left out are in [docs/platforms.md](docs/platforms.md).
+  actually be performed. The catalogue of such platforms is one vendor long on purpose: a platform is added only when it was measured not to send the header, its vendor states that owners cannot set it, and the engine can recognise it. Eleven platforms were measured on 2026-11-04; the method, the results and the one candidate left out are in [docs/platforms.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/platforms.md).
 - Art. 13 elements are recognised from text: an unusual wording can escape
   detection, which is why documentary findings carry `probable` confidence.
   Measured on 21 labelled public notices: precision 0.93, recall 0.90 (0.98 and
   0.89 on six held out while tuning). The method, the corpus and what is still
-  missed are in [docs/art13-measurement.md](docs/art13-measurement.md).
+  missed are in [docs/art13-measurement.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/art13-measurement.md).
 - Infrastructure providers are inferred from response headers: this covers the
   well-known CDNs and edges, not every hosting arrangement.
 - When a read of the page does not complete, the report says so under *Stated
@@ -503,7 +503,7 @@ completeness of every locale.
 
 ## Licence
 
-**GNU AGPL-3.0-only**, full text in [LICENSE](LICENSE).
+**GNU AGPL-3.0-only**, full text in [LICENSE](https://github.com/fabriziosalmi/scanprivacy/blob/main/LICENSE).
 
 Chosen for section 13, not out of habit. The natural way to deploy this engine
 is as a network service: someone runs `scanprivacy serve` behind a domain and never
