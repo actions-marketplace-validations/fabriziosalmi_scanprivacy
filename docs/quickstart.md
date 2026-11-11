@@ -10,6 +10,23 @@ scanprivacy scan https://example.org --pages 5 --pdf report.pdf --json evidence.
 
 PDF output needs the Pango/Cairo system libraries (Debian/Ubuntu: `libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libfribidi0 libcairo2`; macOS: `brew install pango`).
 
+## Repeating a scan
+
+```bash
+scanprivacy scan https://example.org --repeat 5 --json evidence.json
+```
+
+A single load is a photograph, and two loads of one page can differ (ad rotation, an A/B test, a CDN edge). `--repeat N` (2 to 10) loads the page N times, each in a fresh browser, and the report adds a section that lists the findings which did not appear in every load, with how many loads showed them.
+
+Four rules decide what is reported:
+
+- **The grade is the worst completed load**, and the grade of every load is listed beside it. It is not computed from the findings common to all loads: a tracker seen in two loads out of five did receive the visitor's data in those two, and an intersection would erase it and print a grade no load produced.
+- **A load that did not finish is not an absence.** It leaves the denominator, so "seen in 3 of 4" means four loads completed. If none completed, the result is INCONCLUSIVE.
+- **The one-page-load-per-second-per-host limit holds across the whole run**, not only inside each load. The time budget is multiplied by N.
+- **The reported load is a whole scan**, so `scanprivacy verify` works on it. The other loads are kept in full inside the file, under `repeat`, and `verify` recomputes each load's digests, the digest of the block, the grade each load declares and the stability table. A scan without `--repeat` produces the same JSON as before.
+
+`--fail-on` and `--sarif`, `--badge`, `--pdf` and `--attest` act on the reported load. The HTTP API does not take `repeat` yet.
+
 ## What you get
 
 - `evidence.json`: the observation, the findings graph and the verdict, with digests

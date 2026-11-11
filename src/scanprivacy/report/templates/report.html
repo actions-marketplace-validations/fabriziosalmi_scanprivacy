@@ -69,6 +69,20 @@
   </div>
   <p class="legenda">{{ t.t('report.legend.severity_priority')|safe }}</p>
 
+  {% if scan.stability %}
+  <h2>{{ scan.stability.heading }}</h2>
+  <p>{{ scan.stability.intro }}</p>
+  {% for note in scan.stability.notes %}<p>{{ note }}</p>{% endfor %}
+  {% if scan.stability.rows %}
+  <table>
+    <thead><tr>{% for h in scan.stability.head %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for name, severity, seen in scan.stability.rows %}<tr><td>{{ name }}</td><td>{{ severity }}</td><td>{{ seen }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {% endif %}
+
   {% if scan.quick_wins %}
   <div class="nota">
     {{ t.t('report.legend.quick_wins', n=scan.quick_wins|length,

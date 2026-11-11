@@ -124,6 +124,14 @@ report:
   verdict_not_conformant: not conformant on the points observed
   footer: "scanprivacy · passive assessment · not legal advice"
 
+  stability:
+    heading: "Stability across {n} loads"
+    intro: "{completed} of {requested} loads completed. Grade of each load: {grades}. The grade reported is the worst of the completed loads."
+    all_stable: "Every finding appeared in every completed load."
+    some_unstable: "{n} findings did not appear in every completed load. A finding seen in only some loads is still something the site did in those loads: it is listed with how many."
+    incomplete: "{n} loads did not complete and are not counted as absences."
+    seen: "Seen in"
+    seen_value: "{seen} of {of}"
   headings:
     pages: Pages observed
     responsibility: Work by owner
@@ -533,6 +541,7 @@ cli:
   verify_recomputed: "  recomputed       : {value}"
   verify_ruleset: "ruleset unchanged  : {value}"
   verify_knowledge: "knowledge unchanged: {value}"
+  verify_repeat: "repeated loads intact: {value}"
   diff_header: "{target}  {before} → {after}  ({days} days)"
   diff_resolved: "  resolved    : {n}"
   diff_new: "  new         : {n}"
