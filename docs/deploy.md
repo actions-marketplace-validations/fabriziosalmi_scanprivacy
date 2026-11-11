@@ -36,7 +36,7 @@ The key is one static value read at start-up. To rotate it, set the new value an
 
 ## Container notes
 
-The image runs Chromium as the unprivileged user 10001 and a default `docker run` starts the browser without extra flags (checked on the published image: a scan of a public site completes). It has a `HEALTHCHECK` on `/healthz`. If you run with a restrictive seccomp profile or without a usable `/dev/shm`, give the container more shared memory (`--shm-size=1g`) before you reach for `--no-sandbox`.
+The image runs Chromium as the unprivileged user 10001 and a default `docker run` starts the browser without extra flags (checked on the image built from this Dockerfile: a scan of a public site completes). It has a `HEALTHCHECK` on `/healthz`. If you run with a restrictive seccomp profile or without a usable `/dev/shm`, give the container more shared memory (`--shm-size=1g`) before you reach for `--no-sandbox`.
 
 ## Single process
 

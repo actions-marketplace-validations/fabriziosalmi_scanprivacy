@@ -31,25 +31,13 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
-      # NOT YET PUBLISHED. `fabriziosalmi/scanprivacy` is a private repository
-      # with no `v1` tag, so copying this file as-is fails at this step with
-      # "repository not found".
-      #
-      # Every other `uses:` here is pinned to a commit, deliberately, because a
-      # version tag can be moved by whoever controls the repository. This one
-      # cannot be pinned: inventing a SHA for a commit that does not exist would
-      # look like the same guarantee while providing none.
-      #
-      # Two forms that work today:
-      #
-      #   in this repository        uses: ./
-      #   vendored into yours       uses: ./third_party/scanprivacy
-      #
-      # When it is published, replace the reference with `owner/repo@<sha>` and
-      # remove this block. tests/test_workflows.py fails until then, so the note
-      # cannot quietly outlive the situation it describes.
+      # Pinned to a commit, like every other `uses:` here: a version tag can be
+      # moved by whoever controls the repository, and this step holds your token.
+      # The commit below is the one tagged v0.1.0. To follow a newer release,
+      # replace it with that tag's commit (`git ls-remote https://github.com/fabriziosalmi/scanprivacy`)
+      # or let Dependabot's github-actions ecosystem propose the change.
       - id: privacy
-        uses: fabriziosalmi/scanprivacy@v1 # unpublished — see the note above
+        uses: fabriziosalmi/scanprivacy@3883ea4763ee0c630c6554aea5e0a6b82af5fa38  # v0.1.0
         with:
           url: https://www.example.org
           fail-on: critical

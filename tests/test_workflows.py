@@ -6,11 +6,9 @@ job's token. For a project whose purpose is to sign an attestation over what it
 observed, that is a editable link in the chain the signature is supposed to
 close.
 
-One reference cannot be pinned — the action is not published yet, and a SHA for
-a commit that does not exist would look like the same guarantee while providing
-none. So it is named here explicitly. The test fails the moment that changes in
-either direction: a new unpinned reference appears, or the declared exception
-stops being one.
+A reference that cannot be pinned has to be named here with its reason. The test
+fails the moment that changes in either direction: a new unpinned reference
+appears, or a declared exception stops being one.
 
 The rule covers three places: the action, this project's own CI workflows, and
 the examples handed to other people. The first two run with a token.
@@ -36,10 +34,9 @@ WORKFLOW_FILES = [
 SHA = re.compile(r"^[^@]+@[0-9a-f]{40}(\s|#|$)")
 
 # References that cannot be pinned, each with the reason. Anything not on this
-# list must be a commit.
-UNPINNABLE = {
-    "fabriziosalmi/scanprivacy@v1": "not published: the repository is private and there is no v1 tag",
-}
+# list must be a commit. Empty on purpose: the action is published, and the example
+# references it by the commit its release tag points at.
+UNPINNABLE: dict[str, str] = {}
 
 
 def _uses(path: Path) -> list[str]:
@@ -87,11 +84,12 @@ def test_the_declared_exceptions_are_all_still_used():
     )
 
 
-def test_the_unpublished_reference_carries_its_warning_in_the_file():
-    """A reader copying the workflow must see it there, not only here."""
+def test_the_example_does_not_claim_the_action_is_unpublished():
+    """The example was written while the repository was private. A reader copying it
+    must not be told the action does not exist, and must get a reference that works."""
     text = (ROOT / "examples" / "workflows" / "privacy-gate.yml").read_text(encoding="utf-8")
-    assert "NOT YET PUBLISHED" in text
-    assert "uses: ./" in text, "the note must show a form that actually works today"
+    assert "NOT YET PUBLISHED" not in text and "unpublished" not in text
+    assert re.search(r"uses: fabriziosalmi/scanprivacy@[0-9a-f]{40}\s", text)
 
 
 def test_the_check_would_notice_an_unpinned_reference(tmp_path):
