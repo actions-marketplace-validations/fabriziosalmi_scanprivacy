@@ -4,6 +4,8 @@
 passive privacy conformance observation (GDPR / ePrivacy / AI Act), usable from
 the command line or as an HTTP API.
 
+![What scanprivacy does: a URL goes in, one visit as a first-time visitor, checked against GDPR, ePrivacy and the AI Act, reported as a grade with evidence and fixes.](docs/img/overview.svg)
+
 ```bash
 pip install -e .
 python -m playwright install chromium   # the package brings the driver, not the browser
