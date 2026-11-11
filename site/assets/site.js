@@ -16,7 +16,7 @@
 
     const status = document.createElement("span");
     status.setAttribute("role", "status");
-    status.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)";
+    status.className = "sr-only";
 
     let timer;
     button.addEventListener("click", async () => {
