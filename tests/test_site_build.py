@@ -250,3 +250,10 @@ def test_the_sitemap_lists_exactly_the_pages_that_were_built(built):
     }
     assert listed == built_pages
     assert "Sitemap: https://scanprivacy.org/sitemap.xml" in (built / "robots.txt").read_text(encoding="utf-8")
+
+
+def test_every_page_links_the_shared_privacy_notice(built):
+    """The engine reports a site with no reachable privacy notice as critical; this site is scanned by it."""
+    for path in _html_files(built):
+        page = _parse(path)
+        assert "https://fabriziosalmi.github.io/privacy" in page.hrefs, path
