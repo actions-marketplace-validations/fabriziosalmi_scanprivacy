@@ -4,9 +4,11 @@
 passive privacy conformance observation (GDPR / ePrivacy / AI Act), usable from
 the command line or as an HTTP API.
 
+![What scanprivacy does: a URL goes in, one visit as a first-time visitor, checked against GDPR, ePrivacy and the AI Act, reported as a grade with evidence and fixes.](https://raw.githubusercontent.com/fabriziosalmi/scanprivacy/main/docs/img/overview.svg)
+
 ```bash
-pip install -e .
-python -m playwright install chromium   # the package brings the driver, not the browser
+pipx install scanprivacy        # or: uv tool install scanprivacy, or pip install scanprivacy
+scanprivacy install-browser      # the package brings the driver, not the browser
 ```
 
 The second line is not optional and is the one people miss. Without it the
@@ -18,6 +20,7 @@ scanprivacy scan https://example.org --pages 5 --pdf report.pdf --json evidence.
 scanprivacy --lang it scan https://example.org --pdf rapporto.pdf   # same engine, Italian report
 scanprivacy verify evidence.json      # recompute every digest: is this the evidence the report describes?
 scanprivacy diff before.json after.json    # resolved / new / persisting, with the age of what is still open
+scanprivacy scan https://example.org --repeat 5   # 5 loads: how many showed each finding, grade of the worst load
 scanprivacy serve --port 8099
 ```
 
@@ -96,7 +99,7 @@ This is the deterministic core extracted from three strands of work:
 **Rules are generic; facts live in data.** privacy-pa had one rule per tracker,
 so every new tracker meant a new rule. Here a rule says *"a third party with
 terminal access was contacted before consent"* and the facts about each vendor
-live in [`knowledge/vendors.yml`](src/scanprivacy/knowledge/vendors.yml). Adding a
+live in [`knowledge/vendors.yml`](https://github.com/fabriziosalmi/scanprivacy/blob/main/src/scanprivacy/knowledge/vendors.yml). Adding a
 vendor is a data change, never code, never a rule.
 
 **It reads the site's own documents.** The engine compares what a site
@@ -155,7 +158,7 @@ any choice, "tracking is running" and "tracking is running because the refusal
 was ignored" look identical.
 
 **The engine never guesses.** It interacts only with consent platforms listed in
-[`knowledge/consent.yml`](src/scanprivacy/knowledge/consent.yml), only through the
+[`knowledge/consent.yml`](https://github.com/fabriziosalmi/scanprivacy/blob/main/src/scanprivacy/knowledge/consent.yml), only through the
 refusal path their own vendor documents, and only after the platform's own
 readiness check passes. One action: one documented call, or one click on the
 single control the vendor publishes. No searching for a button whose text
@@ -228,7 +231,7 @@ it (dpo / cto / sysops / security / legal / procurement), a **priority** P1–P5
 first), a **quick win** marker, its technical **domain**, and a **control
 mapping** to GDPR, ePrivacy, the AI Act, NIS2, ISO/IEC 27001:2022, ISO/IEC
 27701, SOC 2 and AgID measures
-([frameworks.yml](src/scanprivacy/knowledge/frameworks.yml)). The mappings orient the
+([frameworks.yml](https://github.com/fabriziosalmi/scanprivacy/blob/main/src/scanprivacy/knowledge/frameworks.yml)). The mappings orient the
 work; they do not attest conformity to those schemes.
 
 ## Languages
@@ -271,7 +274,7 @@ steps:
 ```
 
 A full example, with artefacts and a pull-request comment, is in
-[examples/workflows/privacy-gate.yml](examples/workflows/privacy-gate.yml).
+[examples/workflows/privacy-gate.yml](https://github.com/fabriziosalmi/scanprivacy/blob/main/examples/workflows/privacy-gate.yml).
 
 ### SARIF, and why it is worth more than a report
 
@@ -458,10 +461,12 @@ completeness of every locale.
 
 ## Known limits (v0.1)
 
-- Observes a site **once**. Several pages are visited (`--pages`), chosen
+- By default observes a site **once**. Several pages are visited (`--pages`), chosen
   deterministically, but a single visit is a photograph: two consecutive loads
   can differ. `scanprivacy diff` exposes that variance rather than hiding it;
-  stabilising over N repeats is on the roadmap.
+  `scanprivacy scan --repeat N` loads the page N times and reports how many loads showed each
+  finding; on a sample of ten sites it left static sites unchanged and showed 27% of the findings of
+  four news sites in only some loads ([docs/repeat-measurement.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/repeat-measurement.md)).
 - The default pass expresses **no** consent, so what a site does after
   *acceptance* is never verified. `scanprivacy consent-pass` covers refusal only, is
   opt-in, produces its own document, and works solely through the nine
@@ -469,7 +474,7 @@ completeness of every locale.
   from the vendor's documentation and have not been confirmed against a live
   installation. The catalogue now says which is which, the report states it,
   and findings built on an unconfirmed path are stated as indications rather
-  than as facts.
+  than as facts. Confirming the other eight is tracked in [#26](https://github.com/fabriziosalmi/scanprivacy/issues/26).
 - Requests made **inside a third-party iframe** are attributed to that embed,
   not to the site. Embedding YouTube is the site's choice and is reported as
   one; the fonts YouTube then loads inside its own player are not, since the
@@ -485,14 +490,19 @@ completeness of every locale.
   where it knows. GitHub Pages serves a fixed set of response headers and
   permits none, so `PM-SEC-01` (HSTS) is true there and cannot be closed in
   place; the finding stays, states the constraint, and names a fix that can
-  actually be performed. The catalogue of such platforms is one vendor long on purpose: a platform is added only when it was measured not to send the header, its vendor states that owners cannot set it, and the engine can recognise it. Eleven platforms were measured on 2026-11-04; the method, the results and the one candidate left out are in [docs/platforms.md](docs/platforms.md).
+  actually be performed. The catalogue of such platforms is one vendor long on purpose: a platform is added only when it was measured not to send the header, its vendor states that owners cannot set it, and the engine can recognise it. Eleven platforms were measured on 2026-11-04; the method, the results and the one candidate left out are in [docs/platforms.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/platforms.md); GitLab Pages is the open candidate ([#23](https://github.com/fabriziosalmi/scanprivacy/issues/23)).
 - Art. 13 elements are recognised from text: an unusual wording can escape
   detection, which is why documentary findings carry `probable` confidence.
   Measured on 21 labelled public notices: precision 0.93, recall 0.90 (0.98 and
   0.89 on six held out while tuning). The method, the corpus and what is still
-  missed are in [docs/art13-measurement.md](docs/art13-measurement.md).
+  missed are in [docs/art13-measurement.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/art13-measurement.md). A second reader for the labels and more Italian public-body notices are wanted ([#24](https://github.com/fabriziosalmi/scanprivacy/issues/24)).
 - Infrastructure providers are inferred from response headers: this covers the
-  well-known CDNs and edges, not every hosting arrangement.
+  well-known CDNs and edges, not every hosting arrangement. Signatures are added one provider at a time ([#25](https://github.com/fabriziosalmi/scanprivacy/issues/25)).
+- Not planned, on purpose. What a site does **after** acceptance is not verified, because
+  accepting means clicking, and this engine does not interact with a site. Requests made inside
+  a third-party iframe are attributed to that embed, because the operator can neither see nor
+  prevent what the embed then loads. Sibling hosts are not followed, because they are usually a
+  different codebase and a different owner; `scanprivacy batch` covers them.
 - When a read of the page does not complete, the report says so under *Stated
   limits* and names the probe. An observation that could not finish is not the
   same as one that found nothing, and neither is treated as the other.
@@ -500,7 +510,7 @@ completeness of every locale.
 
 ## Licence
 
-**GNU AGPL-3.0-only**, full text in [LICENSE](LICENSE).
+**GNU AGPL-3.0-only**, full text in [LICENSE](https://github.com/fabriziosalmi/scanprivacy/blob/main/LICENSE).
 
 Chosen for section 13, not out of habit. The natural way to deploy this engine
 is as a network service: someone runs `scanprivacy serve` behind a domain and never

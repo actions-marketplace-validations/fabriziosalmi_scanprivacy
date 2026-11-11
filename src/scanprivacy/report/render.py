@@ -262,6 +262,8 @@ class RenderedScan:
     counts_by_severity: list[tuple[str, int]] = field(default_factory=list)
     counts_by_priority: list[tuple[str, int]] = field(default_factory=list)
     summary: list[str] = field(default_factory=list)
+    stability: dict[str, Any] = field(default_factory=dict)
+    """Set for a scan made with --repeat: the heading, the sentences and the findings that did not appear in every completed load."""
     findings: list[RenderedFinding] = field(default_factory=list)
     quick_wins: list[RenderedFinding] = field(default_factory=list)
     by_owner: list[dict[str, Any]] = field(default_factory=list)
@@ -410,6 +412,38 @@ def _inventory(result: ScanResult, t: Translator) -> list[dict[str, Any]]:
     return rows
 
 
+def _stability(result: ScanResult, t: Translator, titles: dict[str, str]) -> dict[str, Any]:
+    """The repeat block as text. Only the findings that did not appear in every completed load get
+    a row: those are the information; the stable ones are the report itself."""
+    block = result.repeat or {}
+    if not block:
+        return {}
+    requested, completed = block["requested"], block["completed"]
+    unstable = [f for f in block.get("findings", []) if f["seen"] < f["of"]]
+    notes = []
+    if completed < requested:
+        notes.append(t.t("report.stability.incomplete", n=requested - completed))
+    notes.append(
+        t.t("report.stability.some_unstable", n=len(unstable)) if unstable else t.t("report.stability.all_stable")
+    )
+    return {
+        "heading": t.t("report.stability.heading", n=requested),
+        "intro": t.t(
+            "report.stability.intro", completed=completed, requested=requested, grades=", ".join(block["grades"])
+        ),
+        "notes": notes,
+        "head": (t.t("report.labels.finding"), t.t("report.labels.severity"), t.t("report.stability.seen")),
+        "rows": [
+            (
+                f"{f['id']}: {titles[f['id']]}" if f["id"] in titles else f["id"],
+                t.label(f["severity"], "Severity"),
+                t.t("report.stability.seen_value", seen=f["seen"], of=f["of"]),
+            )
+            for f in unstable
+        ],
+    }
+
+
 def render_scan(result: ScanResult, t: Translator) -> RenderedScan:
     findings = [render_finding(f, t) for f in result.sorted_findings]
     verdict = result.verdict
@@ -437,6 +471,7 @@ def render_scan(result: ScanResult, t: Translator) -> RenderedScan:
             (t.label(s, "Severity"), counts.get(s, 0)) for s in _SEVERITY_ORDER
         ],
         counts_by_priority=[(p, priorities[p]) for p in _PRIORITY_ORDER],
+        stability=_stability(result, t, {f.id: f.title for f in findings}),
         summary=(
             _refusal_summary(result, t, attempt) if mode == "refusal_pass" else _summary(result, t)
         ),

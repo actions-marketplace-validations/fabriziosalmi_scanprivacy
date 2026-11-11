@@ -1,0 +1,83 @@
+# The GitHub Action, run the way a user runs it.
+#
+# The test suite exercises the engine; nothing there runs action.yml, which is the
+# file other people's pipelines execute. This job does: it installs from the
+# action's own checkout (`uses: ./`), scans this project's own site, and checks
+# what the action promises: outputs set, a SARIF file that is SARIF, a JSON result
+# whose digests recompute.
+#
+# It needs the network and a live site, so it is not a required check on pull
+# requests. It runs when the action or its lock changes, on main, and weekly: a
+# dependency or a runner image can break the action without any commit here.
+
+name: action-selftest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - action.yml
+      - requirements.runtime.lock
+      - .github/workflows/action-selftest.yml
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: action-selftest-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - id: scan
+        uses: ./
+        with:
+          url: https://scanprivacy.org
+          # The gate is not what is being tested: this site has open findings by design
+          # (GitHub Pages cannot send some headers) and the job must still pass.
+          fail-on: never
+          upload-sarif: "false"
+          sign: unsigned
+
+      - name: The action kept its promises
+        env:
+          GRADE: ${{ steps.scan.outputs.grade }}
+          FINDINGS: ${{ steps.scan.outputs.findings }}
+          DIGEST: ${{ steps.scan.outputs.evidence-digest }}
+        run: |
+          python - <<'PY'
+          import json, os, re, subprocess, sys
+
+          grade, findings, digest = os.environ["GRADE"], os.environ["FINDINGS"], os.environ["DIGEST"]
+          problems = []
+          if grade not in {"A", "B", "C", "D", "F"}:
+              problems.append(f"grade output is {grade!r}: the site was not observed (INCONCLUSIVE or empty)")
+          if not findings.isdigit():
+              problems.append(f"findings output is {findings!r}")
+          if not re.fullmatch(r"[0-9a-f]{64}", digest):
+              problems.append(f"evidence-digest output is {digest!r}")
+
+          sarif = json.load(open("scanprivacy.sarif", encoding="utf-8"))
+          if sarif.get("version") != "2.1.0" or sarif["runs"][0]["tool"]["driver"]["name"] != "scanprivacy":
+              problems.append("scanprivacy.sarif is not a SARIF 2.1.0 file written by scanprivacy")
+          if len(sarif["runs"][0]["results"]) != int(findings or -1):
+              problems.append("the SARIF results do not match the findings output")
+
+          verify = subprocess.run(["scanprivacy", "verify", "scanprivacy.json"], capture_output=True, text=True)
+          print(verify.stdout)
+          if verify.returncode != 0 or "evidence intact    : yes" not in verify.stdout:
+              problems.append("scanprivacy verify does not confirm the evidence")
+
+          print(f"grade={grade} findings={findings} digest={digest[:16]}")
+          if problems:
+              sys.exit("action self-test failed:\n- " + "\n- ".join(problems))
+          PY

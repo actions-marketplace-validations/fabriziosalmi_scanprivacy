@@ -164,6 +164,11 @@ class ScanResult:
     context: dict[str, Any] = field(default_factory=dict)
     """Who the scan is for and under which regime to read it: tenant, project,
     labels, sector, NIS2 status. Empty for an anonymous one-off scan."""
+    repeat: dict[str, Any] = field(default_factory=dict)
+    """Set by `--repeat N`: how many loads were made, how each graded, how stable each finding was,
+    and the other loads in full. Empty for a single scan, and then absent from the JSON, so a
+    single scan's output is unchanged. Not covered by the evidence or findings digests (this
+    result is one complete, verifiable load); its own digest is in `repeat["digest"]`."""
 
     @property
     def sorted_findings(self) -> list[Finding]:
@@ -172,7 +177,7 @@ class ScanResult:
         return sorted(self.findings, key=lambda f: (f.rank, f.priority.value, f.id))
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        out = {
             "schema_version": SCHEMA_VERSION,
             "scan_id": self.scan_id,
             "url": self.url,
@@ -191,6 +196,9 @@ class ScanResult:
             "graph": self.graph.to_dict() if self.graph else {"nodes": [], "edges": []},
             "observation": self.observation,
         }
+        if self.repeat:
+            out["repeat"] = self.repeat
+        return out
 
 
 from .graph import Graph  # noqa: E402  (cycle-free: Graph does not import models)
@@ -311,4 +319,5 @@ def scan_from_dict(data: dict[str, Any]) -> ScanResult:
         record=data.get("record", {}) or {},
         screening=data.get("screening", {}) or {},
         context=data.get("context", {}) or {},
+        repeat=data.get("repeat", {}) or {},
     )

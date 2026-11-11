@@ -104,7 +104,7 @@ async def launch_browser(playwright, **kwargs):
         if "playwright install" in message or "Executable doesn't exist" in message:
             raise BrowserUnavailable(
                 "the Chromium build this engine drives is not installed.\n"
-                "  python -m playwright install chromium\n"
+                "  scanprivacy install-browser\n"
                 "Installing the package installs the driver, not the browser."
             ) from exc
         raise BrowserUnavailable(f"Chromium could not start: {message.splitlines()[0]}") from exc

@@ -83,7 +83,7 @@ def write_artefacts(result, args: argparse.Namespace) -> list[Path]:
     return written
 
 
-def _within_budget(coroutine, settings):
+def _within_budget(coroutine, settings, loads: int = 1):
     """Run one scan under the same ceiling the API and `batch` apply.
 
     `per_scan_budget_s` is documented as a hard ceiling; it was enforced only on
@@ -91,7 +91,7 @@ def _within_budget(coroutine, settings):
     running the Action) alive indefinitely.
     """
     return asyncio.run(
-        asyncio.wait_for(coroutine, timeout=settings.per_scan_budget_s * max(1, settings.max_pages))
+        asyncio.wait_for(coroutine, timeout=settings.per_scan_budget_s * max(1, settings.max_pages) * max(1, loads))
     )
 
 
@@ -103,7 +103,13 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         max_pages=max(1, args.pages),
         ua_fallback_on_block=args.ua_fallback,
     )
-    result = _within_budget(scan(args.url, settings, read_documents=not args.no_documents), settings)
+    if args.repeat > 1:
+        from .repeat import scan_repeated
+
+        run = scan_repeated(args.url, args.repeat, settings, read_documents=not args.no_documents)
+    else:
+        run = scan(args.url, settings, read_documents=not args.no_documents)
+    result = _within_budget(run, settings, loads=args.repeat)
     t = Translator.for_locale(args.lang)
 
     write_artefacts(result, args)
@@ -353,9 +359,14 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     print(t.t("cli.verify_recomputed", value=checked["recomputed"]))
     print(t.t("cli.verify_ruleset", value=yes if checked["ruleset_unchanged"] else no))
     print(t.t("cli.verify_knowledge", value=yes if checked["knowledge_unchanged"] else no))
+    from .repeat import verify_repeat
+
+    repeat = verify_repeat(data)
+    if repeat is not None:
+        print(t.t("cli.verify_repeat", value=yes if all(repeat.values()) else no))
     # False fails; None — a result published before the findings digest existed —
     # does not, because "could not be checked" is not "was checked and failed".
-    return 0 if checked["evidence_intact"] and checked["findings_intact"] is not False else 1
+    return 0 if checked["evidence_intact"] and checked["findings_intact"] is not False and all((repeat or {}).values()) else 1
 
 
 def _cmd_sarif(args: argparse.Namespace) -> int:
@@ -473,6 +484,21 @@ def _cmd_rules(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_install_browser(args: argparse.Namespace) -> int:
+    """Install the Chromium build the engine drives, with the interpreter that runs this command.
+
+    `python -m playwright` would resolve to whichever Python is first on PATH, which is not the one
+    holding this package when it was installed with pipx or `uv tool`; `sys.executable` always is.
+    """
+    import subprocess
+
+    command = [sys.executable, "-m", "playwright", "install"]
+    if args.with_deps:
+        command.append("--with-deps")
+    command.append("chromium")
+    return 0 if subprocess.run(command, check=False).returncode == 0 else 1
+
+
 def _run(func, args: argparse.Namespace) -> int:
     """Run a subcommand, turning a missing browser into an instruction.
 
@@ -494,6 +520,18 @@ def _run(func, args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 4
+
+
+def _repeat_count(value: str) -> int:
+    from .repeat import MAX_REPEAT
+
+    try:
+        n = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{value!r} is not a number") from None
+    if not 1 <= n <= MAX_REPEAT:
+        raise argparse.ArgumentTypeError(f"takes a number from 1 to {MAX_REPEAT}")
+    return n
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -533,6 +571,14 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULTS.max_pages,
         help="pages to observe, entry page included (default: %(default)s). "
         "One page is not a site: a tracker on the contact form is invisible to a single-page scan",
+    )
+    scan_cmd.add_argument(
+        "--repeat",
+        type=_repeat_count,
+        default=1,
+        metavar="N",
+        help="load the page N times (2 to 10) and report how stable each finding is. The grade is the "
+        "worst completed load; each load keeps its own evidence. One page load per second per host still holds",
     )
     scan_cmd.add_argument("--json", help="write the full result, graph included, to this file")
     scan_cmd.add_argument("--md", help="write the readable report to this file")
@@ -674,6 +720,12 @@ def build_parser() -> argparse.ArgumentParser:
     rem_cmd.add_argument("key", nargs="?", help="a rule id, a pattern name, or a vendor id")
     rem_cmd.add_argument("--json", action="store_true", help="machine-readable, for tools and agents")
     rem_cmd.set_defaults(func=_cmd_remediation)
+
+    browser_cmd = sub.add_parser("install-browser", help="install the Chromium build the engine drives")
+    browser_cmd.add_argument(
+        "--with-deps", action="store_true", help="also install the system libraries Chromium needs (Linux, needs root)"
+    )
+    browser_cmd.set_defaults(func=_cmd_install_browser)
 
     rules_cmd = sub.add_parser("rules", help="list the loaded rules")
     rules_cmd.set_defaults(func=_cmd_rules)

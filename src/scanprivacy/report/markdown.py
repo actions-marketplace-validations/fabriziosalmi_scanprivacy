@@ -61,6 +61,21 @@ def render(result: ScanResult, locale: str = DEFAULT_LOCALE, include_graph: bool
         add(f"| {label} | {count} |")
     add("")
 
+    if scan.stability:
+        add(f"## {scan.stability['heading']}")
+        add("")
+        add(scan.stability["intro"])
+        add("")
+        for note in scan.stability["notes"]:
+            add(note)
+            add("")
+        if scan.stability["rows"]:
+            add("| " + " | ".join(scan.stability["head"]) + " |")
+            add("|---|---|---:|")
+            for name, severity, seen in scan.stability["rows"]:
+                add(f"| {name} | {severity} | {seen} |")
+            add("")
+
     if scan.by_owner:
         add(f"## {t.t('report.headings.responsibility')}")
         add("")

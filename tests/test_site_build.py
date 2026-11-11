@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import struct
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
@@ -197,3 +198,62 @@ def test_an_unreadable_example_is_left_out_rather_than_breaking_the_build(tmp_pa
     out = tmp_path / "site"
     site_build.build(out, example)
     assert "specimen" not in (out / "index.html").read_text(encoding="utf-8")
+
+
+# ------------------------------------------------- policy, sharing and discovery
+
+
+def _html_files(out: Path) -> list[Path]:
+    return sorted(out.rglob("*.html"))
+
+
+def test_every_page_carries_a_content_security_policy_and_a_referrer_policy(built):
+    for path in _html_files(built):
+        text = path.read_text(encoding="utf-8")
+        assert 'http-equiv="Content-Security-Policy"' in text, path
+        assert 'name="referrer" content="no-referrer"' in text, path
+
+
+def test_no_page_needs_what_the_policy_forbids(built):
+    """The policy allows only the site's own files, so a page that used an inline style, an
+    inline script or an event handler would silently lose it in the browser."""
+    for path in _html_files(built):
+        text = path.read_text(encoding="utf-8")
+        assert not re.search(r'\sstyle="', text), f"{path}: inline style attribute"
+        assert "<style" not in text, f"{path}: style element"
+        assert not re.search(r"<script(?![^>]*\ssrc=)", text), f"{path}: inline script"
+        assert not re.search(r'\son[a-z]+="', text), f"{path}: event handler attribute"
+    assert "style" not in (built / "assets" / "site.js").read_text(encoding="utf-8").replace("sr-only", "")
+
+
+def test_the_policy_would_catch_an_inline_style(built):
+    """The guard's own guard."""
+    assert re.search(r'\sstyle="', '<td style="text-align: right;">1</td>')
+    assert site_build._no_inline_style('<td style="text-align: right;">1</td>') == '<td class="align-right">1</td>'
+
+
+def test_a_shared_link_has_a_preview_image_of_the_right_size(built):
+    png = (built / "assets" / "og.png").read_bytes()
+    assert png[:8] == b"\x89PNG\r\n\x1a\n"
+    width, height = struct.unpack(">II", png[16:24])
+    assert (width, height) == (1200, 630)
+    assert len(png) < 200_000
+    text = (built / "index.html").read_text(encoding="utf-8")
+    assert 'property="og:image" content="https://scanprivacy.org/assets/og.png"' in text
+    assert 'name="twitter:card" content="summary_large_image"' in text
+
+
+def test_the_sitemap_lists_exactly_the_pages_that_were_built(built):
+    listed = set(re.findall(r"<loc>https://scanprivacy.org/([^<]*)</loc>", (built / "sitemap.xml").read_text(encoding="utf-8")))
+    built_pages = {
+        str(p.relative_to(built)).removesuffix("index.html") for p in _html_files(built) if p.name != "404.html"
+    }
+    assert listed == built_pages
+    assert "Sitemap: https://scanprivacy.org/sitemap.xml" in (built / "robots.txt").read_text(encoding="utf-8")
+
+
+def test_every_page_links_the_shared_privacy_notice(built):
+    """The engine reports a site with no reachable privacy notice as critical; this site is scanned by it."""
+    for path in _html_files(built):
+        page = _parse(path)
+        assert "https://fabriziosalmi.github.io/privacy" in page.hrefs, path

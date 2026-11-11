@@ -59,7 +59,7 @@ def test_a_missing_browser_becomes_an_instruction(message):
         asyncio.run(launch_browser(pw))
 
     text = str(unavailable.value)
-    assert "python -m playwright install chromium" in text, "the remedy must be copy-pasteable"
+    assert "scanprivacy install-browser" in text, "the remedy must be copy-pasteable"
     assert len(text.splitlines()) <= 3, "an instruction nobody reads is not an instruction"
 
 
@@ -134,3 +134,41 @@ def test_every_launch_in_the_package_goes_through_the_helper():
         if "chromium.launch" in path.read_text(encoding="utf-8"):
             offenders.append(str(path))
     assert offenders == [], f"these launch Chromium directly: {offenders}"
+
+
+# --------------------------------------------------------- the command that installs it
+
+
+def test_install_browser_runs_playwright_with_the_interpreter_that_runs_scanprivacy(monkeypatch):
+    """`python` on PATH is not the interpreter holding this package when it was installed with pipx
+    or `uv tool`; the one running this command always is."""
+    import subprocess
+    import sys
+
+    from scanprivacy.cli import main
+
+    calls = []
+    monkeypatch.setattr(subprocess, "run", lambda command, check: calls.append(command) or subprocess.CompletedProcess(command, 0))
+    assert main(["install-browser"]) == 0
+    assert calls == [[sys.executable, "-m", "playwright", "install", "chromium"]]
+
+
+def test_install_browser_can_ask_for_the_system_libraries(monkeypatch):
+    import subprocess
+    import sys
+
+    from scanprivacy.cli import main
+
+    calls = []
+    monkeypatch.setattr(subprocess, "run", lambda command, check: calls.append(command) or subprocess.CompletedProcess(command, 0))
+    main(["install-browser", "--with-deps"])
+    assert calls == [[sys.executable, "-m", "playwright", "install", "--with-deps", "chromium"]]
+
+
+def test_install_browser_fails_when_the_install_fails(monkeypatch):
+    import subprocess
+
+    from scanprivacy.cli import main
+
+    monkeypatch.setattr(subprocess, "run", lambda command, check: subprocess.CompletedProcess(command, 7))
+    assert main(["install-browser"]) == 1, "a CI step that installs the browser must not pass when it did not"

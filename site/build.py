@@ -25,16 +25,27 @@ import markdown
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = "https://github.com/fabriziosalmi/scanprivacy"
 SITE = "https://scanprivacy.org"
+# One privacy notice, shared by every project site published from this account (same publisher,
+# same GitHub Pages hosting, no analytics, no cookies): it lives at the account's own site.
+PRIVACY_NOTICE = "https://fabriziosalmi.github.io/privacy"
 FONTS = ROOT / "src" / "scanprivacy" / "report" / "templates" / "fonts"
 
-DOC_ORDER = ["index", "quickstart", "api", "deploy", "rules", "platforms", "art13-measurement"]
+DOC_ORDER = ["index", "quickstart", "api", "deploy", "rules", "platforms", "art13-measurement", "repeat-measurement"]
 DOC_LABELS = {"index": "Overview", "quickstart": "Quickstart", "api": "HTTP API", "deploy": "Deployment", "rules": "Rules",
               "platforms": "Hosting platforms",
-              "art13-measurement": "Art. 13 measured"}
+              "art13-measurement": "Art. 13 measured", "repeat-measurement": "Repeat measured"}
 SEVERITIES = ["critical", "high", "medium", "low", "info"]
 DESCRIPTION = (
     "scanprivacy loads a page the way a first-time visitor would, records every request, cookie and storage "
     "write, and reports what it saw against GDPR, ePrivacy and the AI Act. Open source, AGPL-3.0."
+)
+
+# A meta policy: GitHub Pages cannot send response headers, so this is the strictest form of the
+# policy the platform allows. Everything the site loads is its own (the page, the stylesheet, the
+# script, the fonts, the preview image); frame-ancestors is ignored in a meta tag and is not listed.
+CSP = (
+    "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; "
+    "connect-src 'self'; base-uri 'none'; form-action 'none'"
 )
 
 HEAD = """<!doctype html>
@@ -43,6 +54,8 @@ HEAD = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="{csp}">
 <title>{title}</title>
 <meta name="description" content="{description}">
 <link rel="canonical" href="{canonical}">
@@ -54,6 +67,12 @@ HEAD = """<!doctype html>
 <meta property="og:title" content="{og_title}">
 <meta property="og:description" content="{description}">
 <meta property="og:url" content="{canonical}">
+<meta property="og:site_name" content="scanprivacy">
+<meta property="og:image" content="{site}/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="scanprivacy: what a website does before the visitor says yes.">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -73,6 +92,7 @@ FOOT = """
 <li><a href="{source}/blob/main/CHANGELOG.md">Changelog</a></li>
 <li><a href="{source}/blob/main/SECURITY.md">Security policy</a></li>
 <li><a href="{source}/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li><a href="{privacy}">Privacy &amp; legal</a></li>
 </ul>
 </div></footer>
 <script src="/assets/site.js" defer></script>
@@ -128,12 +148,17 @@ def _wrap_tables(body: str) -> str:
     )
 
 
+def _no_inline_style(body: str) -> str:
+    """Column alignment from the tables extension as a class: the page's policy forbids inline style."""
+    return re.sub(r' style="text-align: (left|right|center);"', r' class="align-\1"', body)
+
+
 def render_markdown(text: str) -> tuple[str, str, list[dict]]:
     md = markdown.Markdown(
         extensions=["tables", "fenced_code", "toc", "md_in_html"],
         extension_configs={"toc": {"permalink": "#", "permalink_title": "Link to this section", "toc_depth": "2-3"}},
     )
-    body = _wrap_tables(_rewrite_links(md.convert(text)))
+    body = _wrap_tables(_rewrite_links(_no_inline_style(md.convert(text))))
     first = re.search(r"^#\s+(.+)$", text, re.M)
     title = html.unescape(first.group(1)) if first else "scanprivacy"
     return title, body, md.toc_tokens
@@ -184,11 +209,13 @@ def page(
         og_title=html.escape(title),
         description=html.escape(description),
         canonical=f"{SITE}/{path}",
+        site=SITE,
+        csp=CSP,
         nav=_nav(example, current),
     )
     target = out / rel
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(head + body + FOOT.format(version=version, rules=rules, source=SOURCE), encoding="utf-8")
+    target.write_text(head + body + FOOT.format(version=version, rules=rules, source=SOURCE, privacy=PRIVACY_NOTICE), encoding="utf-8")
 
 
 def _docs_shell(nav_items: list[tuple[str, str, bool]], heading: str, content: str, toc_html: str, extra_nav: str = "", wide: bool = False) -> str:
@@ -330,6 +357,17 @@ def build(out: Path, example_dir: Path | None = None) -> list[str]:
                 written.append(f"example/{name}")
 
     (out / ".nojekyll").write_text("", encoding="utf-8")
+    # sitemap: the pages that were actually written, never a list kept by hand
+    urls = sorted(
+        f"{SITE}/{rel.removesuffix('index.html')}" for rel in written if rel.endswith(".html") and rel != "404.html"
+    )
+    (out / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "".join(f"<url><loc>{html.escape(u)}</loc></url>\n" for u in urls)
+        + "</urlset>\n",
+        encoding="utf-8",
+    )
+    written.append("sitemap.xml")
     return written
 
 
