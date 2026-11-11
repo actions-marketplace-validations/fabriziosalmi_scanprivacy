@@ -124,6 +124,14 @@ report:
   verdict_not_conformant: non conforme sui punti osservati
   footer: "scanprivacy · verifica passiva · non costituisce parere legale"
 
+  stability:
+    heading: "Stabilità su {n} caricamenti"
+    intro: "{completed} caricamenti su {requested} completati. Voto di ciascun caricamento: {grades}. Il voto riportato è il peggiore tra i caricamenti completati."
+    all_stable: "Ogni rilievo è comparso in ogni caricamento completato."
+    some_unstable: "{n} rilievi non sono comparsi in ogni caricamento completato. Un rilievo visto solo in alcuni caricamenti è comunque qualcosa che il sito ha fatto in quei caricamenti: è elencato con il numero."
+    incomplete: "{n} caricamenti non si sono completati e non sono contati come assenze."
+    seen: "Visto in"
+    seen_value: "{seen} su {of}"
   headings:
     pages: Pagine osservate
     responsibility: Ripartizione per responsabile
@@ -539,6 +547,7 @@ cli:
   verify_recomputed: "  ricalcolata      : {value}"
   verify_ruleset: "ruleset invariato  : {value}"
   verify_knowledge: "knowledge invariata: {value}"
+  verify_repeat: "caricamenti ripetuti integri: {value}"
   diff_header: "{target}  {before} → {after}  ({days} giorni)"
   diff_resolved: "  risolti     : {n}"
   diff_new: "  nuovi       : {n}"

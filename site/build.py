@@ -30,10 +30,10 @@ SITE = "https://scanprivacy.org"
 PRIVACY_NOTICE = "https://fabriziosalmi.github.io/privacy"
 FONTS = ROOT / "src" / "scanprivacy" / "report" / "templates" / "fonts"
 
-DOC_ORDER = ["index", "quickstart", "api", "deploy", "rules", "platforms", "art13-measurement"]
+DOC_ORDER = ["index", "quickstart", "api", "deploy", "rules", "platforms", "art13-measurement", "repeat-measurement"]
 DOC_LABELS = {"index": "Overview", "quickstart": "Quickstart", "api": "HTTP API", "deploy": "Deployment", "rules": "Rules",
               "platforms": "Hosting platforms",
-              "art13-measurement": "Art. 13 measured"}
+              "art13-measurement": "Art. 13 measured", "repeat-measurement": "Repeat measured"}
 SEVERITIES = ["critical", "high", "medium", "low", "info"]
 DESCRIPTION = (
     "scanprivacy loads a page the way a first-time visitor would, records every request, cookie and storage "

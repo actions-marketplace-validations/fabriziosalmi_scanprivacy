@@ -5,6 +5,7 @@
 - [HTTP API](api.md): endpoints and the limits that protect the host
 - [Deployment](deploy.md): Docker, authentication, running it as a service
 - [Art. 13 detectors, measured](art13-measurement.md): precision and recall on 21 labelled notices, and what is still missed
+- [Repeat mode, measured](repeat-measurement.md): how many findings change between loads of the same page, with the predictions written first
 - [Hosting platforms](platforms.md): which platforms cannot close a header finding, and how that is established
 - The [README](../README.md) is the long form: method, scope, reproducibility, attestation, known limits
 

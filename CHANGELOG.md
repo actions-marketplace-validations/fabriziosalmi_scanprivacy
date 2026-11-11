@@ -4,6 +4,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+- `scanprivacy scan --repeat N` (2 to 10) loads the page N times and reports how many loads showed each finding. The grade reported is that of the worst completed load; a load that did not finish is not counted as an absence; the other loads are kept in full and `scanprivacy verify` checks them. See "Repeating a scan" in the quickstart.
+
 ## [0.1.2]
 
 - `scanprivacy install-browser` installs the Chromium build with the interpreter that runs scanprivacy, so an install with pipx or `uv tool` needs no second tool. The missing-browser message, the quickstart and the report's reproduction steps name it.

@@ -20,6 +20,7 @@ scanprivacy scan https://example.org --pages 5 --pdf report.pdf --json evidence.
 scanprivacy --lang it scan https://example.org --pdf rapporto.pdf   # same engine, Italian report
 scanprivacy verify evidence.json      # recompute every digest: is this the evidence the report describes?
 scanprivacy diff before.json after.json    # resolved / new / persisting, with the age of what is still open
+scanprivacy scan https://example.org --repeat 5   # 5 loads: how many showed each finding, grade of the worst load
 scanprivacy serve --port 8099
 ```
 
@@ -460,10 +461,12 @@ completeness of every locale.
 
 ## Known limits (v0.1)
 
-- Observes a site **once**. Several pages are visited (`--pages`), chosen
+- By default observes a site **once**. Several pages are visited (`--pages`), chosen
   deterministically, but a single visit is a photograph: two consecutive loads
   can differ. `scanprivacy diff` exposes that variance rather than hiding it;
-  a repeat mode that reports what is stable over N loads is tracked in [#22](https://github.com/fabriziosalmi/scanprivacy/issues/22).
+  `scanprivacy scan --repeat N` loads the page N times and reports how many loads showed each
+  finding; on a sample of ten sites it left static sites unchanged and showed 27% of the findings of
+  four news sites in only some loads ([docs/repeat-measurement.md](https://github.com/fabriziosalmi/scanprivacy/blob/main/docs/repeat-measurement.md)).
 - The default pass expresses **no** consent, so what a site does after
   *acceptance* is never verified. `scanprivacy consent-pass` covers refusal only, is
   opt-in, produces its own document, and works solely through the nine
