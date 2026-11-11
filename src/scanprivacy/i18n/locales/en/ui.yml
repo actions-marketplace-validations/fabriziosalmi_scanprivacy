@@ -494,7 +494,7 @@ record:
     change. Its purpose is to tie the report to the attached evidence and to
     reveal later modification.
   rerun:
-    - pip install -e . && python -m playwright install chromium
+    - pip install scanprivacy && scanprivacy install-browser
     - "scanprivacy scan {url} --json evidence.json --md report.md --pdf report.pdf"
     - "scanprivacy verify evidence.json   # recomputes every digest in this section"
     - >

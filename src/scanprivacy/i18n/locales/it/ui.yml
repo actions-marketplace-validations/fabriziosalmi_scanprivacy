@@ -500,7 +500,7 @@ record:
     cambiano. Serve a legare il report all'evidenza allegata e a rilevare
     modifiche successive.
   rerun:
-    - pip install -e . && python -m playwright install chromium
+    - pip install scanprivacy && scanprivacy install-browser
     - "scanprivacy scan {url} --json evidenza.json --md report.md --pdf report.pdf"
     - "scanprivacy verify evidenza.json   # ricalcola tutte le impronte di questa sezione"
     - >

@@ -7,9 +7,8 @@ the command line or as an HTTP API.
 ![What scanprivacy does: a URL goes in, one visit as a first-time visitor, checked against GDPR, ePrivacy and the AI Act, reported as a grade with evidence and fixes.](https://raw.githubusercontent.com/fabriziosalmi/scanprivacy/main/docs/img/overview.svg)
 
 ```bash
-git clone https://github.com/fabriziosalmi/scanprivacy && cd scanprivacy
-pip install -e .
-python -m playwright install chromium   # the package brings the driver, not the browser
+pipx install scanprivacy        # or: uv tool install scanprivacy, or pip install scanprivacy
+scanprivacy install-browser      # the package brings the driver, not the browser
 ```
 
 The second line is not optional and is the one people miss. Without it the
