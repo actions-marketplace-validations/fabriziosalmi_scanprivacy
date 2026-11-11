@@ -4,6 +4,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.1.2]
+
+- `scanprivacy install-browser` installs the Chromium build with the interpreter that runs scanprivacy, so an install with pipx or `uv tool` needs no second tool. The missing-browser message, the quickstart and the report's reproduction steps name it.
+- The README and the quickstart start from `pipx install scanprivacy`; the PyPI page of 0.1.1 still shows the steps from a clone.
+
 ## [0.1.1]
 
 First release published on PyPI.
