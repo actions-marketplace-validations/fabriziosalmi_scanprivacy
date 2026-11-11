@@ -57,6 +57,7 @@ a { color: var(--accent); text-underline-offset: 0.2em; text-decoration-thicknes
 a:hover { text-decoration-thickness: 0.14em; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
 
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .skip { position: absolute; left: var(--gutter); top: -4rem; background: var(--ink); color: var(--paper); padding: 0.6rem 1rem; z-index: 10; border-radius: 3px; }
 .skip:focus { top: 0.75rem; }
 
@@ -171,6 +172,7 @@ table { border-collapse: collapse; width: 100%; min-width: 32rem; font-size: 0.9
 th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--rule); }
 th { font-weight: 600; color: var(--ink); background: var(--wash); font-size: 0.8125rem; white-space: nowrap; }
 tbody tr:last-child td { border-bottom: 0; }
+.align-right { text-align: right; } .align-center { text-align: center; }
 td code { white-space: nowrap; }
 .prose td:first-child { white-space: nowrap; }
 @media (max-width: 40rem) {

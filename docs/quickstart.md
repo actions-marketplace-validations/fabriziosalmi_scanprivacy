@@ -3,6 +3,7 @@
 Requires Python 3.11 or newer.
 
 ```bash
+git clone https://github.com/fabriziosalmi/scanprivacy && cd scanprivacy
 pip install -e .
 python -m playwright install chromium    # the package brings the driver, not the browser
 scanprivacy scan https://example.org --pages 5 --pdf report.pdf --json evidence.json
