@@ -51,6 +51,6 @@ def test_every_text_is_readable_on_what_it_sits_on_in_both_schemes():
 
 def test_the_readme_shows_it_with_a_description():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    match = re.search(r"!\[([^\]]+)\]\(docs/img/overview\.svg\)", readme)
+    match = re.search(r"!\[([^\]]+)\]\(https://raw.githubusercontent.com/fabriziosalmi/scanprivacy/main/docs/img/overview\.svg\)", readme)
     assert match and len(match.group(1)) > 40, "the image needs alt text that says what it shows"
     assert readme.index("overview.svg") < readme.index("```bash"), "it sits above the install steps"
