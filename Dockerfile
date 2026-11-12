@@ -5,7 +5,7 @@
 # serving strangers in the operator's name.
 # Pinned by digest: a tag moves, and this image runs a browser against other
 # people's sites. Dependabot proposes the next digest.
-FROM python:3.12-slim-bookworm@sha256:e697c81897302a4c4333bade000d98038fbb21eb064f8ee1fd42d02ebcd9d337
+FROM python:3.12-slim-bookworm@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df
 
 # Which commit this image was built from, so a running instance can be tied to
 # source (AGPL section 13 asks for exactly that). Passed by the build:
